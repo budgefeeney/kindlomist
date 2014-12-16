@@ -7,11 +7,89 @@
   <version>1.0-SNAPSHOT</version>
   <name>kindlomist</name>
   <url>http://maven.apache.org</url>
+  
+  <scm>
+    <connection>scm:git:git@github.com:budgefeeney/kindlomist.git</connection>
+    <developerConnection>scm:git:git@github.com:budgefeeney/kindlomist.git</developerConnection>
+    <url>https://github.com/budgefeeney/kindlomist</url>
+  </scm>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	<maven.compiler.source>1.8</maven.compiler.source>
+  	<maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+  
+  <developers>
+    <developer>
+      <id>budgefeeney</id>
+      <name>Bryan Feeney</name>
+      <email>bryan.feeney@gmail.com</email>
+    </developer>
+  </developers>
+  
+  <build>
+  <plugins>
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <configuration>
+        <archive>
+          <manifest>
+            <mainClass>org.feenaboccles.kindlomist.run.Main</mainClass>
+          </manifest>
+        </archive>
+        <descriptorRefs>
+          <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>
+      </configuration>
+    </plugin>
+  </plugins>
+  </build>
+  
+  
   <dependencies>
+  	
+  	<dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.3.6</version>
+    </dependency>
+    
+    <dependency>
+	  <groupId>args4j</groupId>
+	  <artifactId>args4j</artifactId>
+	  <version>2.0.29</version>
+    </dependency>
+    
+    <dependency>
+	  <groupId>org.apache.logging.log4j</groupId>
+	  <artifactId>log4j-core</artifactId>
+	  <version>2.1</version>
+    </dependency>
+
+	<dependency>
+	  <groupId>org.jsoup</groupId>
+	  <artifactId>jsoup</artifactId>
+	  <version>1.8.1</version>
+	</dependency>
+	
+	<dependency>
+	  <groupId>org.projectlombok</groupId>
+	  <artifactId>lombok</artifactId>
+	  <version>1.14.8</version>
+    </dependency>
+
+  	<dependency>
+	  <groupId>org.apache.commons</groupId>
+	  <artifactId>commons-lang3</artifactId>
+	  <version>3.3.2</version>
+	</dependency>
+
+  
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
