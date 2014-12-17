@@ -31,6 +31,10 @@ import org.jsoup.select.Elements;
  * <li>POSTing that form to the appropriate URL, including the hidden fields
  *     in the form
  * <li>Verifying that the returned response indicates a successful login.
+ * </ul>
+ * 
+ * This will just thrown a {@link HttpActionException} if the login fails, otherwise
+ * it'll return the empty string.
  * @author bryanfeeney
  *
  */
