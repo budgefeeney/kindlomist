@@ -4,10 +4,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
+import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import lombok.Value;
 import lombok.experimental.Builder;
@@ -23,11 +26,11 @@ import org.hibernate.validator.constraints.Length;
 public class PlainArticle 
 {
 	
-	private static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
+	static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 
-	private static final int MAX_IMAGES_PER_ARTICLE = 10;
+	public static final int MAX_IMAGES_PER_ARTICLE = 10;
 
-	private final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d ]+";
+	final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,\\-—\\.'“”()\\[\\]]+";
 	
 	@NotNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String title;
@@ -35,10 +38,10 @@ public class PlainArticle
 	@NotNull @Length(min=4, max=160) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String strap;
 	
-	@NotNull @Length(min=100) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
+	@NotNull @Length(min=100, max=50000) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String body;
 	
-	@NotNull @Length(min=0, max=MAX_IMAGES_PER_ARTICLE) 
+	@NotNull @Size(min=0, max=MAX_IMAGES_PER_ARTICLE) 
 	List<URI> images;
 	
 	
@@ -47,14 +50,18 @@ public class PlainArticle
 	 * @see Validator#validate(Object, String)
 	 * @throws IllegalArgumentException
 	 */
-	public PlainArticle validate() throws IllegalArgumentException
-	{	Validator.INSTANCE.validate(this, "person");
+	public PlainArticle validate() throws ValidationException
+	{	Validator.INSTANCE.validate(this, "article");
 		
 		int uid = -1; for (URI u : images) {
 			++uid;
 			if (! u.getHost().equals(ECONOMIST_IMAGE_CDN))
-				throw new IllegalArgumentException("Invalid person: \n\tThe " + uid + "-th URL of " + images.size() + " accesses an unexpected host " + u.toString());
+				throw new ValidationException("Invalid article: \n\tThe " + uid + "-th URL of " + images.size() + " accesses an unexpected host " + u.toString());
 		}
+		
+		if (new HashSet<URI>(images).size() != images.size())
+			throw new ValidationException("Duplicate images in this article");
+			
 		
 		return this;
 	}
