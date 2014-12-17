@@ -39,7 +39,7 @@ public class PlainArticle
 	String body;
 	
 	@NotNull @Length(min=0, max=MAX_IMAGES_PER_ARTICLE) 
-	List<URI> images = new ArrayList<URI>(MAX_IMAGES_PER_ARTICLE);
+	List<URI> images;
 	
 	
 	/** 
