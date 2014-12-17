@@ -6,6 +6,8 @@ package org.feenaboccles.kindlomist.download;
  */
 public class HttpActionException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+
 	public HttpActionException() {
 		// TODO Auto-generated constructor stub
 	}

@@ -25,7 +25,7 @@ import org.apache.http.util.EntityUtils;
 public abstract class HttpAction implements Callable<String>
 {
 	private static final int HTTP_200_OK = 200;
-	private static final int HTTP_302_LOCATION = 302;
+
 	public static enum Method {
 		GET, POST
 	}
