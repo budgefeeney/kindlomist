@@ -21,5 +21,10 @@ public class Text implements Content {
 		Validator.INSTANCE.validate(this, "text content");
 		return this;
 	}
+	
+	@Override
+	public Type getType() {
+		return Type.TEXT;
+	}
 
 }

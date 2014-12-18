@@ -21,5 +21,10 @@ public class SubHeading implements Content {
 		Validator.INSTANCE.validate(this, "sub-heading");
 		return this;
 	}
+	
+	@Override
+	public Type getType() {
+		return Type.SUB_HEADING;
+	}
 
 }

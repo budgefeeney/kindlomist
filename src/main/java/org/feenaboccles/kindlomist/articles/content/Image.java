@@ -5,12 +5,12 @@ import java.net.URISyntaxException;
 
 import javax.validation.ValidationException;
 
+import lombok.NonNull;
+import lombok.Value;
+
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.valid.Validator;
 import org.hibernate.validator.constraints.Length;
-
-import lombok.NonNull;
-import lombok.Value;
 
 @Value
 public final class Image implements Content {
@@ -31,6 +31,11 @@ public final class Image implements Content {
 		}
 		
 		return this;
+	}
+	
+	@Override
+	public Type getType() {
+		return Type.IMAGE;
 	}
 
 }

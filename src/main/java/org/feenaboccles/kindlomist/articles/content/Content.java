@@ -10,6 +10,12 @@ import javax.validation.ValidationException;
  */
 public interface Content {
 
+	enum Type {
+		TEXT,
+		SUB_HEADING,
+		IMAGE
+	}
+	
 	/**
 	 * Gets the text value of the content encapsulated by this object
 	 */
@@ -20,4 +26,10 @@ public interface Content {
 	 * if not.
 	 */
 	public Content validate() throws ValidationException;
+	
+	/**
+	 * Returns the type of this content - same as an instanceof check really, but
+	 * it's a bit cleaner to code up
+	 */
+	public Type getType();
 }

@@ -20,9 +20,6 @@ import org.feenaboccles.kindlomist.articles.content.Image;
 import org.feenaboccles.kindlomist.valid.Validator;
 import org.hibernate.validator.constraints.Length;
 
-import cz.jirutka.validator.collection.constraints.EachLength;
-import cz.jirutka.validator.collection.constraints.EachPattern;
-
 /**
  * A plain Economist article.
  */
@@ -33,7 +30,7 @@ public class PlainArticle
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
-	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,\\-—\\.'“”()\\[\\]]+";
+	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\-\\-—\\.'“”()\\[\\]’\\.%…]+";
 	
 	@NotNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String title;
