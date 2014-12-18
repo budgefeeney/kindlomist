@@ -16,7 +16,7 @@ public class PrintedEditionParserTest {
 
 	@Test
 	public void testValidHtml() throws HtmlParseException, IOException {
-		String html = PlainArticleParserTest.loadFromClassPath("printed-index.html");
+		String html = Util.loadFromClassPath("printed-index.html");
 		
 		PrintEdition p = new PrintedEditionParser().parse(html);
 		

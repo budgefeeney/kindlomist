@@ -4,13 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.logging.log4j.core.util.Charsets;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
 import org.feenaboccles.kindlomist.articles.content.Image;
@@ -20,30 +17,11 @@ import org.junit.Test;
 
 public class PlainArticleParserTest {
 
-	/**
-	 * Reads a UTF-8 encoded text file from the given location, specified as a 
-	 * classpath resource (e.g. org/feenaboccles/...)
-	 * <p>
-	 * Typically used with test resources in the test resources folder (which is
-	 * on the root).
-	 */
-	public static String loadFromClassPath (String classPathUrl) throws IOException {
-		ClassLoader ldr = PlainArticleParserTest.class.getClassLoader();
-		StringBuilder result = new StringBuilder();
-		char[] buf = new char[4096];
-		int amt;
-		
-		try (BufferedReader rdr = new BufferedReader (new InputStreamReader(ldr.getResourceAsStream(classPathUrl), Charsets.UTF_8))) {
-			while ((amt = rdr.read(buf)) >= 0)
-				result.append(buf, 0, amt);
-		}
-		
-		return result.toString();
-	}
+	
 	
 	@Test
 	public void testOnGoodInput() throws IOException, HtmlParseException, URISyntaxException {
-		String articleText = loadFromClassPath("article.html");
+		String articleText = Util.loadFromClassPath("article.html");
 		
 		PlainArticle a = new PlainArticleParser().parse(articleText);
 		
@@ -88,7 +66,7 @@ public class PlainArticleParserTest {
 
 	@Test
 	public void testOnGoodInputWithNoImages() throws IOException, HtmlParseException, URISyntaxException {
-		String articleText = loadFromClassPath("article.html");
+		String articleText = Util.loadFromClassPath("article.html");
 		articleText = articleText.replaceAll("(</?)img", "$1bfg");
 		
 		PlainArticle a = new PlainArticleParser().parse(articleText);
@@ -134,7 +112,7 @@ public class PlainArticleParserTest {
 	@Test
 	@SuppressWarnings("unused")
 	public void testOnBrokenInput() throws IOException, HtmlParseException, URISyntaxException {
-		String articleText = loadFromClassPath("article.html");
+		String articleText = Util.loadFromClassPath("article.html");
 		articleText = articleText.replaceAll("(</?)div", "$1Spud");
 		
 		try {
@@ -145,4 +123,5 @@ public class PlainArticleParserTest {
 		// any other exception should be an error here.
 		
 	}
+	
 }

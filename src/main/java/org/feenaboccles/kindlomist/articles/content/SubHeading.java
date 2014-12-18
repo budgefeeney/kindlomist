@@ -13,7 +13,7 @@ import org.hibernate.validator.constraints.Length;
 @Value
 public class SubHeading implements Content {
 
-	@NonNull @Length(min=10, max=200) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
+	@NonNull @Length(min=3, max=200) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
 	String content;
 
 	@Override

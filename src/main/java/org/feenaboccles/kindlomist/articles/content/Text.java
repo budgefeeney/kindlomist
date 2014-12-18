@@ -18,7 +18,15 @@ public class Text implements Content {
 
 	@Override
 	public Content validate() throws ValidationException {
-		Validator.INSTANCE.validate(this, "text content");
+		try {
+			Validator.INSTANCE.validate(this, "text content");
+		}
+		catch (ValidationException e) {
+			for (int i = 0; i < content.length(); i++)
+				System.out.println (content.charAt(i) + "  \\u" + Integer.toHexString(content.codePointAt(i)));
+			
+			throw e;
+		}
 		return this;
 	}
 	
