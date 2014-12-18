@@ -1,4 +1,4 @@
-package org.feenaboccles.kindlomist.download.economist;
+package org.feenaboccles.kindlomist.download;
 
 import java.io.IOException;
 import java.net.URI;
@@ -13,8 +13,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.message.BasicNameValuePair;
-import org.feenaboccles.kindlomist.download.HttpAction;
-import org.feenaboccles.kindlomist.download.HttpActionException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

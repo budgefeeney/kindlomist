@@ -13,24 +13,31 @@ import java.util.List;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.feenaboccles.kindlomist.articles.content.Content;
+import org.feenaboccles.kindlomist.articles.content.Image;
+import org.feenaboccles.kindlomist.articles.content.SubHeading;
+import org.feenaboccles.kindlomist.articles.content.Text;
 import org.junit.Test;
 
 public class PlainArticleTest {
 	
 	private final static String SAMPLE_TITLE = "My first article";
+	private final static String SAMPLE_TOPIC = "Stuff";
 	private final static String SAMPLE_STRAP = "This is a quick article about somethign small";
-	private final static String SAMPLE_BODY  = "WHEN the first mobile phone call was made in 1973, few members of the public were interested in the new technology. Telecoms companies had to invent reasons to use them—for instance, that they could be used to call a friend to pass the time when stuck in a car during a traffic jam—in order to get sceptical consumers to adopt them. But now, most people in rich countries could not imagine life without one: there are now more active mobile-phone connections in America and Europe than people.\n\nThe rising importance of mobiles—not simply to make calls but to access the internet as well—partly explains why BT, a fixed-line telecoms firm, decided to make a £12.5 billion ($19.6 billion) bid for EE, Britain's biggest mobile operator, on December 15th. BT also hopes that the merger will allow the firm to profitably offer what is know as “quad-play” (a bundle of fixed and mobile phone calls, internet access and television), which will also help keep customers from switching away from its other products.";
-	
-	private final static List<URI> URLS;
+	private final static List<Content> SAMPLE_BODY  = Arrays.<Content>asList(new Content[] {
+			new Text ("WHEN the first mobile phone call was made in 1973, few members of the public were interested in the new technology. Telecoms companies had to invent reasons to use them—for instance, that they could be used to call a friend to pass the time when stuck in a car during a traffic jam—in order to get sceptical consumers to adopt them. But now, most people in rich countries could not imagine life without one: there are now more active mobile-phone connections in America and Europe than people."),
+			new SubHeading("Rising Importance"),
+			new Image("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png"),
+			new Text ("The rising importance of mobiles—not simply to make calls but to access the internet as well—partly explains why BT, a fixed-line telecoms firm, decided to make a £12.5 billion ($19.6 billion) bid for EE, Britain's biggest mobile operator, on December 15th. BT also hopes that the merger will allow the firm to profitably offer what is know as “quad-play” (a bundle of fixed and mobile phone calls, internet access and television), which will also help keep customers from switching away from its other products."),
+	});
+	private final static URI MAIN_IMAGE;
 	static {
 		try {
-			URLS = PlainArticle.toUriList(Arrays.<String>asList(new String[] {
-				"http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/2014/12/articles/main/20141220_fnp503.jpg",
-				"http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png"}));
+			MAIN_IMAGE = new URI ("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png");
 		}
 		catch (URISyntaxException ue)
 		{	ue.printStackTrace();
-			throw new IllegalStateException ("The same URLs for the test are not valid URLs: " + ue.getMessage());
+			throw new IllegalStateException ("The main image URI for the test is  not a valid URI: " + ue.getMessage());
 		}
 	}
 		
@@ -39,9 +46,10 @@ public class PlainArticleTest {
 	public void testValidNoUrlBuilder() throws ValidationException {
 		PlainArticle a = PlainArticle.builder()
 						.title(SAMPLE_TITLE)
+						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
 						.body(SAMPLE_BODY)
-						.images(Collections.emptyList())
+						.mainImage(null)
 						.build().validate();
 		
 		assertEquals (SAMPLE_TITLE, a.getTitle());
@@ -53,9 +61,10 @@ public class PlainArticleTest {
 	public void testValidWithUrlBuilder() throws ValidationException {
 		PlainArticle a = PlainArticle.builder()
 						.title(SAMPLE_TITLE)
+						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
 						.body(SAMPLE_BODY)
-						.images(URLS)
+						.mainImage(MAIN_IMAGE)
 						.build().validate();
 		
 		assertEquals (SAMPLE_TITLE, a.getTitle());
@@ -67,7 +76,7 @@ public class PlainArticleTest {
 	@Test
 	@SuppressWarnings("unused")
 	public void testInvalidTitle() throws ValidationException {
-		String[] inputs = new String[] { null, "", " ", "ssd", "😉😗😛😌😢😥😩😠😆", SAMPLE_BODY };
+		String[] inputs = new String[] { null, "", " ", "ssd", "😉😗😛😌😢😥😩😠😆", StringUtils.join(SAMPLE_BODY, '\n') };
 		String[] issues = new String[] {"null", "empty", "too short", "too short", "invalid characters", "too long" };
 		
 		assertEquals (inputs.length, issues.length);
@@ -76,9 +85,10 @@ public class PlainArticleTest {
 			try {
 				PlainArticle a = PlainArticle.builder()
 							.title(inputs[i])
+							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(SAMPLE_BODY)
-							.images(URLS)
+							.mainImage(MAIN_IMAGE)
 							.build().validate();
 				fail ("Failed to invalidate a title which was " + issues[i]);
 			}
@@ -88,8 +98,8 @@ public class PlainArticleTest {
 	
 	@Test
 	@SuppressWarnings("unused")
-	public void testInvalidStrap() throws ValidationException {
-		String[] inputs = new String[] { null,   "",     " ",         "ssd",       "😉😗😛😌😢😥😩😠😆",  SAMPLE_BODY };
+	public void testInvalidTopic() throws ValidationException {
+		String[] inputs = new String[] { null, "", " ", "ss", "😉😗😛😌😢😥😩😠😆", StringUtils.join(SAMPLE_BODY, '\n') };
 		String[] issues = new String[] {"null", "empty", "too short", "too short", "invalid characters", "too long" };
 		
 		assertEquals (inputs.length, issues.length);
@@ -98,9 +108,42 @@ public class PlainArticleTest {
 			try {
 				PlainArticle a = PlainArticle.builder()
 							.title(SAMPLE_TITLE)
+							.topic(inputs[i])
+							.strap(SAMPLE_STRAP)
+							.body(SAMPLE_BODY)
+							.mainImage(MAIN_IMAGE)
+							.build().validate();
+				fail ("Failed to invalidate a title which was " + issues[i]);
+			}
+			catch (ValidationException e) { ; }
+		}
+		
+		// verify the small topic is okay
+		PlainArticle a = PlainArticle.builder()
+				.title(SAMPLE_TITLE)
+				.topic("Fed")
+				.strap(SAMPLE_STRAP)
+				.body(SAMPLE_BODY)
+				.mainImage(MAIN_IMAGE)
+				.build().validate(); // will throw an exception if not
+	}	
+	
+	@Test
+	@SuppressWarnings("unused")
+	public void testInvalidStrap() throws ValidationException {
+		String[] inputs = new String[] { null,   "",     " ",         "ssd",       "😉😗😛😌😢😥😩😠😆",  StringUtils.join(SAMPLE_BODY, '\n') };
+		String[] issues = new String[] {"null", "empty", "too short", "too short", "invalid characters", "too long" };
+		
+		assertEquals (inputs.length, issues.length);
+		
+		for (int i = 0; i < inputs.length; i++) {
+			try {
+				PlainArticle a = PlainArticle.builder()
+							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
 							.strap(inputs[i])
 							.body(SAMPLE_BODY)
-							.images(URLS)
+							.mainImage(MAIN_IMAGE)
 							.build().validate();
 				fail ("Failed to invalidate a strap which was " + issues[i]);
 			}
@@ -111,7 +154,64 @@ public class PlainArticleTest {
 
 	@Test
 	@SuppressWarnings("unused")
-	public void testInvalidBody() throws ValidationException {
+	public void testEmptyBody() throws ValidationException {
+		
+		try {
+			PlainArticle a = PlainArticle.builder()
+						.title(SAMPLE_TITLE)
+						.topic(SAMPLE_TOPIC)
+						.strap(SAMPLE_STRAP)
+						.body(Collections.emptyList())
+						.mainImage(MAIN_IMAGE)
+						.build().validate();
+			fail ("Failed to invalidate a body which had no content");
+		}
+		catch (ValidationException e) { ; }
+		
+		try {
+			PlainArticle a = PlainArticle.builder()
+						.title(SAMPLE_TITLE)
+						.topic(SAMPLE_TOPIC)
+						.strap(SAMPLE_STRAP)
+						.body(null)
+						.mainImage(MAIN_IMAGE)
+						.build().validate();
+			fail ("Failed to invalidate a body which had null instead of a list");
+		}
+		catch (ValidationException e) { ; }
+	}
+	
+	
+	@Test
+	@SuppressWarnings("unused")
+	public void testInvalidMainImage () throws ValidationException, URISyntaxException {
+		try {
+			PlainArticle a = PlainArticle.builder()
+							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
+							.strap(SAMPLE_STRAP)
+							.body(SAMPLE_BODY)
+							.mainImage(new URI ("http://www.google.com"))
+							.build().validate();
+			
+			fail ("Failed to detect an image URL exiting the Economist's domain");
+		}
+		catch (ValidationException e) { ; }
+		
+		// Verify that no main image is okay
+		PlainArticle a = PlainArticle.builder()
+							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
+							.strap(SAMPLE_STRAP)
+							.body(SAMPLE_BODY)
+							.mainImage(null)
+							.build().validate();
+			
+	}
+	
+	@Test
+	@SuppressWarnings("unused")
+	public void testInvalidBodyText() throws ValidationException {
 		String[] inputs = new String[] { null,   "",     " ",         "ssd",       SAMPLE_STRAP, "😉😗😛😌😢😥😩😠😆",  StringUtils.repeat("01234567890", 5000) };
 		String[] issues = new String[] {"null", "empty", "too short", "too short", "too short",  "invalid characters", "too long" };
 		
@@ -121,72 +221,106 @@ public class PlainArticleTest {
 			try {
 				PlainArticle a = PlainArticle.builder()
 							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
-							.body(inputs[i])
-							.images(URLS)
+							.body(Arrays.asList(new Content[] { new Text(inputs[i]) } ))
+							.mainImage(MAIN_IMAGE)
 							.build().validate();
-				fail ("Failed to invalidate a body which was " + issues[i]);
+				fail ("Failed to invalidate a body paragraph which was " + issues[i]);
 			}
-			catch (ValidationException e) { ; }
+			catch (ValidationException e)  { ; }
+			catch (NullPointerException e) { ; }
 		}
 	}
 	
 	@Test
 	@SuppressWarnings("unused")
-	public void testInvalidUris() throws ValidationException, URISyntaxException {
-		try {
-			PlainArticle a = PlainArticle.builder()
+	public void testInvalidBodySubHeading() throws ValidationException {
+		String[] inputs = new String[] { null,   "",     " ",         "ssd",       "😉😗😛😌😢😥😩😠😆",  StringUtils.repeat("01234567890", 20) };
+		String[] issues = new String[] {"null", "empty", "too short", "too short", "invalid characters", "too long" };
+		
+		assertEquals (inputs.length, issues.length);
+		
+		for (int i = 0; i < inputs.length; i++) {
+			try {
+				PlainArticle a = PlainArticle.builder()
 							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
-							.body(SAMPLE_BODY)
-							.images(PlainArticle.toUriList(Arrays.<String>asList(new String[] {
-								"http://www.google.com"
-							})))
+							.body(Arrays.asList(new Content[] { new SubHeading(inputs[i]) } ))
+							.mainImage(MAIN_IMAGE)
 							.build().validate();
-			
-			fail ("Failed to detect an image URL exiting the Economist's domain");
+				fail ("Failed to invalidate a body paragraph which was " + issues[i]);
+			}
+			catch (ValidationException e)  { ; }
+			catch (NullPointerException e) { ; }
 		}
-		catch (ValidationException e) { ; }
 		
-		try {
-			PlainArticle a = PlainArticle.builder()
+		// Verify shortish headings are still okay
+		PlainArticle a = PlainArticle.builder()
+				.title(SAMPLE_TITLE)
+				.topic(SAMPLE_TOPIC)
+				.strap(SAMPLE_STRAP)
+				.body(Arrays.asList(new Content[] { new SubHeading("Whither Osborne") } ))
+				.mainImage(MAIN_IMAGE)
+				.build().validate(); // will throw an exception if not
+	}
+
+	
+	@Test
+	@SuppressWarnings("unused")
+	public void testInvalidImageContent() throws ValidationException {
+		String[] inputs = new String[] { null,   "",     " ",      "ssd",            "http://www.google.com" };
+		String[] issues = new String[] {"null", "empty", "blank", "not a valid URL", "external URL",   };
+		
+		assertEquals (inputs.length, issues.length);
+		
+		for (int i = 0; i < inputs.length; i++) {
+			try {
+				PlainArticle a = PlainArticle.builder()
 							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
-							.body(SAMPLE_BODY)
-							.images(null)
+							.body(Arrays.asList(new Content[] { new Image(inputs[i]) } ))
+							.mainImage(MAIN_IMAGE)
 							.build().validate();
-			
-			fail ("Failed to detect an a null images list");
+				fail ("Failed to invalidate a body image which was " + issues[i]);
+			}
+			catch (ValidationException e)  { ; }
+			catch (NullPointerException e) { ; }
 		}
-		catch (ValidationException e) { ; }
 		
-		List<URI> dupes = new ArrayList<URI>(URLS.size() * 2);
-		dupes.addAll(URLS);
-		dupes.addAll(URLS);
+		
+		List<Content> dupes = new ArrayList<Content>(2);
+		dupes.add(new Image(MAIN_IMAGE.toASCIIString()));
+		dupes.add(new Image(MAIN_IMAGE.toASCIIString()));
+		dupes.add(new Text("Lorem ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet"));
 		
 		try {
 			PlainArticle a = PlainArticle.builder()
 							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
-							.body(SAMPLE_BODY)
-							.images(dupes)
+							.body(dupes)
+							.mainImage(MAIN_IMAGE)
 							.build().validate();
 			
-			fail ("Failed to detect duplicated image URLs");
+			fail ("Failed to detect duplicated image URLs in body");
 		}
 		catch (ValidationException e) { ; }
 		
 		int tooMany = PlainArticle.MAX_IMAGES_PER_ARTICLE + 1;
-		ArrayList<URI> tooManyImages = new ArrayList<URI>(tooMany);
+		ArrayList<Content> tooManyImages = new ArrayList<Content>(tooMany);
 		for (int i = 0; i < tooMany; i++)
-			tooManyImages.add (new URI("http://cdn.static-economist.com/images/" + i + ".png"));
+			tooManyImages.add (new Image("http://cdn.static-economist.com/images/" + i + ".png"));
 		
 		try {
 			PlainArticle a = PlainArticle.builder()
 							.title(SAMPLE_TITLE)
+							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
-							.body(SAMPLE_BODY)
-							.images(tooManyImages)
+							.body(tooManyImages)
+							.mainImage(MAIN_IMAGE)
 							.build().validate();
 			
 			fail ("Failed to detect too many image URLs");

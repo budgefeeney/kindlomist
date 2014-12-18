@@ -15,8 +15,13 @@ import javax.validation.constraints.Size;
 import lombok.Value;
 import lombok.experimental.Builder;
 
+import org.feenaboccles.kindlomist.articles.content.Content;
+import org.feenaboccles.kindlomist.articles.content.Image;
 import org.feenaboccles.kindlomist.valid.Validator;
 import org.hibernate.validator.constraints.Length;
+
+import cz.jirutka.validator.collection.constraints.EachLength;
+import cz.jirutka.validator.collection.constraints.EachPattern;
 
 /**
  * A plain Economist article.
@@ -26,23 +31,23 @@ import org.hibernate.validator.constraints.Length;
 public class PlainArticle 
 {
 	
-	static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
-
+	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
-
-	final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,\\-—\\.'“”()\\[\\]]+";
+	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,\\-—\\.'“”()\\[\\]]+";
 	
 	@NotNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String title;
 	
+	@NotNull @Length(min=3, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
+	String topic;
+	
 	@NotNull @Length(min=4, max=160) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String strap;
 	
-	@NotNull @Length(min=100, max=50000) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
-	String body;
+	@NotNull @Size(min=1, max=100)
+	List<Content> body;
 	
-	@NotNull @Size(min=0, max=MAX_IMAGES_PER_ARTICLE) 
-	List<URI> images;
+	URI mainImage;
 	
 	
 	/** 
@@ -53,15 +58,20 @@ public class PlainArticle
 	public PlainArticle validate() throws ValidationException
 	{	Validator.INSTANCE.validate(this, "article");
 		
-		int uid = -1; for (URI u : images) {
-			++uid;
-			if (! u.getHost().equals(ECONOMIST_IMAGE_CDN))
-				throw new ValidationException("Invalid article: \n\tThe " + uid + "-th URL of " + images.size() + " accesses an unexpected host " + u.toString());
-		}
+		if (mainImage != null && ! mainImage.getHost().equals(ECONOMIST_IMAGE_CDN))
+			throw new ValidationException("Invalid article: \n\tThe main image URL - " + mainImage + " - accesses an unexpected host.");
 		
-		if (new HashSet<URI>(images).size() != images.size())
-			throw new ValidationException("Duplicate images in this article");
-			
+		if (new HashSet<>(body).size() != body.size())
+			throw new ValidationException("Duplicate images or paragraphs in this article");
+		
+		int imageCount = 0;
+		for (Content content : body) {
+			content.validate();
+			if (content instanceof Image)
+				imageCount++;
+		}
+		if (imageCount > MAX_IMAGES_PER_ARTICLE)
+			throw new ValidationException("The number of images in this article (" + imageCount + ") exceeds the maximum allowed " + MAX_IMAGES_PER_ARTICLE);
 		
 		return this;
 	}
