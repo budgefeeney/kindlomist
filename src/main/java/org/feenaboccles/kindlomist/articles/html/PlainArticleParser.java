@@ -80,6 +80,9 @@ public class PlainArticleParser  {
 		catch (URISyntaxException e)
 		{	throw new HtmlParseException("The URI extracted for an image in the article is not a valid URI : " + e.getMessage());
 		}
+		catch (NullPointerException e)
+		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
+		}
 		
 	}
 }
