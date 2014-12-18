@@ -17,6 +17,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+/**
+ * Takes a HTML page representing a standard Economist article, and parses
+ * it into a {@link PlainArticle} object via the {@link #parse(String)} method.
+ * <p>
+ * Threadsafe.
+ */
 public class PlainArticleParser  {
 
 	private static final String MAIN_IMAGE_DIV_CLASS = "content-image-full";

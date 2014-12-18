@@ -30,16 +30,8 @@ public class PlainArticleTest {
 			new Image("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png"),
 			new Text ("The rising importance of mobiles—not simply to make calls but to access the internet as well—partly explains why BT, a fixed-line telecoms firm, decided to make a £12.5 billion ($19.6 billion) bid for EE, Britain's biggest mobile operator, on December 15th. BT also hopes that the merger will allow the firm to profitably offer what is know as “quad-play” (a bundle of fixed and mobile phone calls, internet access and television), which will also help keep customers from switching away from its other products."),
 	});
-	private final static URI MAIN_IMAGE;
-	static {
-		try {
-			MAIN_IMAGE = new URI ("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png");
-		}
-		catch (URISyntaxException ue)
-		{	ue.printStackTrace();
-			throw new IllegalStateException ("The main image URI for the test is  not a valid URI: " + ue.getMessage());
-		}
-	}
+	private final static URI MAIN_IMAGE =  URI.create("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png");
+
 		
 	
 	@Test
