@@ -130,6 +130,7 @@ public class PlainArticleParserTest {
 	}
 	
 	@Test
+	@SuppressWarnings("unused")
 	public void testOnBrokenInput() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = loadFromClassPath("article.html");
 		articleText = articleText.replaceAll("(</?)div", "$1Spud");
