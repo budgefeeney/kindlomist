@@ -26,7 +26,6 @@ public class PlainArticleParser extends AbstractArticleParser  {
 
 	public PlainArticle parse(String html) throws HtmlParseException {
 		
-		
 		try {
 			Document doc = Jsoup.parse(html);
 			ArticleHeader header = readHeaders(doc);
