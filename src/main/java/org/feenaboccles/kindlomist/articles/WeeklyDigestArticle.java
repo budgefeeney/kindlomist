@@ -19,7 +19,6 @@ import org.feenaboccles.kindlomist.valid.Validator;
  * week's stories. Used for "Politics this Week" and "Business this Week"
  */
 @Value
-@Builder
 public class WeeklyDigestArticle {
 
 	private static final int MAX_IMAGES_PER_DIGEST = 20;

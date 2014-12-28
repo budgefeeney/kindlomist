@@ -37,7 +37,7 @@ public class WeeklyDigestArticleParser extends AbstractArticleParser {
 			
 			List<Content> content = readContent(bodyDiv);
 			
-			return WeeklyDigestArticle.builder().body(content).build().validate();
+			return new WeeklyDigestArticle(content).validate();
 		}
 		catch (ValidationException e)
 		{	throw new HtmlParseException("The parse succeeded, but the extracted fields defined an article that failed to validate: " + e.getMessage(), e);
