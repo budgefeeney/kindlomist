@@ -1,22 +1,15 @@
 package org.feenaboccles.kindlomist.articles.html;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.ValidationException;
 
 import org.feenaboccles.kindlomist.articles.WeeklyDigestArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
-import org.feenaboccles.kindlomist.articles.content.Image;
-import org.feenaboccles.kindlomist.articles.content.SubHeading;
-import org.feenaboccles.kindlomist.articles.content.Text;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 
 /**

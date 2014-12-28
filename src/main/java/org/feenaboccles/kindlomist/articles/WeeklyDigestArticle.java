@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import lombok.Value;
-import lombok.experimental.Builder;
 
 import org.feenaboccles.kindlomist.articles.content.Content;
 import org.feenaboccles.kindlomist.articles.content.Image;
