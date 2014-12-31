@@ -1,5 +1,6 @@
 package org.feenaboccles.kindlomist.articles;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
 
@@ -9,8 +10,10 @@ import org.feenaboccles.kindlomist.articles.content.Image;
  * Resolves images when parsing files.
  * @author bryanfeeney
  */
-public class ImageResolver
+public class ImageResolver implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	Map<Image, byte[]> images;
 	Map<URI, byte[]>  imagesByUri;
 	
