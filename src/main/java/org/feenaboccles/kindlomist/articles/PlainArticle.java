@@ -30,7 +30,7 @@ public class PlainArticle implements Serializable {
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
-	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\-\\-—\\.'“”()\\[\\]’\\.%…!\\?&\\*]+";
+	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\-\\-—\\.'“”()\\[\\]’\\.%…!\\?&\\*/\\\\\"´‘’½⅓⅔¼¾⅛⅜⅝⅞]+";
 	
 	@NotNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String title;
