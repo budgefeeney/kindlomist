@@ -1,6 +1,5 @@
 package org.feenaboccles.kindlomist.articles;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import org.hibernate.validator.constraints.Length;
  */
 @Value
 @Builder
-public class PlainArticle implements Serializable {
+public class PlainArticle implements Article {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";

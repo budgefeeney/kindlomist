@@ -1,6 +1,5 @@
 package org.feenaboccles.kindlomist.articles;
 
-import java.io.Serializable;
 import java.net.URI;
 
 import javax.validation.ValidationException;
@@ -13,7 +12,7 @@ import lombok.Value;
  * for KAL's cartoon
  */
 @Value
-public class SingleImageArticle implements Serializable {
+public class SingleImageArticle implements Article {
 	private static final long serialVersionUID = 1L;
 	
 	@NonNull

@@ -1,6 +1,5 @@
 package org.feenaboccles.kindlomist.articles;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 
@@ -19,7 +18,7 @@ import org.feenaboccles.kindlomist.valid.Validator;
  * week's stories. Used for "Politics this Week" and "Business this Week"
  */
 @Value
-public class WeeklyDigestArticle implements Serializable {
+public class WeeklyDigestArticle implements Article {
 	private static final long serialVersionUID = 1L;
 
 	private static final int MAX_IMAGES_PER_DIGEST = 20;

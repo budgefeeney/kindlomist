@@ -1,5 +1,6 @@
 package org.feenaboccles.kindlomist.download;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -17,6 +18,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.apache.logging.log4j.core.util.Charsets;
 import org.feenaboccles.kindlomist.articles.Economist;
 import org.feenaboccles.kindlomist.articles.ImageResolver;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
@@ -29,6 +31,7 @@ import org.feenaboccles.kindlomist.articles.html.PlainArticleParser;
 import org.feenaboccles.kindlomist.articles.html.PrintEditionParser;
 import org.feenaboccles.kindlomist.articles.html.SingleImageArticleParser;
 import org.feenaboccles.kindlomist.articles.html.WeeklyDigestArticleParser;
+import org.feenaboccles.kindlomist.articles.markdown.EconomistWriter;
 
 /**
  * Encapsulates the logic involved in downloading a full issue of the Ecomonimst
@@ -161,6 +164,11 @@ public class Downloader extends HttpAction {
 		Economist economist = d.call();
 		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist.blob"))) {
 			SerializationUtils.serialize(economist, ostream);
+		}
+		
+		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get("/Users/bryanfeeney/Desktop/economist.md"), Charsets.UTF_8)) {
+			EconomistWriter ewtr = new EconomistWriter();
+			ewtr.writeEconomist(wtr, economist);
 		}
 	}
 }

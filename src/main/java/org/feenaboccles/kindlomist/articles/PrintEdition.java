@@ -93,7 +93,7 @@ public class PrintEdition implements Serializable {
 	 * The Xmas issue is published the last Thursday before Christmas day
 	 * @param dateStamp the issue's date-stamp, in the YYYY-MM-DD format
 	 */
-	final static boolean isTheXmasIssue (LocalDate dateStamp) {
+	public final static boolean isTheXmasIssue (LocalDate dateStamp) {
 		if (dateStamp.getMonth() != Month.DECEMBER)
 			return false;
 		
