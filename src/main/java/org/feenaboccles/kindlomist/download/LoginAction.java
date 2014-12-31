@@ -75,8 +75,7 @@ public class LoginAction extends HttpAction {
 		this.password = password;
 	}
 
-	@Override
-	public String call() throws HttpActionException {
+	public boolean call() throws HttpActionException {
 		// Download and parse the login page
 		LOG.debug("Downloading the login page from " + LOGIN_PAGE);
 		String formId, formBuildId = null, formSecureLogin;
@@ -119,11 +118,10 @@ public class LoginAction extends HttpAction {
 				new BasicNameValuePair(FORM_ID_FIELD, formId),
 				new BasicNameValuePair(SECURE_LOGIN_URL_FIELD, formSecureLogin));
 		
-		System.out.println (loggedInPage);
 		if (! loggedInPage.contains(StringUtils.left(username, MAX_USER_EMAIL_DISPLAYABLE_CHARACTERS)))
-			throw new HttpActionException("Login failed");
+			return false;
 		
-		return "";
+		return true;
 	}
 
 	public static void main (String[] args) throws IOException, HttpActionException

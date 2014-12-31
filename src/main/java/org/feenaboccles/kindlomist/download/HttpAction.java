@@ -3,7 +3,6 @@ package org.feenaboccles.kindlomist.download;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -22,7 +21,7 @@ import org.apache.http.util.EntityUtils;
  * Performs some HTTP action using {@link #call()}, optionally returns 
  * the response a string.
  */
-public abstract class HttpAction implements Callable<String>
+public abstract class HttpAction
 {
 	private static final int HTTP_200_OK = 200;
 
@@ -119,9 +118,4 @@ public abstract class HttpAction implements Callable<String>
 			    .setUri(url);
 		return reqBldr;
 	}
-	
-	/**
-	 * Executes this action
-	 */
-	public abstract String call() throws HttpActionException;
 }
