@@ -17,9 +17,11 @@ public class PrintedEditionParserTest {
 	@Test
 	public void testValidHtml() throws HtmlParseException, IOException {
 		String html = Util.loadFromClassPath("printed-index.html");
+		String date = "2012-10-10";
 		
-		PrintEdition p = new PrintedEditionParser().parse(html);
+		PrintEdition p = new PrintEditionParser(date).parse(html);
 		
+		assertEquals (date, p.getDateStamp());
 		assertEquals (URI.create("http://www.economist.com/news/world-week/21636104-politics-week"), p.getPoliticsThisWeek());
 		assertEquals (URI.create("http://www.economist.com/news/world-week/21636084-business-week"), p.getBusinessThisWeek());
 		assertEquals (URI.create("http://www.economist.com/news/world-week/21636083-kals-cartoon"), p.getKalsCartoon());
