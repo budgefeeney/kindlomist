@@ -1,5 +1,7 @@
 package org.feenaboccles.kindlomist.articles.content;
 
+import java.io.Serializable;
+
 import javax.validation.ValidationException;
 
 /**
@@ -8,7 +10,7 @@ import javax.validation.ValidationException;
  * @author bryanfeeney
  *
  */
-public interface Content {
+public interface Content extends Serializable {
 
 	enum Type {
 		TEXT,

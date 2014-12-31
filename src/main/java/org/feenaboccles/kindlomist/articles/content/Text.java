@@ -15,6 +15,8 @@ import org.hibernate.validator.constraints.Length;
 @Value
 public class Text implements Content {
 
+	private static final long serialVersionUID = 1L;
+	
 	@NonNull @Length(min=100, max=1000) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
 	String content;
 

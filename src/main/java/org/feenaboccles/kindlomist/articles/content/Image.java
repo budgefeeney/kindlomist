@@ -15,6 +15,8 @@ import org.hibernate.validator.constraints.Length;
 @Value
 public final class Image implements Content {
 
+	private static final long serialVersionUID = 1L;
+
 	@NonNull @Length(min = 10, max=1000)
 	String content;
 

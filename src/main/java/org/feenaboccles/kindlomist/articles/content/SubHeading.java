@@ -13,6 +13,8 @@ import org.hibernate.validator.constraints.Length;
 @Value
 public class SubHeading implements Content {
 
+	private static final long serialVersionUID = 1L;
+
 	@NonNull @Length(min=3, max=200) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
 	String content;
 

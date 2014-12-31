@@ -13,6 +13,8 @@ import org.hibernate.validator.constraints.Length;
 @Value
 public class Footnote implements Content {
 
+	private static final long serialVersionUID = 1L;
+
 	@NonNull @Length(min=10, max=300) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
 	String content;
 
