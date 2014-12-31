@@ -11,6 +11,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
+import org.feenaboccles.kindlomist.articles.content.Footnote;
 import org.feenaboccles.kindlomist.articles.content.Image;
 import org.feenaboccles.kindlomist.articles.content.SubHeading;
 import org.feenaboccles.kindlomist.articles.content.Text;
@@ -72,11 +73,28 @@ public class AbstractArticleParser {
 		// Parse the title and the strap
 		Element hgroup = doc.getElementsByTag("hgroup").first();
 		
-		String  title  = hgroup.getElementsByTag("h3").first().text();
-		String  topic  = hgroup.getElementsByTag("h2").first().text();
-		String  strap  = hgroup.getElementsByTag("h1").first().text();
+		String  title  = childTagText (hgroup, "h3", "");
+		String  topic  = childTagText (hgroup, "h2", "");
+		String  strap  = childTagText (hgroup, "h1", "");
 		
 		return new ArticleHeader(title, topic, strap);
+	}
+	
+	/**
+	 * Read text from the given child element if it exists, returning
+	 * the default value otherwise. If there are multiple child tags,
+	 * we return the text associated with the <em>first</em> element
+	 * @param parent the parent element amongs whose children we search
+	 * for a particular tag
+	 * @param childTag the tag-name of the child element
+	 * @param defaultValue what to return if the child-tag does not 
+	 * exist. 
+	 */
+	private final static String childTagText(Element parent, String childTag, String defaultValue) {
+		Elements es = parent.getElementsByTag(childTag);
+		return es.isEmpty()
+			? defaultValue
+			: es.first().text().trim();
 	}
 	
 	/**
@@ -86,14 +104,30 @@ public class AbstractArticleParser {
 	protected List<Content> readContent(Element bodyDiv) {
 		List<Content> content = new ArrayList<Content>(EXPECTED_IMAGE_COUNT + EXPECTED_PARAGRAPH_COUNT);
 		
+		// TODO add subscript support.
+		
 		// Extract the body text, and any other images.
 		String paraText;
 		for (Element element : bodyDiv.children()) {
 			if (element.nodeName() == "p" && (! (paraText = clean(element.text())).isEmpty())) {
-				if (element.className().equals ("xhead"))
+				if (element.className().equals ("xhead")) {
 					content.add (new SubHeading (paraText));
-				else
-					content.add(new Text(paraText));
+				}
+				else { // check for a footnote, should all be in a <sup> tag
+					Elements sups = element.getElementsByTag("sup");
+					if (sups.isEmpty()) {
+						content.add(new Text(paraText));
+					}
+					else {
+						String supText = clean(sups.first().text());
+						if (supText.equals(paraText)) {
+							content.add (new Footnote(supText));
+						}
+						else {
+							content.add (new Text(paraText));
+						}
+					}
+				}
 			}
 			else if (element.nodeName() == "div" && ! element.className().equals(AbstractArticleParser.MAIN_IMAGE_DIV_CLASS)) {
 				Elements imgs = element.getElementsByTag("img");
@@ -114,5 +148,4 @@ public class AbstractArticleParser {
 		
 		return text;
 	}
-
 }

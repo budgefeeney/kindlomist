@@ -11,15 +11,15 @@ import org.feenaboccles.kindlomist.valid.Validator;
 import org.hibernate.validator.constraints.Length;
 
 @Value
-public class Text implements Content {
+public class Footnote implements Content {
 
-	@NonNull @Length(min=100, max=1000) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
+	@NonNull @Length(min=10, max=300) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
 	String content;
 
 	@Override
 	public Content validate() throws ValidationException {
 		try {
-			Validator.INSTANCE.validate(this, "text content");
+			Validator.INSTANCE.validate(this, "footnote content");
 		}
 		catch (ValidationException e) {
 			for (int i = 0; i < content.length(); i++)
@@ -32,7 +32,7 @@ public class Text implements Content {
 	
 	@Override
 	public Type getType() {
-		return Type.TEXT;
+		return Type.FOOTNOTE;
 	}
 
 }

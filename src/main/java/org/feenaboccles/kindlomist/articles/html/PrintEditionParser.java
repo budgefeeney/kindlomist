@@ -19,19 +19,27 @@ import org.jsoup.select.Elements;
  * extracts from it the full list of articles, returned as a  {@link PrintEdition}
  * object.
  */
-public class PrintedEditionParser {
+public class PrintEditionParser implements HtmlParser<PrintEdition> {
 
 	private static final int EXPECTED_ARTICLES_PER_SECTION = 10;
 	private static final int EXPECTED_SECTION_COUNT = 10;
 
-	public PrintedEditionParser() {
-		// TODO Auto-generated constructor stub
+	private final String dateStamp;
+	
+	/**
+	 * Creates a new {@link PrintEditionParser}
+	 * @param dateStamp the date-stamp assigned to the parsed print
+	 * edition - used to determin if it's an Xmas issue or not.
+	 */
+	public PrintEditionParser(String dateStamp) {
+		this.dateStamp = dateStamp;
 	}
 	
+	@Override
 	public PrintEdition parse (String html) throws HtmlParseException {
 		try {
 			// Declare the variables we're parsing into.
-			URI politics = null, biz = null, kal = null, letters = null;
+			URI politics = null, biz = null, kal = null, letters = null, obit = null;
 			Map<String, List<URI>> sections = new HashMap<>(EXPECTED_SECTION_COUNT);
 			List<String> orderedSectionHeadings = new ArrayList<>(EXPECTED_SECTION_COUNT);
 			
@@ -45,13 +53,14 @@ public class PrintedEditionParser {
 			for (Element link : links) {
 				switch (StringUtils.trimToEmpty(link.text()).toLowerCase()) {
 				case "politics this week":
-					politics = new URI(link.attr("href"));
+				case "the world this year":
+					politics = toUri(link.attr("href"));
 					break;
 				case "business this week":
-					biz = new URI(link.attr("href"));
+					biz = toUri(link.attr("href"));
 					break;
 				case "kal's cartoon":
-					kal = new URI(link.attr("href"));
+					kal = toUri(link.attr("href"));
 					break;
 				}
 			}
@@ -66,7 +75,11 @@ public class PrintedEditionParser {
 				
 				// Two special cases, the first is letters, which requires a particular page parser
 				if ("letters".equals(StringUtils.trimToEmpty(sectionHeader).toLowerCase())) {
-					letters = new URI(sec.getElementsByTag("a").first().attr("href"));
+					letters = toUri(sec.getElementsByTag("a").first().attr("href"));
+					continue;
+				}
+				else if ("obituary".equals(StringUtils.trimToEmpty(sectionHeader).toLowerCase())) {
+					obit = toUri(sec.getElementsByTag("a").first().attr("href"));
 					continue;
 				}
 				
@@ -83,17 +96,18 @@ public class PrintedEditionParser {
 				Elements articleLinks = sec.getElementsByTag("a");
 				for (Element articleLink : articleLinks)
 					if (! StringUtils.equals("Comments", articleLink.attr("title")))
-						articles.add (new URI(articleLink.attr("href")));
+						articles.add (toUri(articleLink.attr("href")));
 			}
 					
-			
 			return PrintEdition.builder()
+					           .dateStamp(dateStamp)
 							   .politicsThisWeek(politics)
 							   .businessThisWeek(biz)
 							   .kalsCartoon(kal)
 							   .letters(letters)
 							   .sections(sections)
 							   .orderedSections(orderedSectionHeadings)
+							   .obituary(obit)
 							   .build().validate();
 		}
 		catch (URISyntaxException e) {
@@ -101,4 +115,14 @@ public class PrintedEditionParser {
 		}
 	}
 
+	/**
+	 * Converts a string to a URI. Prepends Economist.com to the URI if it's
+	 * missing a host
+	 * @throws URISyntaxException 
+	 */
+	static final URI toUri (String url) throws URISyntaxException {
+		return StringUtils.left(url, 4).toUpperCase().equals("HTTP")
+				? new URI (url)
+				: new URI ("http://www.economist.com" + url);
+	}
 }

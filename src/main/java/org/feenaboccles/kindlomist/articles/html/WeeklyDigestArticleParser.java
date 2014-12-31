@@ -17,12 +17,14 @@ import org.jsoup.nodes.Element;
  * @author bryanfeeney
  *
  */
-public class WeeklyDigestArticleParser extends AbstractArticleParser {
+public class WeeklyDigestArticleParser extends AbstractArticleParser
+	implements HtmlParser<WeeklyDigestArticle >{
 
 	public WeeklyDigestArticleParser() {
 		// TODO Auto-generated constructor stub
 	}
 	
+	@Override
 	public WeeklyDigestArticle parse(String html) throws HtmlParseException {
 		try {
 			Document doc = Jsoup.parse(html);

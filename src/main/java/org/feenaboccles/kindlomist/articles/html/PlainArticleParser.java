@@ -18,12 +18,14 @@ import org.jsoup.nodes.Element;
  * <p>
  * Threadsafe.
  */
-public class PlainArticleParser extends AbstractArticleParser  {
+public class PlainArticleParser extends AbstractArticleParser
+	implements HtmlParser<PlainArticle> {
 
 	public PlainArticleParser() {
 		;
 	}
 
+	@Override
 	public PlainArticle parse(String html) throws HtmlParseException {
 		
 		try {

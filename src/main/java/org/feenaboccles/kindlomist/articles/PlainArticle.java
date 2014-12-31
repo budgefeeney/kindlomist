@@ -1,5 +1,6 @@
 package org.feenaboccles.kindlomist.articles;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import lombok.Value;
 import lombok.experimental.Builder;
 
 import org.feenaboccles.kindlomist.articles.content.Content;
-import org.feenaboccles.kindlomist.articles.content.Image;
 import org.feenaboccles.kindlomist.valid.Validator;
 import org.hibernate.validator.constraints.Length;
 
@@ -25,12 +25,12 @@ import org.hibernate.validator.constraints.Length;
  */
 @Value
 @Builder
-public class PlainArticle 
-{
+public class PlainArticle implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
-	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\-\\-—\\.'“”()\\[\\]’\\.%…!\\?&]+";
+	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\-\\-—\\.'“”()\\[\\]’\\.%…!\\?&\\*]+";
 	
 	@NotNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String title;
@@ -62,10 +62,15 @@ public class PlainArticle
 			throw new ValidationException("Duplicate images or paragraphs in this article");
 		
 		int imageCount = 0;
+		boolean foundFootnote = false;
 		for (Content content : body) {
 			content.validate();
-			if (content instanceof Image)
+			if (foundFootnote && content.getType() != Content.Type.FOOTNOTE)
+				throw new ValidationException ("Standard content found after the first footnote");
+			if (content.getType() == Content.Type.IMAGE)
 				imageCount++;
+			
+			foundFootnote |= content.getType() == Content.Type.FOOTNOTE;
 		}
 		if (imageCount > MAX_IMAGES_PER_ARTICLE)
 			throw new ValidationException("The number of images in this article (" + imageCount + ") exceeds the maximum allowed " + MAX_IMAGES_PER_ARTICLE);

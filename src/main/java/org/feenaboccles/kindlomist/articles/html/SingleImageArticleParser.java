@@ -17,13 +17,14 @@ import org.jsoup.nodes.Element;
  * @author bryanfeeney
  *
  */
-public class SingleImageArticleParser extends AbstractArticleParser {
+public class SingleImageArticleParser extends AbstractArticleParser 
+	implements HtmlParser<SingleImageArticle> {
 
 	public SingleImageArticleParser() {
 		// TODO Auto-generated constructor stub
 	}
 
-	
+	@Override
 	public SingleImageArticle parse(String html) throws HtmlParseException {
 		
 		try {
