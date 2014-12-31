@@ -13,7 +13,8 @@ public interface Content {
 	enum Type {
 		TEXT,
 		SUB_HEADING,
-		IMAGE
+		IMAGE,
+		FOOTNOTE
 	}
 	
 	/**
