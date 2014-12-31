@@ -1,5 +1,7 @@
 package org.feenaboccles.kindlomist.articles.content;
 
+import java.util.regex.Matcher;
+
 import javax.validation.ValidationException;
 import javax.validation.constraints.Pattern;
 
@@ -22,12 +24,33 @@ public class Text implements Content {
 			Validator.INSTANCE.validate(this, "text content");
 		}
 		catch (ValidationException e) {
-			for (int i = 0; i < content.length(); i++)
-				System.out.println (content.charAt(i) + "  \\u" + Integer.toHexString(content.codePointAt(i)));
+			String ch = findIssue (java.util.regex.Pattern.compile(PlainArticle.ECONOMIST_VISIBLE_TEXT), content);
+			System.out.println ("Illegal text character - " + ch + "  (\\u" + Integer.toHexString(ch.codePointAt(0)) + ")");
 			
 			throw e;
 		}
 		return this;
+	}
+	
+	private final static String findIssue(java.util.regex.Pattern pat, String str) {
+		Matcher m = pat.matcher(str);
+		if (! m.matches())
+		{	if (str.length() == 1) {
+				return str;
+			}
+			else {
+				String left = str.substring(0, str.length() / 2);
+				String rght = str.substring(str.length() / 2);
+				
+				String leftAns = findIssue(pat, left);
+				return leftAns == null
+					? findIssue(pat, rght)
+					: leftAns;
+			}
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override
