@@ -92,7 +92,13 @@ public class Downloader extends HttpAction {
 			for (URI articleUri : e.getValue()) {
 				if (log.isDebugEnabled())
 					log.debug("Fetching article for section " + e.getKey() + " from URI " + articleUri.toASCIIString());
-				articles.add(fetchAndParse(articleUri, u, new PlainArticleParser()));
+				
+				try {
+					articles.add(fetchAndParse(articleUri, u, new PlainArticleParser()));
+				}
+				catch (HtmlParseException hpe) {
+					log.warn("Skipping unparseable article - " + hpe.getMessage(), hpe);
+				}
 			}
 		}
 		
