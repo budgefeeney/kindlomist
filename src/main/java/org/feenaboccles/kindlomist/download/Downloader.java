@@ -159,7 +159,7 @@ public class Downloader extends HttpAction {
 	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException {
 		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
 		
-		Downloader d = new Downloader("2014-12-20", "bryan.feeney@gmail.com", password);
+		Downloader d = new Downloader("2015-01-03", "bryan.feeney@gmail.com", password);
 		
 		Economist economist = d.call();
 		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist.blob"))) {
