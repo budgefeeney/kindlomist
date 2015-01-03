@@ -2,8 +2,8 @@ package org.feenaboccles.kindlomist.articles.markdown;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.text.DateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.feenaboccles.kindlomist.articles.Economist;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
@@ -29,7 +29,7 @@ public class EconomistWriter
 		ArticleWriter awriter = new ArticleWriter (writer, issue.getImages());
 		
 		// YAML Header with title etc.
-		DateFormat fmt = DateFormat.getDateInstance(DateFormat.LONG);
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMMM d, yyyy");
 		LocalDate pubDate = issue.getDateStamp();
 		writer.write ("---");
 		writer.write("title: The Economist, " + fmt.format(pubDate));
