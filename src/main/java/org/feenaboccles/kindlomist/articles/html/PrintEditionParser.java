@@ -29,7 +29,7 @@ public class PrintEditionParser implements HtmlParser<PrintEdition> {
 	/**
 	 * Creates a new {@link PrintEditionParser}
 	 * @param dateStamp the date-stamp assigned to the parsed print
-	 * edition - used to determin if it's an Xmas issue or not.
+	 * edition - used to determine if it's an Xmas issue or not.
 	 */
 	public PrintEditionParser(String dateStamp) {
 		this.dateStamp = dateStamp;
@@ -54,6 +54,7 @@ public class PrintEditionParser implements HtmlParser<PrintEdition> {
 				switch (StringUtils.trimToEmpty(link.text()).toLowerCase()) {
 				case "politics this week":
 				case "the world this year":
+				case "the world this week":
 					politics = toUri(link.attr("href"));
 					break;
 				case "business this week":

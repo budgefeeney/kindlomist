@@ -31,7 +31,7 @@ import cz.jirutka.validator.collection.constraints.EachPattern;
 public class Economist implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private static final int MIN_ARTICLES_PER_SECTION = 3;
+	private static final int MIN_ARTICLES_PER_SECTION = 1;
 
 	private static final String[] CORE_SECTIONS = new String[] {
 		"Leaders", "United States", "The Americas", "Asia", "China", "Middle East and Africa", 
@@ -72,7 +72,7 @@ public class Economist implements Serializable {
 		// TODO Check image resolver has an image for all possible images.
 		
 		// Check that business this week is present, unless this is the Christmas issue.
-		if (! PrintEdition.isTheXmasIssue(dateStamp))
+		if (! isTheXmasIssue() && ! isThePostXmasIssue())
 			if (businessThisWeek == null)
 				throw new ValidationException("The business this week section is missing - this is only permitted for the Christmas issue");
 			
@@ -80,4 +80,15 @@ public class Economist implements Serializable {
 		return this;
 	}
 	
+	public boolean isTheXmasIssue() {
+		return PrintEdition.isTheXmasIssue(dateStamp);
+	}
+	
+	/**
+	 * The first issue after Xmas. Like the Xmas issue, this may not
+	 * have a "Business this Week" page
+	 */
+	private boolean isThePostXmasIssue() {
+		return PrintEdition.isThePostXmasIssue(dateStamp);
+	}
 }
