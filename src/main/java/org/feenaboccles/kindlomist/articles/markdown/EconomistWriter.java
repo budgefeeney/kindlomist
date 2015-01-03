@@ -2,25 +2,42 @@ package org.feenaboccles.kindlomist.articles.markdown;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.text.DateFormat;
+import java.time.LocalDate;
 
 import org.feenaboccles.kindlomist.articles.Economist;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
-import org.feenaboccles.kindlomist.articles.PrintEdition;
 
+/**
+ * Writes out the Economist issue as a pandoc-compatible Markdown
+ * file with YAML metadata.
+ *  <p>
+ * The precise pandoc incantation required to compile it to epub
+ * is then
+ * <p>
+ * <pre>
+ * pandoc -S  --epub-chapter-level 1 --toc --toc-depth 2 -o economist.epub economist.md
+ * </pre>
+ * @author bryanfeeney
+ *
+ */
 public class EconomistWriter 
 {
 
 	// TODO Proper title, nicely formated date
-	// TODO The World this week / this year - the isXmasIssue test
 	public void writeEconomist (Writer writer, Economist issue) throws IOException {
 		ArticleWriter awriter = new ArticleWriter (writer, issue.getImages());
 		
-		writer.write("The Economist\n\n");
-		writer.write(issue.getDateStamp().toString());
+		// YAML Header with title etc.
+		DateFormat fmt = DateFormat.getDateInstance(DateFormat.LONG);
+		LocalDate pubDate = issue.getDateStamp();
+		writer.write ("---");
+		writer.write("title: The Economist, " + fmt.format(pubDate));
+		writer.write("date: " + pubDate.toString());
 		writer.write("\n\n");
-		writer.write("------\n\n");
+		writer.write("---\n\n");
 		
-		if (PrintEdition.isTheXmasIssue(issue.getDateStamp())) {
+		if (issue.isTheXmasIssue()) {
 			writer.write("# The World this Year\n\n");
 		} else {
 			writer.write("# The World this Week\n\n");
