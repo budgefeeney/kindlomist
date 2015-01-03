@@ -68,7 +68,7 @@ public class PrintEdition implements Serializable {
 					throw new ValidationException ("One of the URLs in the " + articleList.getKey() + " section points to a site other than the economist.com");
 		
 		// Check that business this week is present, unless this is the Christmas issue.
-		if (! isTheXmasIssue(dateStamp))
+		if (! isTheXmasIssue(dateStamp) && ! isThePostXmasIssue(dateStamp))
 			if (businessThisWeek == null)
 				throw new ValidationException("The business this week section cannot be null, except for the Christmas issue");
 		
@@ -110,4 +110,20 @@ public class PrintEdition implements Serializable {
 		}
 	}
 
+	/**
+	 * Returns true if this is the first issue after Xmas.
+	 * This may not contain a "business this week" section
+	 */
+	final static boolean isThePostXmasIssue (String dateStampText) {
+		return isThePostXmasIssue(LocalDate.parse(dateStampText));
+	}
+	
+	/**
+	 * Returns true if this is the first issue after Xmas.
+	 * This may not contain a "business this week" section
+	 */
+	public final static boolean isThePostXmasIssue (LocalDate dateStamp) {
+		return dateStamp.getMonth() == Month.JANUARY
+			&& dateStamp.isBefore(LocalDate.of(dateStamp.getYear(), 1, 7));
+	}
 }
