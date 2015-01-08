@@ -101,6 +101,8 @@ public class Downloader extends HttpAction {
 				}
 				catch (HtmlParseException hpe) {
 					log.warn("Skipping unparseable article - " + hpe.getMessage(), hpe);
+					System.err.println ("Skipping unparseable article - " + hpe.getMessage());
+					hpe.printStackTrace(System.err);
 				}
 			}
 		}
@@ -158,15 +160,16 @@ public class Downloader extends HttpAction {
 	
 	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException {
 		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
+		String date = "2015-01-03";
 		
-		Downloader d = new Downloader("2015-01-03", "bryan.feeney@gmail.com", password);
+		Downloader d = new Downloader(date, "bryan.feeney@gmail.com", password);
 		
 		Economist economist = d.call();
-		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist.blob"))) {
+		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".blob"))) {
 			SerializationUtils.serialize(economist, ostream);
 		}
 		
-		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get("/Users/bryanfeeney/Desktop/economist.md"), Charsets.UTF_8)) {
+		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".md"), Charsets.UTF_8)) {
 			EconomistWriter ewtr = new EconomistWriter();
 			ewtr.writeEconomist(wtr, economist);
 		}
