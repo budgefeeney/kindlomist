@@ -22,7 +22,6 @@ import org.jsoup.select.Elements;
 
 public class AbstractArticleParser {
 
-	private static final int FOOTNOTES_PER_PARAGRAPH = 2;
 
 	@Data
 	@AllArgsConstructor
@@ -38,6 +37,9 @@ public class AbstractArticleParser {
 	protected static final String MAIN_IMAGE_DIV_CLASS = CONTENT_IMAGE_DIV_CLASS_PREFIX + "full";
 	protected static final int EXPECTED_IMAGE_COUNT = PlainArticle.MAX_IMAGES_PER_ARTICLE / 2;
 	protected static final int EXPECTED_PARAGRAPH_COUNT = 10;
+
+	private static final int FOOTNOTES_PER_PARAGRAPH = 2;
+	private final static String UNBOLDED_PUNC_CHARS = ":;,,.\"´‘’'“”(){}[]’.%…!? \t\n\r";
 
 	
 	public AbstractArticleParser() {
@@ -115,9 +117,13 @@ public class AbstractArticleParser {
 	 * fact a heading
 	 */
 	private boolean isHeadingInBoldTag (Element elem, String paraText) {
+		// sometimes you see headings like "<strong>Sources</strong>:"
+		paraText = StringUtils.strip(paraText, UNBOLDED_PUNC_CHARS);
+		
 		Elements strongs = elem.getElementsByTag("strong");
 		if (! strongs.isEmpty()) {
 			String strongText = clean(strongs.first().text());
+			strongText = StringUtils.strip(strongText, UNBOLDED_PUNC_CHARS);
 		
 			if (strongText.equals(paraText)) {
 				return true;
@@ -127,6 +133,7 @@ public class AbstractArticleParser {
 		Elements bolds = elem.getElementsByTag("b");
 		if (! bolds.isEmpty()) {
 			String boldText = clean(bolds.first().text());
+			boldText = StringUtils.strip(boldText, UNBOLDED_PUNC_CHARS);
 		
 			if (boldText.equals(paraText)) {
 				return true;
