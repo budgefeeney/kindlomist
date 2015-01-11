@@ -1,12 +1,16 @@
 package org.feenaboccles.kindlomist.articles.html;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import javax.validation.ValidationException;
 
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
@@ -180,51 +184,86 @@ public class PlainArticleParserTest {
 
 	}
 	
+	// -----------------------------------------------------------
+	// The tests below are just regression tests for past parse failures. We no longer
+	// check, in detail, that parses are _correct_, only that they succeed.
+	// -----------------------------------------------------------
 	
 	@Test
-	public void testOnThirdGoodInput() throws IOException, HtmlParseException, URISyntaxException {
+	public void testOnJobAd() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article3-job-ad.html");
+		
+		try {
+			new PlainArticleParser().parse(articleText);
+			fail("This parse normally failed due to restrictions on article shortness - have these been unduly relaxed");
+		}
+		catch (HtmlParseException e)
+		{	assertTrue (e.getCause() instanceof ValidationException);
+		}
+	}
+	
+	@Test
+	public void testOnEconomistRanking() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article4-economist-ranking.html");
 		
 		PlainArticle a = new PlainArticleParser().parse(articleText);
 
-		assertEquals ("Don’t shoot", a.getTitle());
-		assertEquals ("Policing", a.getTopic());
-		assertEquals ("America’s police kill too many people. But some forces are showing how smarter, less aggressive policing gets results", a.getStrap());
+		assertEquals ("Shifting clout", a.getTitle());
+		assertEquals ("Influential economists", a.getTopic());
+		assertEquals ("Economists’ academic rankings and media influence vary wildly", a.getStrap());
 		assertNull (a.getMainImage());
 		
-		assertEquals (4, Content.Type.values().length);
-		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0;
-		for (Content content : a.getBody()) {
-			switch (content.getType()) {
-			case TEXT:
-				texts++;
-				break;
-			case SUB_HEADING:
-				headings++;
-				break;
-			case IMAGE:
-				imgs++;
-				break;
-			case FOOTNOTE:
-				foots++;
-				break;
-			default:
-				throw new IllegalStateException ("Unknown content type" + content.getType());
-			}
-			total++;
+	}
+	
+	@Test
+	public void testOnCostOfGoingGreen() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article5-lead-image-is-graph.html");
+		
+		PlainArticle a = new PlainArticleParser().parse(articleText);
+
+		assertEquals ("Green tape", a.getTitle());
+		assertEquals ("Free exchange", a.getTopic());
+		assertEquals ("Environmental regulations may not cost as much as governments and businesses fear", a.getStrap());
+		assertNotNull (a.getMainImage());
+	}
+	
+	@Test
+	public void testOnChartWithCommentary() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article6-short-graph-desc.html");
+		
+		PlainArticle a = new PlainArticleParser().parse(articleText);
+
+		assertEquals ("The new Congress in numbers", a.getTitle());
+		assertEquals ("In Brief", a.getTopic());
+		assertEquals ("How politicians are unlike America", a.getStrap());
+		assertNotNull (a.getMainImage());
+		
+	}
+	
+	@Test
+	public void testOnArticleOnGreece() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article7-greece.html");
+		
+		PlainArticle a = new PlainArticleParser().parse(articleText);
+
+		assertEquals ("The euro’s next crisis", a.getTitle());
+		assertEquals ("Greece’s election", a.getTopic());
+		assertEquals ("Why an early election spells big dangers for Greece—and for the euro", a.getStrap());
+		assertNotNull (a.getMainImage());
+		
+	}
+	
+	@Test
+	public void testOnInternAd() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article8-intern-ad.html");
+		
+		try {
+			new PlainArticleParser().parse(articleText);
+			fail("This parse normally failed due to restrictions on article shortness - have these been unduly relaxed");
+		}
+		catch (HtmlParseException e)
+		{	assertTrue (e.getCause() instanceof ValidationException);
 		}
 		
-		assertEquals (11, total);
-		assertEquals (0,  headings);
-		assertEquals (0,  imgs);
-		assertEquals (9,  texts);
-		assertEquals (2,  foots);
-		
-		assertEquals (new Text("WHAT is the Japanese word for Schadenfreude? For much of the late 1990s and early 2000s, Western economists and politicians were happy to lecture the Japanese government about the mistakes it made in the aftermath of its asset bubble. But six years after the collapse of Lehman Brothers, the investment bank whose demise triggered the financial crisis, many Western economies are still struggling to generate decent growth. Their central banks are being forced to keep interest rates close to zero. Yields on government bonds in Europe, as in Japan, have sunk to record lows. Some economists are talking of a new era of “secular stagnation”."), a.getBody().get(0));
-		assertEquals (new Text("This makes monetary policy much less effective. The policy of quantitative easing (QE), the creation of money to buy assets, succeeded in expanding the balance-sheets of central banks but did not push up bank lending or boost the amount of money circulating among companies and consumers. That explains why QE has not resulted in the hyperinflation that some feared and also, in Mr Koo’s view, why QE has not been very effective."), a.getBody().get(3));
-		assertEquals (new Text("Mr Koo’s case, which he first made in “The Holy Grail of Macroeconomics”, a book published in 2008, has been strengthened by intervening events. However, there are some points that he glosses over. A side-effect of QE is that asset prices have risen sharply in value; that should have repaired corporate and personal balance-sheets but the private sector is still not borrowing. Why not? And he probably does not take the arguments for secular stagnation seriously enough: deteriorating demographics and sluggish productivity growth are important. Growth in the rich world has been slowing for decades. Even politicians with the wisdom of Solomon might have struggled in the circumstances."), a.getBody().get(8));
-		assertEquals (new Footnote("* “The Escape From Balance Sheet Recession and the QE Trap: A Hazardous Road for the World Economy”, published by John Wiley"), a.getBody().get(9));
-		assertEquals (new Footnote("Economist.com/blogs/buttonwood"), a.getBody().get(10));
-
 	}
 }
