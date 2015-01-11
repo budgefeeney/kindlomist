@@ -16,8 +16,12 @@ import org.hibernate.validator.constraints.Length;
 public class Text implements Content {
 
 	private static final long serialVersionUID = 1L;
+	public static final int MIN_TEXT_LEN =  100;
+	public static final int MAX_TEXT_LEN = 1500; // there is at least one article with a 1,085 character paragraph
 	
-	@NonNull @Length(min=100, max=1000) @Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
+	@NonNull 
+	@Length(min=MIN_TEXT_LEN, max=MAX_TEXT_LEN) 
+	@Pattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)
 	String content;
 
 	@Override
@@ -27,7 +31,8 @@ public class Text implements Content {
 		}
 		catch (ValidationException e) {
 			String ch = findIssue (java.util.regex.Pattern.compile(PlainArticle.ECONOMIST_VISIBLE_TEXT), content);
-			System.out.println ("Illegal text character - " + ch + "  (\\u" + Integer.toHexString(ch.codePointAt(0)) + ")");
+			if (ch != null)
+				System.out.println ("Illegal text character - " + ch + "  (\\u" + Integer.toHexString(ch.codePointAt(0)) + ")");
 			
 			throw e;
 		}

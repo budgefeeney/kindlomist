@@ -8,6 +8,7 @@ import javax.validation.ValidationException;
 
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
+import org.feenaboccles.kindlomist.articles.content.Content.Type;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,6 +38,21 @@ public class PlainArticleParser extends AbstractArticleParser
 			
 			List<Content> content = readContent(bodyDiv);
 			
+//			// In some cases what should be the main image is encoded as a piece of content
+//			if (mainImage == null && content.get(0).getType() == Content.Type.IMAGE && StringUtils.right(content.get(0).getContent(), 4).toLowerCase().equals(".jpg")) {
+//				mainImage = new URI(content.get(0).getContent());
+//				content.remove(0);
+//			}
+			
+			// In some cases the Economist may publish a mini-article lacking either title,
+			// such as mini-articles showing a chart with some commentary, or both title and topic,
+			// such as job ads. We skip the job ads, but work around the charts with commentary.
+			if (content.size() >= 2 && hasAtLeastOneImage(content) 
+					&& header.getTitle().isEmpty() && ! header.getTopic().isEmpty()) {
+				header.setTitle(header.getTopic());
+				header.setTopic("In Brief");
+			}
+			
 			return PlainArticle.builder()
 				               .title(header.getTitle())
 				               .topic(header.getTopic())
@@ -55,5 +71,12 @@ public class PlainArticleParser extends AbstractArticleParser
 		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
 		}
 		
+	}
+
+	private boolean hasAtLeastOneImage(List<Content> contents) {
+		for (Content content : contents)
+			if (content.getType() == Type.IMAGE)
+				return true;
+		return false;
 	}
 }

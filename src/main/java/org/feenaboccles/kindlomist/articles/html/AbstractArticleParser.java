@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,8 @@ import org.jsoup.select.Elements;
 
 public class AbstractArticleParser {
 
+	private static final int FOOTNOTES_PER_PARAGRAPH = 2;
+
 	@Data
 	@AllArgsConstructor
 	protected
@@ -30,8 +33,10 @@ public class AbstractArticleParser {
 		String strap;
 	}
 
-	protected static final String MAIN_IMAGE_DIV_CLASS = "content-image-full";
-	protected static final int EXPECTED_IMAGE_COUNT = PlainArticle.MAX_IMAGES_PER_ARTICLE;
+
+	protected static final String CONTENT_IMAGE_DIV_CLASS_PREFIX = "content-image-";
+	protected static final String MAIN_IMAGE_DIV_CLASS = CONTENT_IMAGE_DIV_CLASS_PREFIX + "full";
+	protected static final int EXPECTED_IMAGE_COUNT = PlainArticle.MAX_IMAGES_PER_ARTICLE / 2;
 	protected static final int EXPECTED_PARAGRAPH_COUNT = 10;
 
 	
@@ -39,6 +44,14 @@ public class AbstractArticleParser {
 		super();
 	}
 
+	/**
+	 * Is this image in the body of an article (see {@link #findArticleDiv(Document)}
+	 * a part of the content or an ad
+	 */
+	public boolean isContentImageDivClass (String cssClass) {
+		return cssClass.startsWith(CONTENT_IMAGE_DIV_CLASS_PREFIX) && ! cssClass.equals (MAIN_IMAGE_DIV_CLASS);
+	}
+	
 	/**
 	 * Find the DIV tag that encloses all the article's content, including
 	 * headings, main image, paragraphs and inline images.
@@ -98,25 +111,52 @@ public class AbstractArticleParser {
 	}
 	
 	/**
+	 * Checks if a given paragraph tag, despite not containing any CSS, is in 
+	 * fact a heading
+	 */
+	private boolean isHeadingInBoldTag (Element elem, String paraText) {
+		Elements strongs = elem.getElementsByTag("strong");
+		if (! strongs.isEmpty()) {
+			String strongText = clean(strongs.first().text());
+		
+			if (strongText.equals(paraText)) {
+				return true;
+			}
+		}
+
+		Elements bolds = elem.getElementsByTag("b");
+		if (! bolds.isEmpty()) {
+			String boldText = clean(bolds.first().text());
+		
+			if (boldText.equals(paraText)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Reads the {@link Content} of an article from the given
 	 * DIV.
 	 */
 	protected List<Content> readContent(Element bodyDiv) {
 		List<Content> content = new ArrayList<Content>(EXPECTED_IMAGE_COUNT + EXPECTED_PARAGRAPH_COUNT);
 		
-		// TODO add subscript support.
+		int maxAllowedFootnotes = 0; // allow FOOTNOTES_PER_PARAGRAPH per textual paragraph.
 		
 		// Extract the body text, and any other images.
 		String paraText;
 		for (Element element : bodyDiv.children()) {
 			if (element.nodeName() == "p" && (! (paraText = clean(element.text())).isEmpty())) {
-				if (element.className().equals ("xhead")) {
+				if (element.className().equals ("xhead") || isHeadingInBoldTag(element, paraText)) {
 					content.add (new SubHeading (paraText));
 				}
 				else { // check for a footnote, should all be in a <sup> tag
 					Elements sups = element.getElementsByTag("sup");
 					if (sups.isEmpty()) {
 						content.add(new Text(paraText));
+						maxAllowedFootnotes += FOOTNOTES_PER_PARAGRAPH;
 					}
 					else {
 						String supText = clean(sups.first().text());
@@ -129,14 +169,54 @@ public class AbstractArticleParser {
 					}
 				}
 			}
-			else if (element.nodeName() == "div" && ! element.className().equals(AbstractArticleParser.MAIN_IMAGE_DIV_CLASS)) {
+			else if (element.nodeName() == "div" && isContentImageDivClass(element.className())) {
 				Elements imgs = element.getElementsByTag("img");
 				if (! imgs.isEmpty())
 					content.add (new Image (imgs.first().attr("src")));
 			}
 		}
 		
+		detectAndEncodeFootnotesMissingMarkup(content, maxAllowedFootnotes);
+		
 		return content;
+	}
+
+	/**
+	 * A workaround for the case where there's a rider at the bottom,
+	 * that's essentially a footnote, but which is not annotated by a &lt;sup&gt;
+	 * tag. We basically recognize footnotes by their shortness, and ensure
+	 * that the only thing that can follow a footnote is either another 
+	 * footnote or the end of the content
+	 * <p>
+	 * Note this is an <strong>in-place</strong> transform.
+	 * @param content the list of content elements to inspect and maybe
+	 * transform (this is mutated in place).
+	 * @param maxAllowedFootnotes the maximum allowed footnotes given the content
+	 * that has been read in.
+	 */
+	private void detectAndEncodeFootnotesMissingMarkup(List<Content> content,
+			int maxAllowedFootnotes) {
+		ListIterator<Content> iter = content.listIterator(content.size());
+		
+		footnoteLoop:while (iter.hasPrevious() && maxAllowedFootnotes > 0)
+		{	Content c = iter.previous();
+			switch (c.getType()) {
+			case FOOTNOTE:    continue footnoteLoop;
+			case SUB_HEADING:
+			case IMAGE:       break footnoteLoop; // Footnotes can't come before images or headings
+			case TEXT:
+				String text = c.getContent();
+				if (text.length() >= Text.MIN_TEXT_LEN) {
+					break footnoteLoop; // footnotes can't come before valid paragraphs
+				} else {
+					iter.set(new Footnote(text));
+					maxAllowedFootnotes -= (1 + FOOTNOTES_PER_PARAGRAPH);
+				}
+				break;
+			default:
+				throw new IllegalStateException ("No code has been written to handle the new content type " + c.getType());
+			}
+		}
 	}
 
 	/**
