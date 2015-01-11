@@ -31,7 +31,7 @@ public class EconomistWriter
 		// YAML Header with title etc.
 		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MMMM d, yyyy");
 		LocalDate pubDate = issue.getDateStamp();
-		writer.write ("---");
+		writer.write ("---\n");
 		writer.write("title: The Economist, " + fmt.format(pubDate) + "\n");
 		writer.write("date: " + pubDate.toString() + "\n");
 		writer.write("\n\n");
