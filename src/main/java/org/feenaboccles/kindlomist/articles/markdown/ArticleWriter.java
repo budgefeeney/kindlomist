@@ -13,8 +13,8 @@ import org.feenaboccles.kindlomist.articles.content.SubHeading;
 import org.feenaboccles.kindlomist.articles.content.Text;
 
 /**
- * Abstract class with helper methods for writing out article
- * content
+ * Allows Markdown representations of articles to be written to a
+ * given {@link Writer}.
  */
 public class ArticleWriter {
 

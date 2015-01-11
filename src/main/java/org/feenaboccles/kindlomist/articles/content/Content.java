@@ -6,7 +6,6 @@ import javax.validation.ValidationException;
 
 /**
  * Article content - can come in several forms (e.g. plain-text, inline images, sub-headings)
- * 
  * @author bryanfeeney
  *
  */

@@ -13,6 +13,13 @@ import org.feenaboccles.kindlomist.articles.content.Content;
 
 /**
  * A Markdown writeable article
+ * <p>
+ * This unifies all the the disparate validated article types 
+ * (see implementors of {@link org.feenaboccles.kindlomist.articles.Article})
+ * and dispenses with the validation checks. Some fields are merged at
+ * this point for writing (e.g. topic getting merged into title), and
+ * all are nullable (see e.g. {@link #hasContent()}, {@link #hasMainImage()}
+ * and {@link #hasStrap()}).
  */
 @Value
 public class Article {
