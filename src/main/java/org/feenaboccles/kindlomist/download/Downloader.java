@@ -160,7 +160,7 @@ public class Downloader extends HttpAction {
 	
 	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException {
 		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
-		String date = "2015-01-03";
+		String date = "2015-01-10";
 		
 		Downloader d = new Downloader(date, "bryan.feeney@gmail.com", password);
 		
