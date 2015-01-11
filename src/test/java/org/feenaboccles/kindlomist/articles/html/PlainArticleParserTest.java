@@ -250,7 +250,6 @@ public class PlainArticleParserTest {
 		assertEquals ("Greece’s election", a.getTopic());
 		assertEquals ("Why an early election spells big dangers for Greece—and for the euro", a.getStrap());
 		assertNotNull (a.getMainImage());
-		
 	}
 	
 	@Test
@@ -264,6 +263,53 @@ public class PlainArticleParserTest {
 		catch (HtmlParseException e)
 		{	assertTrue (e.getCause() instanceof ValidationException);
 		}
+	}
+	
+	@Test
+	public void testOnFinancialArticleWithRefs() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article8-financial-with-refs.html");
 		
+		PlainArticle a = new PlainArticleParser().parse(articleText);
+
+		assertEquals ("Hidden in the long tail", a.getTitle());
+		assertEquals ("Free exchange", a.getTopic());
+		assertEquals ("Consumers reap the benefits of e-commerce in surprising ways", a.getStrap());
+		assertNotNull (a.getMainImage());
+	}
+	
+	@Test
+	public void testOnUselessCongress() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article9-useless-congress.html");
+		
+		PlainArticle a = new PlainArticleParser().parse(articleText);
+
+		assertEquals ("Construction above, obstruction below", a.getTitle());
+		assertEquals ("The new Congress", a.getTopic());
+		assertEquals ("The 114th Congress may be more productive than its predecessor—just", a.getStrap());
+		assertNotNull (a.getMainImage());
+	}
+	
+	@Test
+	public void testOnScaryAds() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article10-scary-ads.html");
+		
+		PlainArticle a = new PlainArticleParser().parse(articleText);
+
+		assertEquals ("Don’t stop, don’t look, don’t listen", a.getTitle());
+		assertEquals ("Public-information films", a.getTopic());
+		assertEquals ("Scary adverts don’t work, yet they are everywhere", a.getStrap());
+		assertNotNull (a.getMainImage());
+	}
+	
+	@Test
+	public void testOnFrenchBookReview() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article11-french-book-review.html");
+		
+		PlainArticle a = new PlainArticleParser().parse(articleText);
+
+		assertEquals ("Irrepressible", a.getTitle());
+		assertEquals ("French fiction: Michel Houellebecq", a.getTopic());
+		assertEquals ("The book that started it all", a.getStrap());
+		assertNull (a.getMainImage());
 	}
 }
