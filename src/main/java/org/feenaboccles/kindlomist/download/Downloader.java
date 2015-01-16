@@ -2,10 +2,10 @@ package org.feenaboccles.kindlomist.download;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.extern.log4j.Log4j2;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.logging.log4j.core.util.Charsets;
@@ -75,8 +74,10 @@ public class Downloader extends HttpAction {
 		ImageResolver   imageResolver;
 		ImageDownloader imageDownloader;
 		try {
-			imageResolver   = new ImageResolver(Files.createTempDirectory("images-"));
+			Path tmpImgDir  = Files.createTempDirectory("images-");
+			imageResolver   = new ImageResolver(tmpImgDir);
 			imageDownloader = new ImageDownloader(client, imageResolver, NUM_SIMUL_DOWNLOADS);
+			tmpImgDir.toFile().deleteOnExit();
 		}
 		catch (IOException e) {
 			throw new HttpActionException("Can't create a temporary directory into which images should be downloaded : " + e.getMessage(), e);
@@ -89,7 +90,6 @@ public class Downloader extends HttpAction {
 		
 		// Download the table of contents
 		log.debug("Downloading the index page for datestamp " + dateStamp + " at URL");
-		// construct the URL
 		final URI u;
 		try {
 			u = new URI("http://www.economist.com/printedition/" + dateStamp);
@@ -181,23 +181,6 @@ public class Downloader extends HttpAction {
 		}
 	}
 	
-	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException {
-		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
-		String date = "2015-01-10";
-		
-		Downloader d = new Downloader(date, "bryan.feeney@gmail.com", password);
-		
-		Economist economist = d.call();
-		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".blob"))) {
-			SerializationUtils.serialize(economist, ostream);
-		}
-		
-		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".md"), Charsets.UTF_8)) {
-			EconomistWriter ewtr = new EconomistWriter();
-			ewtr.writeEconomist(wtr, economist);
-		}
-	}
-	
 	/** 
 	 * Downloads the main article title image for all given articles,
 	 * if one exists
@@ -224,5 +207,24 @@ public class Downloader extends HttpAction {
 	public void downloadAllImages (ImageDownloader d, PlainArticle... articles) {
 		downloadMainImage (d, articles);
 		downloadContentImages (d, articles);
+	}
+	
+
+	
+	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException {
+		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
+		String date = "2015-01-17";
+		
+		Downloader d = new Downloader(date, "bryan.feeney@gmail.com", password);
+		
+		Economist economist = d.call();
+//		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".blob"))) {
+//			SerializationUtils.serialize(economist, ostream);
+//		}
+		
+		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".md"), Charsets.UTF_8)) {
+			EconomistWriter ewtr = new EconomistWriter();
+			ewtr.writeEconomist(wtr, economist);
+		}
 	}
 }
