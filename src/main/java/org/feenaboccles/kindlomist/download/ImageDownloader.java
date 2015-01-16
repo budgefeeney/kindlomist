@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.log4j.Log4j2;
@@ -21,11 +25,13 @@ import org.feenaboccles.kindlomist.articles.content.Image;
  * {@link #launchDownload(URI, URI)}. Once all downloads have been "launched"
  * (in reality queued up), call {@link #waitForAllDownloadsToComplete(long, TimeUnit)}
  */
+@Log4j2
 public class ImageDownloader {
 
 	private final ImageResolver   resolver;
 	private final HttpClient      client;
 	private final ExecutorService executor;
+	private final List<FutureTask<Path>> jobs = new LinkedList<>();;
 	
 	
 	/**
@@ -54,6 +60,15 @@ public class ImageDownloader {
 	public void waitForAllDownloadsToComplete(long timeout, TimeUnit units) throws InterruptedException {
 		executor.shutdown();
 		executor.awaitTermination(timeout, units);
+		
+		// Check if there were any errors
+		for (FutureTask<Path> pathTask : jobs) {
+			try {
+				pathTask.get();
+			} catch (ExecutionException e) {
+				log.error (e.getCause().getMessage(), e);
+			}
+		}
 	}
 	
 	
@@ -96,9 +111,9 @@ public class ImageDownloader {
 				byte[] imageBytes = makeBinaryHttpRequest(imageUri, articleUri);
 				
 				if (image == null) {
-					path = resolver.putImage(image, imageBytes);
-				} else {
 					path = resolver.putImage(uri, imageBytes);
+				} else {
+					path = resolver.putImage(image, imageBytes);
 				}
 				
 				return path;
