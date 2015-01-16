@@ -1,5 +1,7 @@
 package org.feenaboccles.kindlomist.articles.html;
 
+import static org.feenaboccles.kindlomist.articles.html.PlainArticleParserTest.DUMMY_URI;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -13,7 +15,7 @@ public class WeeklyDigestArticleParserTest {
 	public void testOnPoliticsThisWeek() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("pols-this-week.html");
 		
-		WeeklyDigestArticle a = new WeeklyDigestArticleParser().parse(articleText);
+		WeeklyDigestArticle a = new WeeklyDigestArticleParser().parse(DUMMY_URI, articleText);
 		
 		System.out.println (a.toString());
 		
@@ -24,7 +26,7 @@ public class WeeklyDigestArticleParserTest {
 	public void testOnBusinessThisWeek() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("biz-this-week.html");
 		
-		WeeklyDigestArticle a = new WeeklyDigestArticleParser().parse(articleText);
+		WeeklyDigestArticle a = new WeeklyDigestArticleParser().parse(DUMMY_URI, articleText);
 		
 		System.out.println (a.toString());
 		

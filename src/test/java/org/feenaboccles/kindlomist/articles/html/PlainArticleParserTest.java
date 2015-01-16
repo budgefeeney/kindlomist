@@ -22,13 +22,13 @@ import org.junit.Test;
 
 public class PlainArticleParserTest {
 
-	
+	public static URI DUMMY_URI = URI.create("http://www.economist.com/myarticle.html");
 	
 	@Test
 	public void testOnGoodInput() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 		
 		assertEquals ("Don’t shoot", a.getTitle());
 		assertEquals ("Policing", a.getTopic());
@@ -78,7 +78,7 @@ public class PlainArticleParserTest {
 		String articleText = Util.loadFromClassPath("article.html");
 		articleText = articleText.replaceAll("(</?)img", "$1bfg");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 		
 		assertEquals ("Don’t shoot", a.getTitle());
 		assertEquals ("Policing", a.getTopic());
@@ -129,7 +129,7 @@ public class PlainArticleParserTest {
 		articleText = articleText.replaceAll("(</?)div", "$1Spud");
 		
 		try {
-			PlainArticle a = new PlainArticleParser().parse(articleText);
+			PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 			fail ("Somehow generated an articel despite the HTML file being corrputed");
 		}
 		catch (HtmlParseException e) { ; }
@@ -141,7 +141,7 @@ public class PlainArticleParserTest {
 	public void testOnSecondGoodInput() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article2.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Let’s get fiscal", a.getTitle());
 		assertEquals ("Buttonwood", a.getTopic());
@@ -194,7 +194,7 @@ public class PlainArticleParserTest {
 		String articleText = Util.loadFromClassPath("article3-job-ad.html");
 		
 		try {
-			new PlainArticleParser().parse(articleText);
+			new PlainArticleParser().parse(DUMMY_URI, articleText);
 			fail("This parse normally failed due to restrictions on article shortness - have these been unduly relaxed");
 		}
 		catch (HtmlParseException e)
@@ -206,7 +206,7 @@ public class PlainArticleParserTest {
 	public void testOnEconomistRanking() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article4-economist-ranking.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Shifting clout", a.getTitle());
 		assertEquals ("Influential economists", a.getTopic());
@@ -219,7 +219,7 @@ public class PlainArticleParserTest {
 	public void testOnCostOfGoingGreen() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article5-lead-image-is-graph.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Green tape", a.getTitle());
 		assertEquals ("Free exchange", a.getTopic());
@@ -231,7 +231,7 @@ public class PlainArticleParserTest {
 	public void testOnChartWithCommentary() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article6-short-graph-desc.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("The new Congress in numbers", a.getTitle());
 		assertEquals ("In Brief", a.getTopic());
@@ -244,7 +244,7 @@ public class PlainArticleParserTest {
 	public void testOnArticleOnGreece() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article7-greece.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("The euro’s next crisis", a.getTitle());
 		assertEquals ("Greece’s election", a.getTopic());
@@ -257,7 +257,7 @@ public class PlainArticleParserTest {
 		String articleText = Util.loadFromClassPath("article8-intern-ad.html");
 		
 		try {
-			new PlainArticleParser().parse(articleText);
+			new PlainArticleParser().parse(DUMMY_URI, articleText);
 			fail("This parse normally failed due to restrictions on article shortness - have these been unduly relaxed");
 		}
 		catch (HtmlParseException e)
@@ -269,7 +269,7 @@ public class PlainArticleParserTest {
 	public void testOnFinancialArticleWithRefs() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article8-financial-with-refs.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Hidden in the long tail", a.getTitle());
 		assertEquals ("Free exchange", a.getTopic());
@@ -281,7 +281,7 @@ public class PlainArticleParserTest {
 	public void testOnUselessCongress() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article9-useless-congress.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Construction above, obstruction below", a.getTitle());
 		assertEquals ("The new Congress", a.getTopic());
@@ -293,7 +293,7 @@ public class PlainArticleParserTest {
 	public void testOnScaryAds() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article10-scary-ads.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Don’t stop, don’t look, don’t listen", a.getTitle());
 		assertEquals ("Public-information films", a.getTopic());
@@ -305,7 +305,7 @@ public class PlainArticleParserTest {
 	public void testOnFrenchBookReview() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article11-french-book-review.html");
 		
-		PlainArticle a = new PlainArticleParser().parse(articleText);
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Irrepressible", a.getTitle());
 		assertEquals ("French fiction: Michel Houellebecq", a.getTopic());

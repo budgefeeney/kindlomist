@@ -1,6 +1,7 @@
 package org.feenaboccles.kindlomist.articles.html;
 
 import static org.junit.Assert.assertEquals;
+import static org.feenaboccles.kindlomist.articles.html.PlainArticleParserTest.DUMMY_URI;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,7 +20,7 @@ public class PrintedEditionParserTest {
 		String html = Util.loadFromClassPath("printed-index.html");
 		String date = "2012-10-10";
 		
-		PrintEdition p = new PrintEditionParser(date).parse(html);
+		PrintEdition p = new PrintEditionParser(date).parse(DUMMY_URI, html);
 		
 		assertEquals (date, p.getDateStamp());
 		assertEquals (URI.create("http://www.economist.com/news/world-week/21636104-politics-week"), p.getPoliticsThisWeek());

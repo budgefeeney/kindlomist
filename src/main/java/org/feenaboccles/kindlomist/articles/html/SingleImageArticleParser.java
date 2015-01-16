@@ -25,7 +25,7 @@ public class SingleImageArticleParser extends AbstractArticleParser
 	}
 
 	@Override
-	public SingleImageArticle parse(String html) throws HtmlParseException {
+	public SingleImageArticle parse(URI articleUri, String html) throws HtmlParseException {
 		
 		try {
 			Document doc = Jsoup.parse(html);
@@ -33,7 +33,7 @@ public class SingleImageArticleParser extends AbstractArticleParser
 			Element bodyDiv   = findArticleDiv(doc);
 			URI     mainImage = readMainImage(bodyDiv);
 			
-			return new SingleImageArticle(mainImage).validate();
+			return new SingleImageArticle(articleUri, mainImage).validate();
 		}
 		catch (ValidationException e)
 		{	throw new HtmlParseException("The parse succeeded, but the extracted image URL failed to validate: " + e.getMessage(), e);

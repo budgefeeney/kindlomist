@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -19,12 +20,16 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.logging.log4j.core.util.Charsets;
+import org.feenaboccles.kindlomist.articles.ContentBasedArticle;
 import org.feenaboccles.kindlomist.articles.Economist;
 import org.feenaboccles.kindlomist.articles.ImageResolver;
+import org.feenaboccles.kindlomist.articles.MainImageArticle;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.articles.PrintEdition;
 import org.feenaboccles.kindlomist.articles.SingleImageArticle;
 import org.feenaboccles.kindlomist.articles.WeeklyDigestArticle;
+import org.feenaboccles.kindlomist.articles.content.Content;
+import org.feenaboccles.kindlomist.articles.content.Image;
 import org.feenaboccles.kindlomist.articles.html.HtmlParseException;
 import org.feenaboccles.kindlomist.articles.html.HtmlParser;
 import org.feenaboccles.kindlomist.articles.html.PlainArticleParser;
@@ -45,6 +50,8 @@ public class Downloader extends HttpAction {
 	private final String username;
 	private final String password;
 	
+	private final static int NUM_SIMUL_DOWNLOADS = 6;
+	
 	/**
 	 * @param path the path to which files are downloaded. If null a temporary
 	 * directory is created.
@@ -64,6 +71,17 @@ public class Downloader extends HttpAction {
 	 * Downloads the full issue.
 	 */
 	public Economist call() throws HttpActionException, HtmlParseException {
+		// Set things up so we can download images.
+		ImageResolver   imageResolver;
+		ImageDownloader imageDownloader;
+		try {
+			imageResolver   = new ImageResolver(Files.createTempDirectory("images-"));
+			imageDownloader = new ImageDownloader(client, imageResolver, NUM_SIMUL_DOWNLOADS);
+		}
+		catch (IOException e) {
+			throw new HttpActionException("Can't create a temporary directory into which images should be downloaded : " + e.getMessage(), e);
+		}
+		
 		// Log in
 		log.debug("Logging in to the Economist with username " + username);
 		if (! new LoginAction (client, username, password).call())
@@ -85,6 +103,9 @@ public class Downloader extends HttpAction {
 		SingleImageArticle  kal  = fetchAndParse(p.getKalsCartoon(), u, new SingleImageArticleParser());
 		WeeklyDigestArticle pols = fetchAndParse(p.getPoliticsThisWeek(), u, new WeeklyDigestArticleParser());
 		WeeklyDigestArticle biz  = fetchAndParseOrNull(p.getBusinessThisWeek(), u, new WeeklyDigestArticleParser());
+
+		downloadMainImage(imageDownloader, kal);
+		downloadContentImages(imageDownloader, pols, biz);
 		
 		// For each of the sections download the section's articles
 		Map<String, List<PlainArticle>> sections = new HashMap<>(p.getSections().size());
@@ -97,7 +118,9 @@ public class Downloader extends HttpAction {
 					log.debug("Fetching article for section " + e.getKey() + " from URI " + articleUri.toASCIIString());
 				
 				try {
-					articles.add(fetchAndParse(articleUri, u, new PlainArticleParser()));
+					PlainArticle a = fetchAndParse(articleUri, u, new PlainArticleParser());
+					downloadAllImages(imageDownloader, a);
+					articles.add(a);
 				}
 				catch (HtmlParseException hpe) {
 					log.warn("Skipping unparseable article - " + hpe.getMessage(), hpe);
@@ -107,24 +130,24 @@ public class Downloader extends HttpAction {
 			}
 		}
 		
-		// Now go through and fetch all the images
-		ImageResolver imgs = downloadImages();
-		
-		return Economist.builder()
+		// Build the issue
+		try
+		{	imageDownloader.waitForAllDownloadsToComplete(30, TimeUnit.MINUTES);
+			return Economist.builder()
 						.dateStamp(LocalDate.parse(dateStamp))
 						.politicsThisWeek(pols)
 						.businessThisWeek(biz)
 						.kalsCartoon(kal)
 						.sections(sections)
 						.orderedSections(p.getOrderedSections())
-						.images(imgs)
+						.images(imageResolver)
 						.build().validate();
+		}
+		catch (InterruptedException ie) {
+			throw new HttpActionException ("Timed out, or was interrupted, while waiting for all images to download " + ie.getMessage(), ie);
+		}
 	}
 
-
-	private ImageResolver downloadImages() {
-		return new ImageResolver();
-	}
 
 	/**
 	 * Same as {@link #fetchAndParse(URI, URI, HtmlParser)} except that if the target
@@ -136,7 +159,7 @@ public class Downloader extends HttpAction {
 	}
 
 	/**
-	 * Fetches a webpage's HTML from the given URL, throwng a {@link HttpActionException}
+	 * Fetches a webpage's HTML from the given URL, throwing a {@link HttpActionException}
 	 * if an error occurs during the process, and then attempts to parse it into the
 	 * appropriate object, throwing a {@link HtmlParseException} if it fails to parse.
 	 * @param uri the URI of the image being parsed.
@@ -151,7 +174,7 @@ public class Downloader extends HttpAction {
 			final String contents = makeHttpRequest(uri, referrer);
 		
 			// parse it and return
-			return parser.parse(contents);
+			return parser.parse(uri, contents);
 		}
 		catch (HtmlParseException e) {
 			throw new HtmlParseException ("HTML Parse error for URL " + uri.toASCIIString() + " : " + e.getMessage(), e);
@@ -173,5 +196,33 @@ public class Downloader extends HttpAction {
 			EconomistWriter ewtr = new EconomistWriter();
 			ewtr.writeEconomist(wtr, economist);
 		}
+	}
+	
+	/** 
+	 * Downloads the main article title image for all given articles,
+	 * if one exists
+	 */
+	public void downloadMainImage (ImageDownloader d, MainImageArticle... articles) {
+		for (MainImageArticle article : articles)
+			if (article.getMainImage() != null)
+				d.launchDownload(article.getMainImage(), article.getArticleUri());
+	}
+	
+	/**
+	 * Downloads the inline images in the article content
+	 */
+	public void downloadContentImages (ImageDownloader d, ContentBasedArticle... articles) {
+		for (ContentBasedArticle article : articles)
+			for (Content content : article.getBody())
+				if (content.getType() == Content.Type.IMAGE)
+					d.launchDownload((Image) content, article.getArticleUri());
+	}
+	
+	/**
+	 * Downloads all the images in the given plain articles
+	 */
+	public void downloadAllImages (ImageDownloader d, PlainArticle... articles) {
+		downloadMainImage (d, articles);
+		downloadContentImages (d, articles);
 	}
 }

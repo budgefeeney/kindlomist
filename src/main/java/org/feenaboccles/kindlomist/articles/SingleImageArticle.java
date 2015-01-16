@@ -12,8 +12,11 @@ import lombok.Value;
  * for KAL's cartoon
  */
 @Value
-public class SingleImageArticle implements Article {
+public class SingleImageArticle implements Article, MainImageArticle {
 	private static final long serialVersionUID = 1L;
+	
+	@NonNull
+	URI articleUri;
 	
 	@NonNull
 	URI mainImage;

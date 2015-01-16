@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Builder;
 
@@ -24,12 +25,15 @@ import org.hibernate.validator.constraints.Length;
  */
 @Value
 @Builder
-public class PlainArticle implements Article {
+public class PlainArticle implements Article, MainImageArticle, ContentBasedArticle {
 	private static final long serialVersionUID = 1L;
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
 	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\-\\-—\\.\"´‘’'“”()\\{\\}\\[\\]’\\.%…!\\?&\\*/\\\\½⅓⅔¼¾⅛⅜⅝⅞†#]+";
+	
+	@NonNull
+	URI articleUri;
 	
 	@NotNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String title;

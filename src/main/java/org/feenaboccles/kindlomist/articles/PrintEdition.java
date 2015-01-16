@@ -35,6 +35,7 @@ public class PrintEdition implements Serializable {
 	public  static final int    MIN_SEC_NAME_LEN  = 4;
 	public  static final int    MAX_SEC_NAME_LEN  = 60;
 	
+	
 	@NonNull String dateStamp;
 	@NonNull URI politicsThisWeek;
 	         URI businessThisWeek; // for the xmas edition only, this is skipped

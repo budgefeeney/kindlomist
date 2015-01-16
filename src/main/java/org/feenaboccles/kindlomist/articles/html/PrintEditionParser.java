@@ -36,7 +36,7 @@ public class PrintEditionParser implements HtmlParser<PrintEdition> {
 	}
 	
 	@Override
-	public PrintEdition parse (String html) throws HtmlParseException {
+	public PrintEdition parse (URI articleUri, String html) throws HtmlParseException {
 		try {
 			// Declare the variables we're parsing into.
 			URI politics = null, biz = null, kal = null, letters = null, obit = null;

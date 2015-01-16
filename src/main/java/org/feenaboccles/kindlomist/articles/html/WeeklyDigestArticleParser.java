@@ -1,6 +1,7 @@
 package org.feenaboccles.kindlomist.articles.html;
 
 
+import java.net.URI;
 import java.util.List;
 
 import javax.validation.ValidationException;
@@ -25,14 +26,14 @@ public class WeeklyDigestArticleParser extends AbstractArticleParser
 	}
 	
 	@Override
-	public WeeklyDigestArticle parse(String html) throws HtmlParseException {
+	public WeeklyDigestArticle parse(URI articleUri, String html) throws HtmlParseException {
 		try {
 			Document doc = Jsoup.parse(html);
 			Element bodyDiv = findArticleDiv(doc);
 			
 			List<Content> content = readContent(bodyDiv);
 			
-			return new WeeklyDigestArticle(content).validate();
+			return new WeeklyDigestArticle(articleUri, content).validate();
 		}
 		catch (ValidationException e)
 		{	throw new HtmlParseException("The parse succeeded, but the extracted fields defined an article that failed to validate: " + e.getMessage(), e);

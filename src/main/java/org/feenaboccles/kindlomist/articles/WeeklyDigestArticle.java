@@ -1,5 +1,6 @@
 package org.feenaboccles.kindlomist.articles;
 
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import lombok.NonNull;
 import lombok.Value;
 
 import org.feenaboccles.kindlomist.articles.content.Content;
@@ -18,12 +20,15 @@ import org.feenaboccles.kindlomist.valid.Validator;
  * week's stories. Used for "Politics this Week" and "Business this Week"
  */
 @Value
-public class WeeklyDigestArticle implements Article {
+public class WeeklyDigestArticle implements Article, ContentBasedArticle {
 	private static final long serialVersionUID = 1L;
 
 	private static final int MAX_IMAGES_PER_DIGEST = 20;
 	
-	@NotNull @Size(min=1, max=100)
+	@NonNull
+	URI articleUri;
+	
+	@NonNull @NotNull @Size(min=1, max=100)
 	List<Content> body;
 
 	/** 

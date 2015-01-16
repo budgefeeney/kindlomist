@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -28,6 +29,8 @@ public abstract class HttpAction
 	public static enum Method {
 		GET, POST
 	}
+	
+	
 	
 	protected final HttpClient client;
 	protected final RequestConfig reqConfig;
@@ -56,14 +59,43 @@ public abstract class HttpAction
 	 * and return the given response body.
 	 */
 	protected String makeHttpRequest(URI url, String referrerUrl) throws HttpActionException {
-		return makeHttpRequest (Method.GET, url, referrerUrl);
+		try {
+			return EntityUtils.toString (makeHttpRequest (Method.GET, url, referrerUrl));
+		}
+		catch (IOException e) {
+			throw new HttpActionException ("Can't convert web-content to a string : " + e.getMessage(), e);
+		}
+	}
+	
+	
+	/**
+	 * Convenience method to create and execute a HTTP request
+	 * and return the given response body.
+	 */
+	protected byte[] makeBinaryHttpRequest(URI url, URI referrerUrl) throws HttpActionException {
+		return makeBinaryHttpRequest (url, referrerUrl.toASCIIString());
 	}
 	
 	/**
 	 * Convenience method to create and execute a HTTP request
 	 * and return the given response body.
 	 */
-	protected String makeHttpRequest(Method method, URI url, String referrerUrl, NameValuePair... params) throws HttpActionException {
+	protected byte[] makeBinaryHttpRequest(URI url, String referrerUrl) throws HttpActionException {
+		try {
+			return EntityUtils.toByteArray(makeHttpRequest (Method.GET, url, referrerUrl));
+		}
+		catch (IOException e) {
+			throw new HttpActionException ("Can't convert web-content to a byte-array : " + e.getMessage(), e);
+		}
+	}
+	
+	
+	
+	/**
+	 * Convenience method to create and execute a HTTP request
+	 * and return the given response body.
+	 */
+	protected HttpEntity makeHttpRequest(Method method, URI url, String referrerUrl, NameValuePair... params) throws HttpActionException {
 		final RequestBuilder reqBldr = defaultRequestBuilder(method, url);
 	    
 	    if (! StringUtils.isBlank(referrerUrl))
@@ -74,7 +106,6 @@ public abstract class HttpAction
 	    	reqBldr.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), Consts.UTF_8));
 	    }
 	    
-	    final String responseBody;
 	    try  {
 	    	HttpUriRequest req  = reqBldr.build();
 		    HttpResponse   resp = client.execute(req);
@@ -83,14 +114,11 @@ public abstract class HttpAction
 		    if (respStatusCode != HTTP_200_OK)
 		      throw new HttpActionException ("Failed to download page " + url + ", received HTTP response code " + respStatusCode);
 		            
-		    responseBody = EntityUtils.toString(resp.getEntity());
+		    return resp.getEntity();
 	    }
 	    catch (IOException ioe) {
 	    	throw new HttpActionException ("Couldn't access resource on the web at " + url + " : " + ioe.getMessage(), ioe);
 	    }
-
-	    
-	    return responseBody;
 	  }
 
 	/**

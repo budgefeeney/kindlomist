@@ -3,6 +3,7 @@ package org.feenaboccles.kindlomist.articles.markdown;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
+import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.ImageResolver;
@@ -40,9 +41,18 @@ public class ArticleWriter {
 	
 	/**
 	 * Writes out the main image.
+	 * @throws IOException 
 	 */
-	void writeMainImage (URI image) {
-		; // do nothing
+	void writeMainImage (URI image) throws IOException {
+		if (image != null) {
+			Path path = images.getImage(image);
+			writeMarkdownImageTag(path);
+		}
+	}
+
+	private void writeMarkdownImageTag(Path path) throws IOException {
+		String name = StringUtils.substringBefore(path.getFileName().toString(), ".");
+		writer.write ("![" + name + "](" + path.toString() + " " + name + ")\n");
 	}
 	
 	/**
@@ -71,7 +81,10 @@ public class ArticleWriter {
 	 * Writes an image
 	 */
 	void writeContent(Image image) throws IOException {
-		; // TODO Actually do this.
+		if (images.hasImage(image)) {
+			Path path = images.getImage(image);
+			writeMarkdownImageTag(path);
+		}
 	}
 	
 	/**

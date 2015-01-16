@@ -13,6 +13,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -91,35 +92,39 @@ public class LoginAction extends HttpAction {
 		URI postUri;
 		try {
 			postUri = new URI (form.attr("action"));
-		}
+		
+		
+			Element div = form.getElementsByTag("div").first();
+			Elements inputs = div.getElementsByTag("input");
+			for (Element input : inputs) {
+				if (input.attr("name").equals(FORM_BUILD_ID_FIELD)) {
+					formBuildId = input.attr("value");
+					break;
+				};
+			}
+			if (formBuildId == null)
+				throw new HttpActionException("Couldn't access the form build ID value from the page at " + LOGIN_PAGE);
+	
+			
+		    // Post the completed form
+			LOG.debug("Posting the login details");
+			String loggedInPage = EntityUtils.toString (
+				makeHttpRequest (Method.POST, postUri, LOGIN_PAGE.toASCIIString(), 
+					new BasicNameValuePair(NAME_FIELD, username),
+					new BasicNameValuePair(PASSWORD_FIELD, password),
+					new BasicNameValuePair(STAY_LOGGED_FIELD, "0"),
+					new BasicNameValuePair(FORM_BUILD_ID_FIELD, formBuildId),
+					new BasicNameValuePair(FORM_ID_FIELD, formId),
+					new BasicNameValuePair(SECURE_LOGIN_URL_FIELD, formSecureLogin)));
+			
+			if (! loggedInPage.contains(StringUtils.left(username, MAX_USER_EMAIL_DISPLAYABLE_CHARACTERS)))
+				return false;}
 		catch (URISyntaxException e) {
 			throw new HttpActionException("The post-to URL in the downloaded form is not a valid URL : " + form.attr("action") + " : " + e.getMessage());
 		}
-		
-		Element div = form.getElementsByTag("div").first();
-		Elements inputs = div.getElementsByTag("input");
-		for (Element input : inputs) {
-			if (input.attr("name").equals(FORM_BUILD_ID_FIELD)) {
-				formBuildId = input.attr("value");
-				break;
-			};
+		catch (IOException e) {
+			throw new HttpActionException("Failed to download a response from the log-in form : " + e.getMessage(), e);
 		}
-		if (formBuildId == null)
-			throw new HttpActionException("Couldn't access the form build ID value from the page at " + LOGIN_PAGE);
-
-		
-	    // Post the completed form
-		LOG.debug("Posting the login details");
-		String loggedInPage = makeHttpRequest (Method.POST, postUri, LOGIN_PAGE.toASCIIString(), 
-				new BasicNameValuePair(NAME_FIELD, username),
-				new BasicNameValuePair(PASSWORD_FIELD, password),
-				new BasicNameValuePair(STAY_LOGGED_FIELD, "0"),
-				new BasicNameValuePair(FORM_BUILD_ID_FIELD, formBuildId),
-				new BasicNameValuePair(FORM_ID_FIELD, formId),
-				new BasicNameValuePair(SECURE_LOGIN_URL_FIELD, formSecureLogin));
-		
-		if (! loggedInPage.contains(StringUtils.left(username, MAX_USER_EMAIL_DISPLAYABLE_CHARACTERS)))
-			return false;
 		
 		return true;
 	}

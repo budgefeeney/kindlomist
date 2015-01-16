@@ -27,7 +27,7 @@ public class PlainArticleParser extends AbstractArticleParser
 	}
 
 	@Override
-	public PlainArticle parse(String html) throws HtmlParseException {
+	public PlainArticle parse(URI articleUri, String html) throws HtmlParseException {
 		
 		try {
 			Document doc = Jsoup.parse(html);
@@ -54,6 +54,7 @@ public class PlainArticleParser extends AbstractArticleParser
 			}
 			
 			return PlainArticle.builder()
+		                       .articleUri(articleUri)
 				               .title(header.getTitle())
 				               .topic(header.getTopic())
 				               .strap(header.getStrap())
