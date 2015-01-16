@@ -28,7 +28,7 @@ public class ImageResolver implements Serializable
 	
 	private final Map<Image, Path> images;
 	private final Map<URI, Path>  imagesByUri;
-	private final Optional<Path> downloadDirectory;
+	private final Path downloadDirectory;
 	private final AtomicInteger imageCounter = new AtomicInteger(0);
 	
 	/**
@@ -37,18 +37,15 @@ public class ImageResolver implements Serializable
 	 * download directory, which means that the 
 	 */
 	public ImageResolver() {
-		this(Optional.empty());
+		this(null);
 	}
 	
 
 	public ImageResolver(Path downloadDirectory) {
-		this(Optional.of(downloadDirectory));
-	}
-	
-	private ImageResolver(Optional<Path> downloadDirectory) {
 		this.images            = new ConcurrentHashMap<>(EXPECTED_ARTICLE_COUNT * EXPECTED_IMAGES_PER_ARTICLE);
 		this.imagesByUri       = new ConcurrentHashMap<>(EXPECTED_ARTICLE_COUNT);
 		this.downloadDirectory = downloadDirectory;
+		System.out.println ("Temporary image directory is " + downloadDirectory);
 	}
 	
 	public Path getImage(Image key) {
@@ -112,7 +109,7 @@ public class ImageResolver implements Serializable
 	 * can be saved.
 	 */
 	private Path generateImagePath(URI key) {
-		if (! downloadDirectory.isPresent())
+		if (downloadDirectory == null)
 			throw new IllegalStateException("This image resolver was not created with a download directory, so downloads cannot be performed.");
 		
 		int imageCount   = imageCounter.incrementAndGet();
@@ -130,7 +127,7 @@ public class ImageResolver implements Serializable
 			throw new IllegalArgumentException("This does not appear to be a URI pointing to an image file, as it doesn't end with a recognisable extension (.jpg, .jpeg, .gif, .png) : " + key.toASCIIString());
 		}
 		
-		return downloadDirectory.get().resolve(imageFile);
+		return downloadDirectory.resolve(imageFile);
 	}
 
 }
