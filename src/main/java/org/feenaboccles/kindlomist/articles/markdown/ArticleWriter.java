@@ -55,7 +55,7 @@ public class ArticleWriter {
 			System.err.println ("No path for image at " + String.valueOf (source));
 		} else {
 			String name = StringUtils.substringBefore(path.getFileName().toString(), ".");
-			writer.write ("![" + name + "](" + path.toString() + " " + name + ")\n");
+			writer.write ("\n![" + name + "](" + path.toString() + ")\n\n");
 		}
 	}
 	
