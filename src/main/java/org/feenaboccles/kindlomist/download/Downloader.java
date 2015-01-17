@@ -77,7 +77,7 @@ public class Downloader extends HttpAction {
 			Path tmpImgDir  = Files.createTempDirectory("images-");
 			imageResolver   = new ImageResolver(tmpImgDir);
 			imageDownloader = new ImageDownloader(client, imageResolver, NUM_SIMUL_DOWNLOADS);
-//			tmpImgDir.toFile().deleteOnExit();
+			tmpImgDir.toFile().deleteOnExit();
 		}
 		catch (IOException e) {
 			throw new HttpActionException("Can't create a temporary directory into which images should be downloaded : " + e.getMessage(), e);
