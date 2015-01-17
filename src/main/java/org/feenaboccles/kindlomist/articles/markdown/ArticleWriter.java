@@ -46,13 +46,17 @@ public class ArticleWriter {
 	void writeMainImage (URI image) throws IOException {
 		if (image != null) {
 			Path path = images.getImage(image);
-			writeMarkdownImageTag(path);
+			writeMarkdownImageTag(path, image);
 		}
 	}
 
-	private void writeMarkdownImageTag(Path path) throws IOException {
-		String name = StringUtils.substringBefore(path.getFileName().toString(), ".");
-		writer.write ("![" + name + "](" + path.toString() + " " + name + ")\n");
+	private void writeMarkdownImageTag(Path path, Object source) throws IOException {
+		if (path == null) {
+			System.err.println ("No path for image at " + String.valueOf (source));
+		} else {
+			String name = StringUtils.substringBefore(path.getFileName().toString(), ".");
+			writer.write ("![" + name + "](" + path.toString() + " " + name + ")\n");
+		}
 	}
 	
 	/**
@@ -83,7 +87,7 @@ public class ArticleWriter {
 	void writeContent(Image image) throws IOException {
 		if (images.hasImage(image)) {
 			Path path = images.getImage(image);
-			writeMarkdownImageTag(path);
+			writeMarkdownImageTag(path, image.getContent());
 		}
 	}
 	
