@@ -53,16 +53,17 @@ public class ImageResolver implements Serializable
 	}
 	
 	public Path getImage(URI key) { 
-		return images.get(key);
+		return imagesByUri.get(key);
+	}
+	
+	public boolean hasImage(Image key) {
+		return images.containsKey(key);
 	}
 	
 	public boolean hasImage(URI key) {
 		return imagesByUri.containsKey(key);
 	}
 	
-	public boolean hasImage(Image key) {
-		return images.containsKey(key);
-	}
 	
 	public void putImage(Image key, Path imageFile) {
 		imageCounter.incrementAndGet();
