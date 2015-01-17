@@ -77,7 +77,7 @@ public class Downloader extends HttpAction {
 			Path tmpImgDir  = Files.createTempDirectory("images-");
 			imageResolver   = new ImageResolver(tmpImgDir);
 			imageDownloader = new ImageDownloader(client, imageResolver, NUM_SIMUL_DOWNLOADS);
-			tmpImgDir.toFile().deleteOnExit();
+//			tmpImgDir.toFile().deleteOnExit();
 		}
 		catch (IOException e) {
 			throw new HttpActionException("Can't create a temporary directory into which images should be downloaded : " + e.getMessage(), e);
@@ -211,7 +211,7 @@ public class Downloader extends HttpAction {
 	
 
 	
-	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException {
+	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException, InterruptedException {
 		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
 		String date = "2015-01-17";
 		
@@ -222,9 +222,16 @@ public class Downloader extends HttpAction {
 //			SerializationUtils.serialize(economist, ostream);
 //		}
 		
-		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".md"), Charsets.UTF_8)) {
+		String mdPathStr   = "/Users/bryanfeeney/Desktop/economist-" + date + ".md";
+		String epubPathStr = "/Users/bryanfeeney/Desktop/economist-" + date + ".epub";
+		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get(mdPathStr), Charsets.UTF_8)) {
 			EconomistWriter ewtr = new EconomistWriter();
 			ewtr.writeEconomist(wtr, economist);
 		}
+		
+		// Execute the pandoc conversion
+		Runtime rt = Runtime.getRuntime();
+		Process p  = rt.exec("/Users/bryanfeeney/.cabal/bin/pandoc -S  --epub-chapter-level 1 --toc --toc-depth 2 -o " + epubPathStr + " " + mdPathStr);
+		p.waitFor();
 	}
 }
