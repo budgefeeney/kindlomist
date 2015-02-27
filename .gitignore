@@ -19,3 +19,6 @@ hs_err_pid*
 .settings/org.eclipse.core.resources.prefs
 
 *.prefs
+
+.idea/*
+kindlomist.iml
