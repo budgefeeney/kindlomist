@@ -30,7 +30,7 @@ public class PlainArticle implements Article, MainImageArticle, ContentBasedArti
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
-	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\+\\-\\-—\u2013\\.\"´‘’'“”()\\{\\}\\[\\]’\\.%…!\\?&\\*/\\\\½⅓⅔¼¾⅛⅜⅝⅞†\u02da#\u00b0@]+";
+	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\+\\-\\-——\u2013\\.\"´‘’'“”()\\{\\}\\[\\]’\\.%…!\\?&\\*/\\\\½⅓⅔¼¾⅛⅜⅝⅞†\u02da#\u00b0@•<>]+";
 	
 	@NonNull
 	URI articleUri;
@@ -41,7 +41,7 @@ public class PlainArticle implements Article, MainImageArticle, ContentBasedArti
 	@NotNull @Length(min=3, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String topic;
 	
-	@NotNull @Length(min=4, max=160) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
+	@NotNull @Length(min=4, max=180) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String strap;
 	
 	@NotNull @Size(min=1, max=100)
