@@ -46,6 +46,9 @@ public class Main {
 
 	/**
 	 * Processes the commandline arguments and executed the appropriate action.
+	 *
+	 * Returns integer values indicating a successful or failed run, using the
+	 * usual Unix / C conventions (zero is success, non-zero is failure)
 	 */
 	public Integer call(String[] args) {
 		try {
@@ -68,7 +71,7 @@ public class Main {
 			if (! path.getFileName().toString().toLowerCase().endsWith(".epub"))
 				path = Paths.get(path.toString() + ".epub");
 
-			Path coverImagePath = economistIssue.getImages().getImage(economistIssue.getCoverImage());
+			Path coverImagePath = economistIssue.getPathToCoverImage();
 			String command =
 				pandocPath.toString()      + ' '
 				+ "-S"                     + ' '

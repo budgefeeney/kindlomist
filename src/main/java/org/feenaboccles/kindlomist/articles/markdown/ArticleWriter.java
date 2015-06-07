@@ -45,7 +45,7 @@ public class ArticleWriter {
 	 */
 	void writeMainImage (URI image) throws IOException {
 		if (image != null) {
-			Path path = images.getImage(image);
+			Path path = images.getImagePath(image);
 			writeMarkdownImageTag(path, image);
 		}
 	}
@@ -85,7 +85,7 @@ public class ArticleWriter {
 	 */
 	void writeContent(Image image) throws IOException {
 		if (images.hasImage(image)) {
-			Path path = images.getImage(image);
+			Path path = images.getImagePath(image);
 			writeMarkdownImageTag(path, image.getContent());
 		}
 	}

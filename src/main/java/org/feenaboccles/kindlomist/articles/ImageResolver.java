@@ -33,14 +33,9 @@ public class ImageResolver implements Serializable
 	
 	/**
 	 * Creates an {@link ImageResolver} to which paths can be
-	 * assigned and retrieved, but without a specific
-	 * download directory, which means that the 
+	 * assigned and retrieved, but with a specific
+	 * download directory
 	 */
-	public ImageResolver() {
-		this(null);
-	}
-	
-
 	public ImageResolver(Path downloadDirectory) {
 		this.images            = new ConcurrentHashMap<>(EXPECTED_ARTICLE_COUNT * EXPECTED_IMAGES_PER_ARTICLE);
 		this.imagesByUri       = new ConcurrentHashMap<>(EXPECTED_ARTICLE_COUNT);
@@ -48,11 +43,11 @@ public class ImageResolver implements Serializable
 		System.out.println ("Temporary image directory is " + downloadDirectory);
 	}
 	
-	public Path getImage(Image key) {
+	public Path getImagePath(Image key) {
 		return images.get(key);
 	}
 	
-	public Path getImage(URI key) { 
+	public Path getImagePath(URI key) {
 		return imagesByUri.get(key);
 	}
 	

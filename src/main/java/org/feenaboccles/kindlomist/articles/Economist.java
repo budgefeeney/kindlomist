@@ -6,6 +6,7 @@ import static org.feenaboccles.kindlomist.articles.PrintEdition.MIN_SECTION_COUN
 import static org.feenaboccles.kindlomist.articles.PrintEdition.MIN_SEC_NAME_LEN;
 
 import java.io.Serializable;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -94,5 +95,12 @@ public class Economist implements Serializable {
 	 */
 	private boolean isThePostXmasIssue() {
 		return PrintEdition.isThePostXmasIssue(dateStamp);
+	}
+
+	/**
+	 * The path to the downloaded cover image
+	 */
+	public Path getPathToCoverImage() {
+		return images.getImagePath(coverImage);
 	}
 }

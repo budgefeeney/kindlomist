@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -257,7 +256,7 @@ public class Downloader extends HttpAction {
 		}
 		
 		// Execute the pandoc conversion
-		Path coverImagePath = economist.getImages().getImage(economist.getCoverImage());
+		Path coverImagePath = economist.getImages().getImagePath(economist.getCoverImage());
 		Runtime rt = Runtime.getRuntime();
 		Process p  = rt.exec("/Users/bryanfeeney/.cabal/bin/pandoc -S  --epub-chapter-level 1 --toc --toc-depth 2 -o " + epubPathStr + " --epub-cover-image " + coverImagePath.toString() + " " + mdPathStr);
 		p.waitFor();
