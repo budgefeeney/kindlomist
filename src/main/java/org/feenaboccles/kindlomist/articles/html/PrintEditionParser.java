@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.PrintEdition;
+import org.feenaboccles.kindlomist.run.DateStamp;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,14 +25,14 @@ public class PrintEditionParser implements HtmlParser<PrintEdition> {
 	private static final int EXPECTED_ARTICLES_PER_SECTION = 10;
 	private static final int EXPECTED_SECTION_COUNT = 10;
 
-	private final String dateStamp;
+	private final DateStamp dateStamp;
 	
 	/**
 	 * Creates a new {@link PrintEditionParser}
 	 * @param dateStamp the date-stamp assigned to the parsed print
 	 * edition - used to determine if it's an Xmas issue or not.
 	 */
-	public PrintEditionParser(String dateStamp) {
+	public PrintEditionParser(DateStamp dateStamp) {
 		this.dateStamp = dateStamp;
 	}
 	

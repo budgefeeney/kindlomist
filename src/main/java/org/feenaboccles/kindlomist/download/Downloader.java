@@ -36,6 +36,9 @@ import org.feenaboccles.kindlomist.articles.html.PrintEditionParser;
 import org.feenaboccles.kindlomist.articles.html.SingleImageArticleParser;
 import org.feenaboccles.kindlomist.articles.html.WeeklyDigestArticleParser;
 import org.feenaboccles.kindlomist.articles.markdown.EconomistWriter;
+import org.feenaboccles.kindlomist.run.DateStamp;
+import org.feenaboccles.kindlomist.run.Password;
+import org.feenaboccles.kindlomist.run.UserName;
 
 /**
  * Encapsulates the logic involved in downloading a full issue of the Ecomonimst
@@ -45,9 +48,9 @@ import org.feenaboccles.kindlomist.articles.markdown.EconomistWriter;
 @Log4j2
 public class Downloader extends HttpAction {
 
-	private final String dateStamp;
-	private final String username;
-	private final String password;
+	private final DateStamp dateStamp;
+	private final UserName username;
+	private final Password password;
 	
 	private final static int NUM_SIMUL_DOWNLOADS = 6;
 	
@@ -56,7 +59,7 @@ public class Downloader extends HttpAction {
 	 * @param username the username with which to log in
 	 * @param password the password to use when logging in.
 	 */
-	public Downloader(String dateStamp, String username, String password) {
+	public Downloader(DateStamp dateStamp, UserName username, Password password) {
 		super(HttpClientBuilder.create()
 			   	.setRedirectStrategy(new LaxRedirectStrategy())
 			   	.build());
@@ -84,15 +87,15 @@ public class Downloader extends HttpAction {
 		}
 		
 		// Log in
-		log.debug("Logging in to the Economist with username " + username);
+		log.debug("Logging in to the Economist with username " + username.value());
 		if (! new LoginAction (client, username, password).call())
-			throw new HttpActionException("Failed to log in to the " + username + " account with the given password");
+			throw new HttpActionException("Failed to log in to the " + username.value() + " account with the given password");
 		
 		// Download the table of contents
 		log.debug("Downloading the index page for datestamp " + dateStamp + " at URL");
 		final URI u;
 		try {
-			u = new URI("http://www.economist.com/printedition/" + dateStamp);
+			u = new URI("http://www.economist.com/printedition/" + dateStamp.value());
 		} catch (URISyntaxException e) {
 			throw new HttpActionException("Couldn't construct a valid URL from the date-stamp '" + dateStamp + "' : " + e.getMessage(), e);
 		}
@@ -138,7 +141,7 @@ public class Downloader extends HttpAction {
 		try
 		{	imageDownloader.waitForAllDownloadsToComplete(30, TimeUnit.MINUTES);
 			return Economist.builder()
-						.dateStamp(LocalDate.parse(dateStamp))
+						.dateStamp(dateStamp.asLocalDate())
 						.politicsThisWeek(pols)
 						.businessThisWeek(biz)
 						.kalsCartoon(kal)
@@ -160,9 +163,8 @@ public class Downloader extends HttpAction {
 	 * @param dateStamp a date-stamp in the format yyyy-mm-dd
 	 * @return an Image object representing the cover image of the Economist
 	 */
-	private static Image coverImageFromTimeStamp(final String dateStamp) {
-		String dateStampDigisOnly = dateStamp.replaceAll("\\D", "");
-		return new Image("http://cdn.static-economist.com/sites/default/files/imagecache/print-cover-full/print-covers/" + dateStampDigisOnly + "_cuk400.jpg");
+	private static Image coverImageFromTimeStamp(DateStamp dateStamp) {
+		return new Image("http://cdn.static-economist.com/sites/default/files/imagecache/print-cover-full/print-covers/" + dateStamp.valueAsNumbersOnly() + "_cuk400.jpg");
 	}
 
 
@@ -238,9 +240,9 @@ public class Downloader extends HttpAction {
 	
 	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException, InterruptedException {
 		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
-		String date = "2015-06-06";
+		DateStamp date = DateStamp.of("2015-06-06");
 		
-		Downloader d = new Downloader(date, "bryan.feeney@gmail.com", password);
+		Downloader d = new Downloader(date, UserName.of("bryan.feeney@gmail.com"), Password.of(password));
 		
 		Economist economist = d.call();
 //		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".blob"))) {

@@ -14,6 +14,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.feenaboccles.kindlomist.run.Password;
+import org.feenaboccles.kindlomist.run.UserName;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -57,8 +59,8 @@ public class LoginAction extends HttpAction {
 
 	private final static String LOGIN_FORM_TAG = "user-login";
 	
-	private final String username;
-	private final String password;
+	private final UserName username;
+	private final Password password;
 	
 	private final static URI LOGIN_PAGE;
 	static {
@@ -70,7 +72,7 @@ public class LoginAction extends HttpAction {
 		}
 	}
 	
-	public LoginAction(HttpClient client, String username, String password) {
+	public LoginAction(HttpClient client, UserName username, Password password) {
 		super(client);
 		this.username = username;
 		this.password = password;
@@ -110,14 +112,14 @@ public class LoginAction extends HttpAction {
 			LOG.debug("Posting the login details");
 			String loggedInPage = EntityUtils.toString (
 				makeHttpRequest (Method.POST, postUri, LOGIN_PAGE.toASCIIString(), 
-					new BasicNameValuePair(NAME_FIELD, username),
-					new BasicNameValuePair(PASSWORD_FIELD, password),
+					new BasicNameValuePair(NAME_FIELD, username.value()),
+					new BasicNameValuePair(PASSWORD_FIELD, password.value()),
 					new BasicNameValuePair(STAY_LOGGED_FIELD, "0"),
 					new BasicNameValuePair(FORM_BUILD_ID_FIELD, formBuildId),
 					new BasicNameValuePair(FORM_ID_FIELD, formId),
 					new BasicNameValuePair(SECURE_LOGIN_URL_FIELD, formSecureLogin)));
 			
-			if (! loggedInPage.contains(StringUtils.left(username, MAX_USER_EMAIL_DISPLAYABLE_CHARACTERS)))
+			if (! loggedInPage.contains(StringUtils.left(username.value(), MAX_USER_EMAIL_DISPLAYABLE_CHARACTERS)))
 				return false;}
 		catch (URISyntaxException e) {
 			throw new HttpActionException("The post-to URL in the downloaded form is not a valid URL : " + form.attr("action") + " : " + e.getMessage());
@@ -127,15 +129,6 @@ public class LoginAction extends HttpAction {
 		}
 		
 		return true;
-	}
-
-	public static void main (String[] args) throws IOException, HttpActionException
-	{	String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
-		
-		HttpClient client = HttpClientBuilder.create()
-						   .setRedirectStrategy(new LaxRedirectStrategy())
-						   .build();
-		System.out.println (new LoginAction (client, "bryan.feeney@gmail.com", password).call());
 	}
 
 }

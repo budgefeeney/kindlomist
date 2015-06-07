@@ -16,6 +16,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Builder;
 
+import org.feenaboccles.kindlomist.run.DateStamp;
 import org.feenaboccles.kindlomist.valid.Validator;
 
 import cz.jirutka.validator.collection.constraints.EachLength;
@@ -36,7 +37,7 @@ public class PrintEdition implements Serializable {
 	public  static final int    MAX_SEC_NAME_LEN  = 60;
 	
 	
-	@NonNull String dateStamp;
+	@NonNull DateStamp dateStamp;
 	@NonNull URI politicsThisWeek;
 	         URI businessThisWeek; // for the xmas edition only, this is skipped
 	@NonNull URI kalsCartoon;
@@ -69,24 +70,13 @@ public class PrintEdition implements Serializable {
 					throw new ValidationException ("One of the URLs in the " + articleList.getKey() + " section points to a site other than the economist.com");
 		
 		// Check that business this week is present, unless this is the Christmas issue.
-		if (! isTheXmasIssue(dateStamp) && ! isThePostXmasIssue(dateStamp))
+		if (! isTheXmasIssue(dateStamp.asLocalDate()) && ! isThePostXmasIssue(dateStamp.asLocalDate()))
 			if (businessThisWeek == null)
 				throw new ValidationException("The business this week section cannot be null, except for the Christmas issue");
 		
 		return this;
 	}
-	
-	/**
-	 * Returns true if this is the Christmas issue. Amongst other things, this
-	 * is the only issue not to contain a "business this week" section
-	 * <p>
-	 * The Xmas issue is published the last Thursday before Christmas day
-	 * @param dateStamp the issue's date-stamp, in the YYYY-MM-DD format
-	 */
-	final static boolean isTheXmasIssue (String dateStampText) {
-		return isTheXmasIssue(LocalDate.parse(dateStampText));
-	}
-	
+
 	/**
 	 * Returns true if this is the Christmas issue. Amongst other things, this
 	 * is the only issue not to contain a "business this week" section
