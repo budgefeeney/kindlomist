@@ -41,7 +41,7 @@ public class PlainArticle implements Article, MainImageArticle, ContentBasedArti
 	@NotNull @Length(min=3, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String topic;
 	
-	@NotNull @Length(min=4, max=180) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
+	@NotNull @Length(min=4, max=200) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String strap;
 	
 	@NotNull @Size(min=1, max=100)
