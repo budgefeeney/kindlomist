@@ -51,7 +51,7 @@ public class Main {
 
 			// Download the given issue of the Economist
 			Downloader d = new Downloader(dateStamp, username, password);
-			Economist economist = d.call();
+			Economist economistIssue = d.call();
 
 			// Write that issue to a temporary file in Markdown format
 			Path mdPath = Files.createTempFile("economist-" + dateStamp.value(), ".md");
@@ -59,20 +59,20 @@ public class Main {
 
 			try (BufferedWriter wtr = Files.newBufferedWriter(mdPath, Charsets.UTF_8)) {
 				EconomistWriter ewtr = new EconomistWriter();
-				ewtr.writeEconomist(wtr, economist);
+				ewtr.writeEconomist(wtr, economistIssue);
 			}
 
 			// Use Pandoc to convert the Markdown file to an epub file.
 			if (! path.getFileName().toString().toLowerCase().endsWith(".epub"))
 				path = Paths.get(path.toString() + ".epub");
 
-			Path coverImagePath = economist.getImages().getImage(economist.getCoverImage());
+			Path coverImagePath = economistIssue.getImages().getImage(economistIssue.getCoverImage());
 			String command =
-				pandocPath.toString() + ' '
-				+ "-S" + ' '
-				+ " --epub-chapter-level 1" + ' '
-				+ "--toc --toc-depth 2" + ' '
-				+ "-o " + path.toString() + ' '
+				pandocPath.toString()      + ' '
+				+ "-S"                     + ' '
+				+ "--epub-chapter-level 1" + ' '
+				+ "--toc --toc-depth 2"    + ' '
+				+ "-o " + path.toString()  + ' '
 				+ "--epub-cover-image " + coverImagePath.toString() + ' '
 				+ mdPath.toString();
 
