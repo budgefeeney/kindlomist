@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.validation.ValidationException;
 
 /**
- * Article content - can come in several forms (e.g. plain-text, inline images, sub-headings)
+ * Article content - can come in several forms (e.g. paragraph-text, inline images, sub-headings)
  * @author bryanfeeney
  *
  */
