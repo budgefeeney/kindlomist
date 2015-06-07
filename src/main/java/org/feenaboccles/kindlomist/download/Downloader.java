@@ -52,9 +52,9 @@ public class Downloader extends HttpAction {
 	private final static int NUM_SIMUL_DOWNLOADS = 6;
 	
 	/**
-	 * @param path the path to which files are downloaded. If null a temporary
-	 * directory is created.
 	 * @param dateStamp the date-stamp used to identify the particular issue
+	 * @param username the username with which to log in
+	 * @param password the password to use when logging in.
 	 */
 	public Downloader(String dateStamp, String username, String password) {
 		super(HttpClientBuilder.create()
@@ -129,7 +129,11 @@ public class Downloader extends HttpAction {
 				}
 			}
 		}
-		
+
+		// Finally this issue's cover-image
+		Image coverImage = coverImageFromTimeStamp(dateStamp);
+		imageDownloader.launchDownload(coverImage, URI.create("http://www.economist.com/printedition"));
+
 		// Build the issue
 		try
 		{	imageDownloader.waitForAllDownloadsToComplete(30, TimeUnit.MINUTES);
@@ -141,11 +145,24 @@ public class Downloader extends HttpAction {
 						.sections(sections)
 						.orderedSections(p.getOrderedSections())
 						.images(imageResolver)
+						.coverImage(coverImage)
 						.build().validate();
 		}
 		catch (InterruptedException ie) {
 			throw new HttpActionException ("Timed out, or was interrupted, while waiting for all images to download " + ie.getMessage(), ie);
 		}
+	}
+
+	/**
+	 * Downloads the cover image for the print edition of the Econoimst
+	 * associated with the given date-stamp, which should have the format
+	 * yyyy-mm-dd.
+	 * @param dateStamp a date-stamp in the format yyyy-mm-dd
+	 * @return an Image object representing the cover image of the Economist
+	 */
+	private static Image coverImageFromTimeStamp(final String dateStamp) {
+		String dateStampDigisOnly = dateStamp.replaceAll("\\D", "");
+		return new Image("http://cdn.static-economist.com/sites/default/files/imagecache/print-cover-full/print-covers/" + dateStampDigisOnly + "_cuk400.jpg");
 	}
 
 
@@ -180,6 +197,14 @@ public class Downloader extends HttpAction {
 			throw new HtmlParseException ("HTML Parse error for URL " + uri.toASCIIString() + " : " + e.getMessage(), e);
 		}
 	}
+
+	/**
+	 * Downloads the main article title image for all given articles,
+	 * if one exists
+	 */
+	public void downloadCoverImage (ImageDownloader d, Image coverImage) {
+		d.launchDownload(coverImage);
+	}
 	
 	/** 
 	 * Downloads the main article title image for all given articles,
@@ -213,7 +238,7 @@ public class Downloader extends HttpAction {
 	
 	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException, InterruptedException {
 		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
-		String date = "2015-01-17";
+		String date = "2015-06-06";
 		
 		Downloader d = new Downloader(date, "bryan.feeney@gmail.com", password);
 		
@@ -230,8 +255,9 @@ public class Downloader extends HttpAction {
 		}
 		
 		// Execute the pandoc conversion
+		Path coverImagePath = economist.getImages().getImage(economist.getCoverImage());
 		Runtime rt = Runtime.getRuntime();
-		Process p  = rt.exec("/Users/bryanfeeney/.cabal/bin/pandoc -S  --epub-chapter-level 1 --toc --toc-depth 2 -o " + epubPathStr + " " + mdPathStr);
+		Process p  = rt.exec("/Users/bryanfeeney/.cabal/bin/pandoc -S  --epub-chapter-level 1 --toc --toc-depth 2 -o " + epubPathStr + " --epub-cover-image " + coverImagePath.toString() + " " + mdPathStr);
 		p.waitFor();
 	}
 }

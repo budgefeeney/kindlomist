@@ -44,13 +44,17 @@ public class ImageDownloader {
 		this.resolver = resolver;
 		this.executor = Executors.newFixedThreadPool(numSimultaneousDownloads);
 	}
-	
+
+	public void launchDownload(Image image) {
+		executor.submit(new DownloadTask(image, null, client, resolver));
+	}
+
 	public void launchDownload(Image image, URI articleUri) {
-		executor.submit(new Downloader (image, articleUri, client, resolver));
+		executor.submit(new DownloadTask(image, articleUri, client, resolver));
 	}
 
 	public void launchDownload(URI image, URI articleUri) {
-		executor.submit(new Downloader (image, articleUri, client, resolver));
+		executor.submit(new DownloadTask(image, articleUri, client, resolver));
 	}
 	
 	/**
@@ -75,14 +79,14 @@ public class ImageDownloader {
 	// ------------------------------------------------------------------------
 	
 	@Log4j2
-	private final static class Downloader 
+	private final static class DownloadTask
 	extends HttpAction implements Callable<Path>{
 		Image image;
 		URI uri;
 		URI articleUri;
 		ImageResolver resolver;
 		
-		public Downloader(URI uri, URI articleUri, HttpClient client, ImageResolver resolver) {
+		public DownloadTask(URI uri, URI articleUri, HttpClient client, ImageResolver resolver) {
 			super(client);
 			this.image      = null;
 			this.uri        = uri;
@@ -90,7 +94,7 @@ public class ImageDownloader {
 			this.resolver   = resolver;
 		}
 		
-		public Downloader(Image image, URI articleUri, HttpClient client, ImageResolver resolver) {
+		public DownloadTask(Image image, URI articleUri, HttpClient client, ImageResolver resolver) {
 			super(client);
 			this.image      = image;
 			this.uri        = null;

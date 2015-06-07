@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
 
+import org.feenaboccles.kindlomist.articles.content.Image;
 import org.feenaboccles.kindlomist.valid.Validator;
 
 import lombok.NonNull;
@@ -52,6 +53,7 @@ public class Economist implements Serializable {
 	List<String> orderedSections;
 	
 	@NonNull ImageResolver images;
+	@NonNull Image coverImage;
 	
 	public Economist validate() throws ValidationException {
 		Validator.INSTANCE.validate(this, "Economist issue");
@@ -75,7 +77,9 @@ public class Economist implements Serializable {
 		if (! isTheXmasIssue() && ! isThePostXmasIssue())
 			if (businessThisWeek == null)
 				throw new ValidationException("The business this week section is missing - this is only permitted for the Christmas issue");
-			
+
+		// Check the cover image
+		coverImage.validate();
 		
 		return this;
 	}
