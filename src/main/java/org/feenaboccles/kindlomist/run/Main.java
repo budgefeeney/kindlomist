@@ -25,12 +25,14 @@ import org.kohsuke.args4j.ParserProperties;
  * arguments and then executes the script accordingly.
  */
 public class Main {
+	private static final int EXIT_SUCCESS = 0;
+	private static final int EXIT_FAILURE = -1;
 	private static final String SAMPLE_LAUNCH_CMD = "java Main command [options...]\n"
 			+ "   Specify a path to use locally stored files instead of the online edition\n"
 			+ "   Use the --download-only option to download without converting.\n\n";
 
 	public static final void main(String[] args) {
-		new Main().call(args);
+		System.exit(new Main().call(args));
 	}
 
 	private boolean   showHelp  = false;
@@ -45,7 +47,7 @@ public class Main {
 	/**
 	 * Processes the commandline arguments and executed the appropriate action.
 	 */
-	public void call(String[] args) {
+	public Integer call(String[] args) {
 		try {
 			parseArguments(args);
 
@@ -77,9 +79,11 @@ public class Main {
 				+ mdPath.toString();
 
 			shellExecAndWait(command);
+			return EXIT_SUCCESS;
 
 		} catch (Exception e) {
 			System.err.println("ERROR: " + e.getMessage());
+			return EXIT_FAILURE;
 		}
 	}
 
