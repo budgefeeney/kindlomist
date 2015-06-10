@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.validation.ValidationException;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import lombok.NonNull;
@@ -28,7 +27,7 @@ public class WeeklyDigestArticle implements Article, ContentBasedArticle {
 	@NonNull
 	URI articleUri;
 	
-	@NonNull @NotNull @Size(min=1, max=100)
+	@NonNull @Size(min=1, max=100)
 	List<Content> body;
 
 	/** 

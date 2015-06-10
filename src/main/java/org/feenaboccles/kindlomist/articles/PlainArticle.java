@@ -2,13 +2,9 @@ package org.feenaboccles.kindlomist.articles;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import javax.validation.ValidationException;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -30,24 +26,25 @@ public class PlainArticle implements Article, MainImageArticle, ContentBasedArti
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
-	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,,\\+\\-\\-——\u2013\\.\"´‘’'“”()\\{\\}\\[\\]’\\.%…!\\?&\\*/\\\\½⅓⅔¼¾⅛⅜⅝⅞†\u02da#\u00b0@•<>]+";
+	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,\\+\\-\\-——\u2013\\.\"´‘’'“”()\\{\\}\\[\\]’\\.%…!\\?&\\*/\\\\½⅓⅔¼¾⅛⅜⅝⅞†\u02da#\u00b0@•<>]+";
 	
 	@NonNull
 	URI articleUri;
 	
-	@NotNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
+	@NonNull @Length(min=4, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String title;
 	
-	@NotNull @Length(min=3, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
+	@NonNull @Length(min=3, max=80) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String topic;
 	
-	@NotNull @Length(min=4, max=200) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
+	@NonNull @Length(min=4, max=200) @Pattern(regexp=ECONOMIST_VISIBLE_TEXT)
 	String strap;
 	
-	@NotNull @Size(min=1, max=100)
+	@NonNull @Size(min=1, max=100)
 	List<Content> body;
 	
-	URI mainImage;
+	@NonNull
+	Optional<URI> mainImage;
 	
 	
 	/** 
@@ -58,7 +55,7 @@ public class PlainArticle implements Article, MainImageArticle, ContentBasedArti
 	public PlainArticle validate() throws ValidationException
 	{	Validator.INSTANCE.validate(this, "article");
 		
-		if (mainImage != null && ! mainImage.getHost().equals(ECONOMIST_IMAGE_CDN))
+		if (mainImage.isPresent() && ! mainImage.get().getHost().equals(ECONOMIST_IMAGE_CDN))
 			throw new ValidationException("Invalid article: \n\tThe main image URL - " + mainImage + " - accesses an unexpected host.");
 		
 		if (new HashSet<>(body).size() != body.size())

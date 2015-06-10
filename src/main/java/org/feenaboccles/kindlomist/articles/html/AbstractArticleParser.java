@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -70,7 +71,7 @@ public class AbstractArticleParser {
 	 * IMG tag that has the main article image. This may return null, as not all
 	 * articles have such images
 	 */
-	protected URI readMainImage(Element bodyDiv) throws URISyntaxException {
+	protected Optional<URI> readMainImage(Element bodyDiv) throws URISyntaxException {
 		
 		URI mainImage = null;
 		Elements mainImg = bodyDiv.select("div." + MAIN_IMAGE_DIV_CLASS);
@@ -79,7 +80,7 @@ public class AbstractArticleParser {
 			if (! img.isEmpty())
 				mainImage = new URI(img.first().attr("src"));
 		}
-		return mainImage;
+		return Optional.ofNullable(mainImage);
 	}
 
 	/**

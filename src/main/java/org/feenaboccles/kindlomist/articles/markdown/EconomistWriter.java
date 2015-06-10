@@ -39,25 +39,28 @@ public class EconomistWriter
 		writer.write("date: " + pubDate.toString() + "\n");
 		writer.write("\n\n");
 		writer.write("---\n\n");
-		
+
+		// Write out the intial news digest articles. Some special case is needed
+		// for the Christmas issue
 		if (issue.isTheXmasIssue()) {
 			writer.write("# The World this Year\n\n");
 		} else {
 			writer.write("# The World this Week\n\n");
 		}
 		ArticleWriter.write(writer, images, "Politics this Week", issue.getPoliticsThisWeek());
-		
+
 		if (issue.getBusinessThisWeek() != null)
 			ArticleWriter.write(writer, images, "Business this Week", issue.getBusinessThisWeek());
 
+		// Write out KAL's cartoon
 		ArticleWriter.write(writer, images, "KAL's Cartoon", issue.getKalsCartoon());
-		
+
+		// Write out all the sections and their articles.
 		for (String sectionName : issue.getOrderedSections()) {
 			writer.write ("# " + sectionName + "\n\n");
 			for (PlainArticle article : issue.getSections().get(sectionName)) {
 				ArticleWriter.write(writer, images, article);
 			}
 		}
-
 	}
 }

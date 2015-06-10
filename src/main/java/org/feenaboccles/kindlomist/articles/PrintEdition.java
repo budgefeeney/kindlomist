@@ -8,6 +8,7 @@ import java.time.Month;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
@@ -39,7 +40,7 @@ public class PrintEdition implements Serializable {
 	
 	@NonNull DateStamp dateStamp;
 	@NonNull URI politicsThisWeek;
-	         URI businessThisWeek; // for the xmas edition only, this is skipped
+	         Optional<URI> businessThisWeek; // for the xmas edition only, this is skipped
 	@NonNull URI kalsCartoon;
 	@NonNull URI letters;
 	@NonNull URI obituary;
@@ -60,7 +61,7 @@ public class PrintEdition implements Serializable {
 			throw new ValidationException ("The ordered list of sections has " + new HashSet<>(orderedSections).size() + " distinct elements, but the map of sections to article-lists has just " + sections.size() + " elements");
 		
 		// Check all the URIs for images and articles lie within the Economist domain
-		for (URI u : new URI[] { politicsThisWeek, businessThisWeek, kalsCartoon, letters, obituary })
+		for (URI u : new URI[] { politicsThisWeek, businessThisWeek.orElse(null), kalsCartoon, letters, obituary })
 			if (u != null && ! u.getHost().endsWith(ECONOMIST_COM))
 				throw new ValidationException ("One of the following URLs points to a site other than the economist.com: Politics this Week, Business this Week, KAL's Cartoon, Letters and/or Obituary");
 		

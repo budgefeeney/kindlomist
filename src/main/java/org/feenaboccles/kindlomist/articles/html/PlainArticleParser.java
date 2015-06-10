@@ -3,6 +3,7 @@ package org.feenaboccles.kindlomist.articles.html;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.ValidationException;
 
@@ -31,7 +32,7 @@ public class PlainArticleParser extends AbstractArticleParser
 			ArticleHeader header = readHeaders(doc);
 			
 			Element bodyDiv = findArticleDiv(doc);
-			URI mainImage = readMainImage(bodyDiv);
+			Optional<URI> mainImage = readMainImage(bodyDiv);
 			
 			List<Content> content = readContent(bodyDiv);
 

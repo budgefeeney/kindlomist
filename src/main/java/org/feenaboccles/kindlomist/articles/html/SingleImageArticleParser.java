@@ -2,6 +2,7 @@ package org.feenaboccles.kindlomist.articles.html;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.NoSuchElementException;
 
 import javax.validation.ValidationException;
 
@@ -27,9 +28,12 @@ public class SingleImageArticleParser extends AbstractArticleParser
 			Document doc = Jsoup.parse(html);
 			
 			Element bodyDiv   = findArticleDiv(doc);
-			URI     mainImage = readMainImage(bodyDiv);
+			URI     mainImage = readMainImage(bodyDiv).get();
 			
 			return new SingleImageArticle(articleUri, mainImage).validate();
+		}
+		catch (NoSuchElementException nsee)
+		{	throw new HtmlParseException("Could not find the expected image in the downloaded page at URL : " + articleUri);
 		}
 		catch (ValidationException e)
 		{	throw new HtmlParseException("The parse succeeded, but the extracted image URL failed to validate: " + e.getMessage(), e);

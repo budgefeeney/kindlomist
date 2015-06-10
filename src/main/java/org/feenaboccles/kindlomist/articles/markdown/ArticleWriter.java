@@ -49,7 +49,7 @@ public class ArticleWriter {
 			images,
 			article.getTopic() + ": " + article.getTitle(),
 			Optional.of(article.getStrap()),
-			Optional.of(article.getMainImage()),
+			article.getMainImage(),
 			article.getBody()
 		);
 	}

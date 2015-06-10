@@ -2,10 +2,7 @@ package org.feenaboccles.kindlomist.articles.html;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.PrintEdition;
@@ -14,6 +11,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import javax.swing.text.html.Option;
 
 /**
  * Takes a page listing all the articles in the current printed edition and
@@ -104,7 +103,7 @@ public class PrintEditionParser implements HtmlParser<PrintEdition> {
 			return PrintEdition.builder()
 					           .dateStamp(dateStamp)
 							   .politicsThisWeek(politics)
-							   .businessThisWeek(biz)
+							   .businessThisWeek(Optional.ofNullable(biz))
 							   .kalsCartoon(kal)
 							   .letters(letters)
 							   .sections(sections)
