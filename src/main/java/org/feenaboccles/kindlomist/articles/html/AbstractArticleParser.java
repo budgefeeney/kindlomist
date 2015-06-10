@@ -20,6 +20,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+/**
+ * Contains convenience methods for parsing pages from Economist.com
+ */
 public class AbstractArticleParser {
 
 
@@ -81,7 +84,7 @@ public class AbstractArticleParser {
 
 	/**
 	 * Finds within the document the title, topic and strap associated with
-	 * an article, and returns them all together as a single {@link ArticleHeader}
+	 * an article, and return them all together as a single {@link ArticleHeader}
 	 * object
 	 */
 	protected ArticleHeader readHeaders(Document doc) {
@@ -114,7 +117,9 @@ public class AbstractArticleParser {
 	
 	/**
 	 * Checks if a given paragraph tag, despite not containing any CSS, is in 
-	 * fact a heading
+	 * fact intended to be a heading, by considering its styling. Evidently
+	 * some Economist authors just prefer to hit the bold button than the
+	 * heading button.
 	 */
 	private boolean isHeadingInBoldTag (Element elem, String paraText) {
 		// sometimes you see headings like "<strong>Sources</strong>:"
@@ -155,7 +160,7 @@ public class AbstractArticleParser {
 		// Extract the body text, and any other images.
 		String paraText;
 		for (Element element : bodyDiv.children()) {
-			if (element.nodeName() == "p" && (! (paraText = clean(element.text())).isEmpty())) {
+			if (element.nodeName().equalsIgnoreCase("p") && (! (paraText = clean(element.text())).isEmpty())) {
 				if (element.className().equals ("xhead") || isHeadingInBoldTag(element, paraText)) {
 					content.add (new SubHeading (paraText));
 				}
@@ -176,7 +181,7 @@ public class AbstractArticleParser {
 					}
 				}
 			}
-			else if (element.nodeName() == "div" && isContentImageDivClass(element.className())) {
+			else if (element.nodeName().equalsIgnoreCase("div") && isContentImageDivClass(element.className())) {
 				Elements imgs = element.getElementsByTag("img");
 				if (! imgs.isEmpty())
 					content.add (new Image (imgs.first().attr("src")));

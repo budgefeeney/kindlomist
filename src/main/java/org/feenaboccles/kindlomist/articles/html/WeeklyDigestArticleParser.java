@@ -20,10 +20,6 @@ import org.jsoup.nodes.Element;
  */
 public class WeeklyDigestArticleParser extends AbstractArticleParser
 	implements HtmlParser<WeeklyDigestArticle >{
-
-	public WeeklyDigestArticleParser() {
-		// TODO Auto-generated constructor stub
-	}
 	
 	@Override
 	public WeeklyDigestArticle parse(URI articleUri, String html) throws HtmlParseException {
@@ -42,7 +38,4 @@ public class WeeklyDigestArticleParser extends AbstractArticleParser
 		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
 		}
 	}
-
-
-
 }

@@ -20,10 +20,6 @@ import org.jsoup.nodes.Element;
 public class SingleImageArticleParser extends AbstractArticleParser 
 	implements HtmlParser<SingleImageArticle> {
 
-	public SingleImageArticleParser() {
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public SingleImageArticle parse(URI articleUri, String html) throws HtmlParseException {
 		

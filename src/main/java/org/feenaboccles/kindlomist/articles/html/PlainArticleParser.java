@@ -34,13 +34,7 @@ public class PlainArticleParser extends AbstractArticleParser
 			URI mainImage = readMainImage(bodyDiv);
 			
 			List<Content> content = readContent(bodyDiv);
-			
-//			// In some cases what should be the main image is encoded as a piece of content
-//			if (mainImage == null && content.get(0).getType() == Content.Type.IMAGE && StringUtils.right(content.get(0).getContent(), 4).toLowerCase().equals(".jpg")) {
-//				mainImage = new URI(content.get(0).getContent());
-//				content.remove(0);
-//			}
-			
+
 			// In some cases the Economist may publish a mini-article lacking either title,
 			// such as mini-articles showing a chart with some commentary, or both title and topic,
 			// such as job ads. We skip the job ads, but work around the charts with commentary.
