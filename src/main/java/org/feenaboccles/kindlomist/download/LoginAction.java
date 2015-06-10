@@ -3,6 +3,7 @@ package org.feenaboccles.kindlomist.download;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -76,7 +77,7 @@ public class LoginAction extends HttpAction {
 		// Download and parse the login page
 		LOG.debug("Downloading the login page from " + LOGIN_PAGE);
 		String formId, formBuildId = null, formSecureLogin;
-		String loginPage = makeHttpRequest(LOGIN_PAGE, "https://www.economist.com");
+		String loginPage = makeHttpRequest(LOGIN_PAGE, Optional.of(URI.create("https://www.economist.com")));
 		
 		LOG.debug("Parsing the login " + loginPage.length() + "-character login page");
 		Document document = Jsoup.parse(loginPage);
@@ -105,7 +106,7 @@ public class LoginAction extends HttpAction {
 		    // Post the completed form
 			LOG.debug("Posting the login details");
 			String loggedInPage = EntityUtils.toString (
-				makeHttpRequest (Method.POST, postUri, LOGIN_PAGE.toASCIIString(), 
+				makeHttpRequest (Method.POST, postUri, Optional.of(LOGIN_PAGE.toASCIIString()),
 					new BasicNameValuePair(NAME_FIELD, username.value()),
 					new BasicNameValuePair(PASSWORD_FIELD, password.value()),
 					new BasicNameValuePair(STAY_LOGGED_FIELD, "0"),

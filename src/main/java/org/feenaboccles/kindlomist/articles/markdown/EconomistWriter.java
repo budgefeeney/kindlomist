@@ -49,8 +49,8 @@ public class EconomistWriter
 		}
 		ArticleWriter.write(writer, images, "Politics this Week", issue.getPoliticsThisWeek());
 
-		if (issue.getBusinessThisWeek() != null)
-			ArticleWriter.write(writer, images, "Business this Week", issue.getBusinessThisWeek());
+		if (issue.getBusinessThisWeek().isPresent())
+			ArticleWriter.write(writer, images, "Business this Week", issue.getBusinessThisWeek().get());
 
 		// Write out KAL's cartoon
 		ArticleWriter.write(writer, images, "KAL's Cartoon", issue.getKalsCartoon());

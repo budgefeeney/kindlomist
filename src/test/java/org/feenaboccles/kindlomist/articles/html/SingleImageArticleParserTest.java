@@ -16,6 +16,6 @@ public class SingleImageArticleParserTest {
 		
 		SingleImageArticle a = new SingleImageArticleParser().parse(DUMMY_URI, articleText);
 		
-		assertEquals ("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/2014/12/articles/main/20141213_wwd000.jpg", a.getMainImage().toASCIIString());
+		assertEquals ("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/2014/12/articles/main/20141213_wwd000.jpg", a.getMainImage().get().toASCIIString());
 	}
 }

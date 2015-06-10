@@ -1,23 +1,19 @@
 package org.feenaboccles.kindlomist.download;
 
-import java.io.BufferedWriter;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.logging.log4j.core.util.Charsets;
 import org.feenaboccles.kindlomist.articles.ContentBasedArticle;
 import org.feenaboccles.kindlomist.articles.Economist;
 import org.feenaboccles.kindlomist.articles.ImageResolver;
@@ -34,7 +30,6 @@ import org.feenaboccles.kindlomist.articles.html.PlainArticleParser;
 import org.feenaboccles.kindlomist.articles.html.PrintEditionParser;
 import org.feenaboccles.kindlomist.articles.html.SingleImageArticleParser;
 import org.feenaboccles.kindlomist.articles.html.WeeklyDigestArticleParser;
-import org.feenaboccles.kindlomist.articles.markdown.EconomistWriter;
 
 /**
  * Encapsulates the logic involved in downloading a full issue of the Ecomonimst
@@ -89,22 +84,27 @@ public class Downloader extends HttpAction {
 		
 		// Download the table of contents
 		log.debug("Downloading the index page for datestamp " + dateStamp + " at URL");
-		final URI u;
+		final Optional<URI> u;
 		try {
-			u = new URI("http://www.economist.com/printedition/" + dateStamp.value());
+			u = Optional.of(new URI("http://www.economist.com/printedition/" + dateStamp.value()));
 		} catch (URISyntaxException e) {
 			throw new HttpActionException("Couldn't construct a valid URL from the date-stamp '" + dateStamp + "' : " + e.getMessage(), e);
 		}
-		PrintEdition p = fetchAndParse(u, URI.create("http://www.economist.com"), new PrintEditionParser(dateStamp));
+		PrintEdition p = fetchAndParse(u.get(), some(URI.create("http://www.economist.com")), new PrintEditionParser(dateStamp));
 		
 		// Download the special articles (politics this week, Kals cartoon, etc.)
 		log.debug("Loading core articles: politics, business, and cartoon");
 		SingleImageArticle  kal  = fetchAndParse(p.getKalsCartoon(), u, new SingleImageArticleParser());
-		WeeklyDigestArticle pols = fetchAndParse(p.getPoliticsThisWeek(), u, new WeeklyDigestArticleParser());
-		WeeklyDigestArticle biz  = fetchAndParseOrNull(p.getBusinessThisWeek(), u, new WeeklyDigestArticleParser());
+		WeeklyDigestArticle pols = fetchAndParseDigest(p.getPoliticsThisWeek(), u);
+		Optional<WeeklyDigestArticle> biz =
+				p.getBusinessThisWeek().isPresent()
+				? Optional.of(fetchAndParseDigest(p.getBusinessThisWeek().get(), u))
+				: Optional.empty();
+
 
 		downloadMainImage(imageDownloader, kal);
-		downloadContentImages(imageDownloader, pols, biz);
+		downloadContentImages(imageDownloader, pols);
+		biz.ifPresent(b -> downloadContentImages(imageDownloader, b));
 		
 		// For each of the sections download the section's articles
 		Map<String, List<PlainArticle>> sections = new HashMap<>(p.getSections().size());
@@ -165,24 +165,25 @@ public class Downloader extends HttpAction {
 
 
 	/**
-	 * Same as {@link #fetchAndParse(URI, URI, HtmlParser)} except that if the target
-	 * URI is null, this will return null.
+	 * Fetches a weekly news digest page and parses it into a {@link WeeklyDigestArticle}
+	 * @param uri the URI of the article being parsed.
+	 * @param referrer the  URI of the referrer
 	 */
-	private <T> T fetchAndParseOrNull (URI uri, URI referrer, HtmlParser<T> parser)
+	private WeeklyDigestArticle fetchAndParseDigest (URI uri, Optional<URI> referrer)
 			throws HttpActionException, HtmlParseException {
-		return uri == null ? null : fetchAndParse (uri, referrer, parser);
+		return fetchAndParse(uri, referrer, new WeeklyDigestArticleParser());
 	}
 
 	/**
 	 * Fetches a webpage's HTML from the given URL, throwing a {@link HttpActionException}
 	 * if an error occurs during the process, and then attempts to parse it into the
 	 * appropriate object, throwing a {@link HtmlParseException} if it fails to parse.
-	 * @param uri the URI of the image being parsed.
-	 * @param referrer the optional URI of the referrer
+	 * @param uri the URI of the article being parsed.
+	 * @param referrer the  URI of the referrer
 	 * @param parser the object required to parse the fetched HTML into an object
 	 * @return the parsed object corresponding to the given HTML
 	 */
-	private <T> T fetchAndParse (URI uri, URI referrer, HtmlParser<T> parser)
+	private <T> T fetchAndParse (URI uri, Optional<URI> referrer, HtmlParser<T> parser)
 	throws HttpActionException, HtmlParseException {
 		try {
 			// download the page
@@ -196,13 +197,6 @@ public class Downloader extends HttpAction {
 		}
 	}
 
-	/**
-	 * Downloads the main article title image for all given articles,
-	 * if one exists
-	 */
-	public void downloadCoverImage (ImageDownloader d, Image coverImage) {
-		d.launchDownload(coverImage);
-	}
 	
 	/** 
 	 * Downloads the main article title image for all given articles,
@@ -210,8 +204,8 @@ public class Downloader extends HttpAction {
 	 */
 	public void downloadMainImage (ImageDownloader d, MainImageArticle... articles) {
 		for (MainImageArticle article : articles)
-			if (article.getMainImage() != null)
-				d.launchDownload(article.getMainImage(), article.getArticleUri());
+			if (article.getMainImage().isPresent())
+				d.launchDownload(article.getMainImage().get(), article.getArticleUri());
 	}
 	
 	/**
@@ -231,31 +225,11 @@ public class Downloader extends HttpAction {
 		downloadMainImage (d, articles);
 		downloadContentImages (d, articles);
 	}
-	
 
-	
-	public static void main (String[] args) throws IOException, HttpActionException, HtmlParseException, InterruptedException {
-		String password = Files.readAllLines(Paths.get("/Users/bryanfeeney/Desktop/eco.passwd")).get(0);
-		DateStamp date = DateStamp.of("2015-06-06");
-		
-		Downloader d = new Downloader(date, UserName.of("bryan.feeney@gmail.com"), Password.of(password));
-		
-		Economist economist = d.call();
-//		try (OutputStream ostream = Files.newOutputStream(Paths.get("/Users/bryanfeeney/Desktop/economist-" + date + ".blob"))) {
-//			SerializationUtils.serialize(economist, ostream);
-//		}
-		
-		String mdPathStr   = "/Users/bryanfeeney/Desktop/economist-" + date + ".md";
-		String epubPathStr = "/Users/bryanfeeney/Desktop/economist-" + date + ".epub";
-		try (BufferedWriter wtr = Files.newBufferedWriter(Paths.get(mdPathStr), Charsets.UTF_8)) {
-			EconomistWriter ewtr = new EconomistWriter();
-			ewtr.writeEconomist(wtr, economist);
-		}
-		
-		// Execute the pandoc conversion
-		Path coverImagePath = economist.getImages().getImagePath(economist.getCoverImage());
-		Runtime rt = Runtime.getRuntime();
-		Process p  = rt.exec("/Users/bryanfeeney/.cabal/bin/pandoc -S  --epub-chapter-level 1 --toc --toc-depth 2 -o " + epubPathStr + " --epub-cover-image " + coverImagePath.toString() + " " + mdPathStr);
-		p.waitFor();
+	/**
+	 * Converts a non null value to an Optional value.
+	 */
+	private static <T> Optional<T> some (@NonNull T value) {
+		return Optional.of(value);
 	}
 }

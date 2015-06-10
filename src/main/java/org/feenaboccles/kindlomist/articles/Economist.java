@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
@@ -43,7 +44,7 @@ public class Economist implements Serializable {
 	
 	@NonNull LocalDate dateStamp;
 	@NonNull WeeklyDigestArticle politicsThisWeek;
-	         WeeklyDigestArticle businessThisWeek;
+	@NonNull Optional<WeeklyDigestArticle> businessThisWeek;
 	@NonNull SingleImageArticle kalsCartoon;
 	
 	@NonNull @Size(min=MIN_SECTION_COUNT, max=MAX_SECTION_COUNT)
@@ -76,7 +77,7 @@ public class Economist implements Serializable {
 		
 		// Check that business this week is present, unless this is the Christmas issue.
 		if (! isTheXmasIssue() && ! isThePostXmasIssue())
-			if (businessThisWeek == null)
+			if (! businessThisWeek.isPresent())
 				throw new ValidationException("The business this week section is missing - this is only permitted for the Christmas issue");
 
 		// Check the cover image

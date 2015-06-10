@@ -3,6 +3,7 @@ package org.feenaboccles.kindlomist.download;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -19,8 +20,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 /**
- * Performs some HTTP action using {@link #makeHttpRequest(URI, String)},
- * {@link #makeBinaryHttpRequest(URI, URI)} and their overloaded variants.
+ * Performs some HTTP action using {@link #makeHttpRequest(URI, Optional)},
+ * {@link #makeBinaryHttpRequest(URI, Optional)} and their overloaded variants.
  * the response a string.
  */
 public abstract class HttpAction
@@ -51,15 +52,17 @@ public abstract class HttpAction
 	 * Convenience method to create and execute a HTTP request
 	 * and return the given response body.
 	 */
-	protected String makeHttpRequest(URI url, URI referrerUrl) throws HttpActionException {
-		return makeHttpRequest (url, referrerUrl.toASCIIString());
+	protected String makeHttpRequest(URI url, Optional<URI> referrerUrl) throws HttpActionException {
+		return makeHttpRequestWithUnvalidatedRef (url, referrerUrl.map(URI::toASCIIString));
 	}
 	
 	/**
 	 * Convenience method to create and execute a HTTP request
-	 * and return the given response body.
+	 * and return the given response body. The name comes from the fact
+	 * that by using a string for the referrer URL parameter there's
+	 * no guarantee that it actuall contains a valid URL.
 	 */
-	protected String makeHttpRequest(URI url, String referrerUrl) throws HttpActionException {
+	protected String makeHttpRequestWithUnvalidatedRef(URI url, Optional<String> referrerUrl) throws HttpActionException {
 		try {
 			return EntityUtils.toString (makeHttpRequest (Method.GET, url, referrerUrl));
 		}
@@ -73,15 +76,17 @@ public abstract class HttpAction
 	 * Convenience method to create and execute a HTTP request
 	 * and return the given response body.
 	 */
-	protected byte[] makeBinaryHttpRequest(URI url, URI referrerUrl) throws HttpActionException {
-		return makeBinaryHttpRequest (url, referrerUrl.toASCIIString());
+	protected byte[] makeBinaryHttpRequest(URI url, Optional<URI> referrerUrl) throws HttpActionException {
+		return makeBinaryHttpRequestWithUnvalidatedRef(url, referrerUrl.map(URI::toASCIIString));
 	}
 	
 	/**
 	 * Convenience method to create and execute a HTTP request
-	 * and return the given response body.
+	 * and return the given response body. The name comes from the
+	 * fact that the use of strings means that the referrerUrl
+	 * parameter may not represent a valid URL
 	 */
-	protected byte[] makeBinaryHttpRequest(URI url, String referrerUrl) throws HttpActionException {
+	protected byte[] makeBinaryHttpRequestWithUnvalidatedRef(URI url, Optional<String> referrerUrl) throws HttpActionException {
 		try {
 			return EntityUtils.toByteArray(makeHttpRequest (Method.GET, url, referrerUrl));
 		}
@@ -96,11 +101,10 @@ public abstract class HttpAction
 	 * Convenience method to create and execute a HTTP request
 	 * and return the given response body.
 	 */
-	protected HttpEntity makeHttpRequest(Method method, URI url, String referrerUrl, NameValuePair... params) throws HttpActionException {
+	protected HttpEntity makeHttpRequest(Method method, URI url, Optional<String> referrerUrl, NameValuePair... params) throws HttpActionException {
 		final RequestBuilder reqBldr = defaultRequestBuilder(method, url);
 	    
-	    if (! StringUtils.isBlank(referrerUrl))
-	    	reqBldr.addHeader(new BasicHeader("Referer", referrerUrl));
+	    referrerUrl.ifPresent(r -> reqBldr.addHeader(new BasicHeader("Referer", r)));
 	    if (params.length > 0) {
 	    	if (method != Method.POST)
 	    		throw new IllegalArgumentException("Can only specify name-value pairs for POST actions.");

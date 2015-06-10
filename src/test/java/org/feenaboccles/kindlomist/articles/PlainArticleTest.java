@@ -5,10 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import javax.validation.ValidationException;
 
@@ -54,7 +51,7 @@ public class PlainArticleTest {
 						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
 						.body(SAMPLE_BODY)
-						.mainImage(MAIN_IMAGE)
+						.mainImage(Optional.of(MAIN_IMAGE))
 						.build().validate();
 		
 		assertEquals (SAMPLE_TITLE, a.getTitle());
@@ -78,7 +75,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(SAMPLE_BODY)
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 				fail ("Failed to invalidate a title which was " + issues[i]);
 			}
@@ -101,7 +98,7 @@ public class PlainArticleTest {
 							.topic(inputs[i])
 							.strap(SAMPLE_STRAP)
 							.body(SAMPLE_BODY)
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 				fail ("Failed to invalidate a title which was " + issues[i]);
 			}
@@ -114,7 +111,7 @@ public class PlainArticleTest {
 				.topic("Fed")
 				.strap(SAMPLE_STRAP)
 				.body(SAMPLE_BODY)
-				.mainImage(MAIN_IMAGE)
+				.mainImage(Optional.of(MAIN_IMAGE))
 				.build().validate(); // will throw an exception if not
 	}	
 	
@@ -133,7 +130,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(inputs[i])
 							.body(SAMPLE_BODY)
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 				fail ("Failed to invalidate a strap which was " + issues[i]);
 			}
@@ -152,7 +149,7 @@ public class PlainArticleTest {
 						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
 						.body(Collections.emptyList())
-						.mainImage(MAIN_IMAGE)
+						.mainImage(Optional.of(MAIN_IMAGE))
 						.build().validate();
 			fail ("Failed to invalidate a body which had no content");
 		}
@@ -164,7 +161,7 @@ public class PlainArticleTest {
 						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
 						.body(null)
-						.mainImage(MAIN_IMAGE)
+						.mainImage(Optional.of(MAIN_IMAGE))
 						.build().validate();
 			fail ("Failed to invalidate a body which had null instead of a list");
 		}
@@ -181,7 +178,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(SAMPLE_BODY)
-							.mainImage(new URI ("http://www.google.com"))
+							.mainImage(Optional.of(URI.create("http://www.google.com")))
 							.build().validate();
 			
 			fail ("Failed to detect an image URL exiting the Economist's domain");
@@ -214,7 +211,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(Arrays.asList(new Content[] { new Text(inputs[i]) } ))
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 				fail ("Failed to invalidate a body paragraph which was " + issues[i]);
 			}
@@ -238,7 +235,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(Arrays.asList(new Content[] { new SubHeading(inputs[i]) } ))
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 				fail ("Failed to invalidate a body paragraph which was " + issues[i]);
 			}
@@ -252,7 +249,7 @@ public class PlainArticleTest {
 				.topic(SAMPLE_TOPIC)
 				.strap(SAMPLE_STRAP)
 				.body(Arrays.asList(new Content[] { new SubHeading("Whither Osborne") } ))
-				.mainImage(MAIN_IMAGE)
+				.mainImage(Optional.of(MAIN_IMAGE))
 				.build().validate(); // will throw an exception if not
 	}
 
@@ -272,7 +269,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(Arrays.asList(new Content[] { new Image(inputs[i]) } ))
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 				fail ("Failed to invalidate a body image which was " + issues[i]);
 			}
@@ -292,7 +289,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(dupes)
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 			
 			fail ("Failed to detect duplicated image URLs in body");
@@ -310,7 +307,7 @@ public class PlainArticleTest {
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(tooManyImages)
-							.mainImage(MAIN_IMAGE)
+							.mainImage(Optional.of(MAIN_IMAGE))
 							.build().validate();
 			
 			fail ("Failed to detect too many image URLs");

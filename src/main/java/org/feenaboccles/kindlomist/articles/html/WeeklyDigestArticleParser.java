@@ -19,7 +19,7 @@ import org.jsoup.nodes.Element;
  *
  */
 public class WeeklyDigestArticleParser extends AbstractArticleParser
-	implements HtmlParser<WeeklyDigestArticle >{
+	implements HtmlParser<WeeklyDigestArticle>{
 	
 	@Override
 	public WeeklyDigestArticle parse(URI articleUri, String html) throws HtmlParseException {

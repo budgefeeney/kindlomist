@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -13,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.http.client.HttpClient;
@@ -45,15 +47,15 @@ public class ImageDownloader {
 		this.executor = Executors.newFixedThreadPool(numSimultaneousDownloads);
 	}
 
-	public void launchDownload(Image image) {
+	public void launchDownload(@NonNull Image image) {
 		executor.submit(new DownloadTask(image, null, client, resolver));
 	}
 
-	public void launchDownload(Image image, URI articleUri) {
+	public void launchDownload(@NonNull Image image, @NonNull URI articleUri) {
 		executor.submit(new DownloadTask(image, articleUri, client, resolver));
 	}
 
-	public void launchDownload(URI image, URI articleUri) {
+	public void launchDownload(@NonNull URI image, @NonNull URI articleUri) {
 		executor.submit(new DownloadTask(image, articleUri, client, resolver));
 	}
 	
@@ -112,7 +114,7 @@ public class ImageDownloader {
 				if (log.isInfoEnabled())
 					log.info ("Downloading from " + uri.toASCIIString());
 				
-				byte[] imageBytes = makeBinaryHttpRequest(imageUri, articleUri);
+				byte[] imageBytes = makeBinaryHttpRequest(imageUri, Optional.of(articleUri));
 				
 				if (image == null) {
 					path = resolver.putImage(uri, imageBytes);

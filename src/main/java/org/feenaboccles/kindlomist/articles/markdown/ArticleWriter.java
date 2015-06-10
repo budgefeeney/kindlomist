@@ -77,7 +77,7 @@ public class ArticleWriter {
 			images,
 			title,
 			Optional.empty(),
-			Optional.of(article.getMainImage()),
+			article.getMainImage(),
 			Collections.emptyList()
 		);
 	}

@@ -1,7 +1,9 @@
 package org.feenaboccles.kindlomist.articles;
 
 import java.net.URI;
+import java.util.Optional;
 
+import javax.validation.Valid;
 import javax.validation.ValidationException;
 
 import lombok.NonNull;
@@ -26,5 +28,9 @@ public class SingleImageArticle implements Article, MainImageArticle {
 			throw new ValidationException("The URL for the image in this single-image article points outside the Economist domain : " + mainImage.toASCIIString());
 		
 		return this;
+	}
+
+	public Optional<URI> getMainImage() {
+		return Optional.of(mainImage);
 	}
 }
