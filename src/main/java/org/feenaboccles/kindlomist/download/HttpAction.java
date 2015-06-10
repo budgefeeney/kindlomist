@@ -19,14 +19,15 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 /**
- * Performs some HTTP action using {@link #call()}, optionally returns 
+ * Performs some HTTP action using {@link #makeHttpRequest(URI, String)},
+ * {@link #makeBinaryHttpRequest(URI, URI)} and their overloaded variants.
  * the response a string.
  */
 public abstract class HttpAction
 {
 	private static final int HTTP_200_OK = 200;
 
-	public static enum Method {
+	public enum Method {
 		GET, POST
 	}
 	

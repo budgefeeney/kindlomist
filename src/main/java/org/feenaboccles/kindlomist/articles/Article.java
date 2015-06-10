@@ -15,5 +15,5 @@ public interface Article extends Serializable {
 	/**
 	 * The URI of this article itself
 	 */
-	public URI getArticleUri();
+	URI getArticleUri();
 }

@@ -31,7 +31,7 @@ public class ImageDownloader {
 	private final ImageResolver   resolver;
 	private final HttpClient      client;
 	private final ExecutorService executor;
-	private final List<FutureTask<Path>> jobs = new LinkedList<>();;
+	private final List<FutureTask<Path>> jobs = new LinkedList<>();
 	
 	
 	/**

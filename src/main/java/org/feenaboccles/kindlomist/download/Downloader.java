@@ -219,9 +219,9 @@ public class Downloader extends HttpAction {
 	 */
 	public void downloadContentImages (ImageDownloader d, ContentBasedArticle... articles) {
 		for (ContentBasedArticle article : articles)
-			for (Content content : article.getBody())
-				if (content.getType() == Content.Type.IMAGE)
-					d.launchDownload((Image) content, article.getArticleUri());
+			article.getBody().stream()
+					.filter(content -> content.getType() == Content.Type.IMAGE)
+					.forEach(content -> d.launchDownload((Image) content, article.getArticleUri()));
 	}
 	
 	/**

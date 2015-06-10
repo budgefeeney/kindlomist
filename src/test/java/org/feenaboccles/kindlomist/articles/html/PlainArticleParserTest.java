@@ -132,7 +132,7 @@ public class PlainArticleParserTest {
 			PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
 			fail ("Somehow generated an articel despite the HTML file being corrputed");
 		}
-		catch (HtmlParseException e) { ; }
+		catch (HtmlParseException e) {  }
 		// any other exception should be an error here.
 		
 	}

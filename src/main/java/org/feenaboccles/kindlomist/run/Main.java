@@ -32,7 +32,7 @@ public class Main {
 			+ "   Specify a path to use locally stored files instead of the online edition\n"
 			+ "   Use the --download-only option to download without converting.\n\n";
 
-	public static final void main(String[] args) {
+	public static void main(String[] args) {
 		System.exit(new Main().call(args));
 	}
 
@@ -94,7 +94,7 @@ public class Main {
 	/**
 	 * Extracts the given shell command and waits for it to execute
 	 */
-	public static final void shellExecAndWait (String command) throws IOException, InterruptedException {
+	public static void shellExecAndWait (String command) throws IOException, InterruptedException {
 		Runtime rt = Runtime.getRuntime();
 		Process p  = rt.exec(command);
 		p.waitFor();
@@ -161,7 +161,7 @@ public class Main {
 	}
 
 
-	private final Path guessPandocPath() throws IOException {
+	private Path guessPandocPath() throws IOException {
 		List<Path> paths = new ArrayList<>(5);
 		paths.add (Paths.get(System.getProperty("user.home"))
 						.resolve(".cabal")

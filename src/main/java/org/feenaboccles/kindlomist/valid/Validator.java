@@ -18,7 +18,7 @@ public enum Validator {
 	
 	private final javax.validation.Validator validator;
 	
-	private Validator()
+	Validator()
 	{
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		validator = factory.getValidator();
@@ -38,7 +38,9 @@ public enum Validator {
 		for (ConstraintViolation<T> violation : violations) {
 			String propertyPath = violation.getPropertyPath().toString();
 			String message      = violation.getMessage();
-			failures.append("\tInvalid value for: '" + propertyPath + "': " + message + "\n");
+			failures.append("\tInvalid value for: '")
+					.append(propertyPath).append("': ")
+					.append(message) .append('\n');
 		}
 		
 		if (failures.length() > 0)

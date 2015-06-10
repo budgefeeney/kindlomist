@@ -39,7 +39,7 @@ public class Text implements Content {
 		return this;
 	}
 	
-	private final static String findIssue(java.util.regex.Pattern pat, String str) {
+	private static String findIssue(java.util.regex.Pattern pat, String str) {
 		Matcher m = pat.matcher(str);
 		if (! m.matches())
 		{	if (str.length() == 1) {

@@ -15,16 +15,13 @@ import org.jsoup.nodes.Element;
 
 /**
  * Takes a HTML page representing a standard Economist article, and parses
- * it into a {@link PlainArticle} object via the {@link #parse(String)} method.
+ * it into a {@link PlainArticle} object via the {@link #parse(URI, String)}  method.
  * <p>
  * Threadsafe.
  */
 public class PlainArticleParser extends AbstractArticleParser
 	implements HtmlParser<PlainArticle> {
 
-	public PlainArticleParser() {
-		;
-	}
 
 	@Override
 	public PlainArticle parse(URI articleUri, String html) throws HtmlParseException {

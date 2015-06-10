@@ -105,7 +105,7 @@ public class AbstractArticleParser {
 	 * @param defaultValue what to return if the child-tag does not 
 	 * exist. 
 	 */
-	private final static String childTagText(Element parent, String childTag, String defaultValue) {
+	private static String childTagText(Element parent, String childTag, String defaultValue) {
 		Elements es = parent.getElementsByTag(childTag);
 		return es.isEmpty()
 			? defaultValue
@@ -148,7 +148,7 @@ public class AbstractArticleParser {
 	 * DIV.
 	 */
 	protected List<Content> readContent(Element bodyDiv) {
-		List<Content> content = new ArrayList<Content>(EXPECTED_IMAGE_COUNT + EXPECTED_PARAGRAPH_COUNT);
+		List<Content> content = new ArrayList<>(EXPECTED_IMAGE_COUNT + EXPECTED_PARAGRAPH_COUNT);
 		
 		int maxAllowedFootnotes = 0; // allow FOOTNOTES_PER_PARAGRAPH per textual paragraph.
 		

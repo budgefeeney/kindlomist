@@ -8,5 +8,5 @@ public interface HtmlParser<T> {
 	 * Parses the HTML of the given article, downloaded from the given URI,
 	 * and returns an appropriate object
 	 */
-	public T parse (URI documentUri, String html) throws HtmlParseException;
+	T parse (URI documentUri, String html) throws HtmlParseException;
 }

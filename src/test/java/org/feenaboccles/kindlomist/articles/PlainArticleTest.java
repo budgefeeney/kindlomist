@@ -24,7 +24,7 @@ public class PlainArticleTest {
 	private final static String SAMPLE_TITLE = "My first article";
 	private final static String SAMPLE_TOPIC = "Stuff";
 	private final static String SAMPLE_STRAP = "This is a quick article about somethign small";
-	private final static List<Content> SAMPLE_BODY  = Arrays.<Content>asList(new Content[] {
+	private final static List<Content> SAMPLE_BODY  = Arrays.asList(new Content[] {
 			new Text ("WHEN the first mobile phone call was made in 1973, few members of the public were interested in the new technology. Telecoms companies had to invent reasons to use them—for instance, that they could be used to call a friend to pass the time when stuck in a car during a traffic jam—in order to get sceptical consumers to adopt them. But now, most people in rich countries could not imagine life without one: there are now more active mobile-phone connections in America and Europe than people."),
 			new SubHeading("Rising Importance"),
 			new Image("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png"),
@@ -84,7 +84,7 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a title which was " + issues[i]);
 			}
-			catch (ValidationException e) { ; }
+			catch (ValidationException e) {  }
 		}
 	}	
 	
@@ -107,7 +107,7 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a title which was " + issues[i]);
 			}
-			catch (ValidationException e) { ; }
+			catch (ValidationException e) {  }
 		}
 		
 		// verify the small topic is okay
@@ -139,7 +139,7 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a strap which was " + issues[i]);
 			}
-			catch (ValidationException e) { ; }
+			catch (ValidationException e) {  }
 		}
 	}	
 	
@@ -158,7 +158,7 @@ public class PlainArticleTest {
 						.build().validate();
 			fail ("Failed to invalidate a body which had no content");
 		}
-		catch (ValidationException e) { ; }
+		catch (ValidationException e) {  }
 		
 		try {
 			PlainArticle a = PlainArticle.builder()
@@ -170,7 +170,7 @@ public class PlainArticleTest {
 						.build().validate();
 			fail ("Failed to invalidate a body which had null instead of a list");
 		}
-		catch (ValidationException e) { ; }
+		catch (ValidationException e) {  }
 	}
 	
 	
@@ -188,7 +188,7 @@ public class PlainArticleTest {
 			
 			fail ("Failed to detect an image URL exiting the Economist's domain");
 		}
-		catch (ValidationException e) { ; }
+		catch (ValidationException e) {  }
 		
 		// Verify that no main image is okay
 		PlainArticle a = PlainArticle.builder()
@@ -220,8 +220,8 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a body paragraph which was " + issues[i]);
 			}
-			catch (ValidationException e)  { ; }
-			catch (NullPointerException e) { ; }
+			catch (ValidationException e)  {  }
+			catch (NullPointerException e) {  }
 		}
 	}
 	
@@ -244,8 +244,8 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a body paragraph which was " + issues[i]);
 			}
-			catch (ValidationException e)  { ; }
-			catch (NullPointerException e) { ; }
+			catch (ValidationException e)  {  }
+			catch (NullPointerException e) {  }
 		}
 		
 		// Verify shortish headings are still okay
@@ -278,12 +278,12 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a body image which was " + issues[i]);
 			}
-			catch (ValidationException e)  { ; }
-			catch (NullPointerException e) { ; }
+			catch (ValidationException e)  {  }
+			catch (NullPointerException e) {  }
 		}
 		
 		
-		List<Content> dupes = new ArrayList<Content>(2);
+		List<Content> dupes = new ArrayList<>(2);
 		dupes.add(new Image(MAIN_IMAGE.toASCIIString()));
 		dupes.add(new Image(MAIN_IMAGE.toASCIIString()));
 		dupes.add(new Text("Lorem ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet ispum sit dolor amet"));
@@ -299,10 +299,10 @@ public class PlainArticleTest {
 			
 			fail ("Failed to detect duplicated image URLs in body");
 		}
-		catch (ValidationException e) { ; }
+		catch (ValidationException e) {  }
 		
 		int tooMany = PlainArticle.MAX_IMAGES_PER_ARTICLE + 1;
-		ArrayList<Content> tooManyImages = new ArrayList<Content>(tooMany);
+		ArrayList<Content> tooManyImages = new ArrayList<>(tooMany);
 		for (int i = 0; i < tooMany; i++)
 			tooManyImages.add (new Image("http://cdn.static-economist.com/images/" + i + ".png"));
 		
@@ -317,6 +317,6 @@ public class PlainArticleTest {
 			
 			fail ("Failed to detect too many image URLs");
 		}
-		catch (ValidationException e) { ; }
+		catch (ValidationException e) {  }
 	}
 }

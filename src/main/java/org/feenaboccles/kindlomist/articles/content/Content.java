@@ -21,17 +21,17 @@ public interface Content extends Serializable {
 	/**
 	 * Gets the text value of the content encapsulated by this object
 	 */
-	public String getContent();
+	String getContent();
 	
 	/**
 	 * Checks that this content is valid, throwing a {@link ValidationException}
 	 * if not.
 	 */
-	public Content validate() throws ValidationException;
+	Content validate() throws ValidationException;
 	
 	/**
 	 * Returns the type of this content - same as an instanceof check really, but
 	 * it's a bit cleaner to code up
 	 */
-	public Type getType();
+	Type getType();
 }

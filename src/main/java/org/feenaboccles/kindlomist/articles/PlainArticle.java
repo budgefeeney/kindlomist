@@ -86,10 +86,10 @@ public class PlainArticle implements Article, MainImageArticle, ContentBasedArti
 	 * Converts a list of Strings to a list of URIs. 
 	 * @throws URISyntaxException 
 	 * 
-	 * @todo Consider moving to a different class
+	 * TODO Consider moving to a different class
 	 */
 	public static List<URI> toUriList (Collection<String> urlStrings) throws URISyntaxException
-	{	List<URI> result = new ArrayList<URI>(urlStrings.size());
+	{	List<URI> result = new ArrayList<>(urlStrings.size());
 		for (String urlString : urlStrings)
 			result.add(new URI(urlString));
 		
