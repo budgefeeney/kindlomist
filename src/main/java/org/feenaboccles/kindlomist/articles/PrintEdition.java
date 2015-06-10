@@ -16,7 +16,7 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.Builder;
 
-import org.feenaboccles.kindlomist.run.DateStamp;
+import org.feenaboccles.kindlomist.download.DateStamp;
 import org.feenaboccles.kindlomist.valid.Validator;
 
 import cz.jirutka.validator.collection.constraints.EachLength;
@@ -84,7 +84,7 @@ public class PrintEdition implements Serializable {
 	 * The Xmas issue is published the last Thursday before Christmas day
 	 * @param dateStamp the issue's date-stamp, in the YYYY-MM-DD format
 	 */
-	public final static boolean isTheXmasIssue (LocalDate dateStamp) {
+	public static boolean isTheXmasIssue (LocalDate dateStamp) {
 		if (dateStamp.getMonth() != Month.DECEMBER)
 			return false;
 		
@@ -105,7 +105,7 @@ public class PrintEdition implements Serializable {
 	 * Returns true if this is the first issue after Xmas.
 	 * This may not contain a "business this week" section
 	 */
-	final static boolean isThePostXmasIssue (String dateStampText) {
+	static boolean isThePostXmasIssue (String dateStampText) {
 		return isThePostXmasIssue(LocalDate.parse(dateStampText));
 	}
 	
@@ -113,7 +113,7 @@ public class PrintEdition implements Serializable {
 	 * Returns true if this is the first issue after Xmas.
 	 * This may not contain a "business this week" section
 	 */
-	public final static boolean isThePostXmasIssue (LocalDate dateStamp) {
+	public static boolean isThePostXmasIssue (LocalDate dateStamp) {
 		return dateStamp.getMonth() == Month.JANUARY
 			&& dateStamp.isBefore(LocalDate.of(dateStamp.getYear(), 1, 7));
 	}

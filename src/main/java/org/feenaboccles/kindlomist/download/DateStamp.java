@@ -1,4 +1,4 @@
-package org.feenaboccles.kindlomist.run;
+package org.feenaboccles.kindlomist.download;
 
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;

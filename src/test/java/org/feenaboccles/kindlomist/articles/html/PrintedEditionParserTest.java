@@ -11,14 +11,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.feenaboccles.kindlomist.articles.PrintEdition;
+import org.feenaboccles.kindlomist.download.DateStamp;
 import org.junit.Test;
+
+import javax.validation.ValidationException;
 
 public class PrintedEditionParserTest {
 
 	@Test
-	public void testValidHtml() throws HtmlParseException, IOException {
+	public void testValidHtml() throws HtmlParseException, IOException, ValidationException {
 		String html = Util.loadFromClassPath("printed-index.html");
-		String date = "2012-10-10";
+		DateStamp date = DateStamp.of("2012-10-10");
 		
 		PrintEdition p = new PrintEditionParser(date).parse(DUMMY_URI, html);
 		
@@ -28,10 +31,10 @@ public class PrintedEditionParserTest {
 		assertEquals (URI.create("http://www.economist.com/news/world-week/21636083-kals-cartoon"), p.getKalsCartoon());
 		assertEquals (URI.create("http://www.economist.com/news/letters/21635968-letters-editor"), p.getLetters());
 		
-		assertEquals (Arrays.<String>asList(new String[] { "Leaders", "Briefing", "United States", "The Americas", "Asia", "China", "Middle East and Africa", "Europe", "Britain", "International", "Special report: Luxury", "Business", "Finance and economics", "Science and technology", "Books and arts", "Obituary" }), p.getOrderedSections());
+		assertEquals (Arrays.asList(new String[] { "Leaders", "Briefing", "United States", "The Americas", "Asia", "China", "Middle East and Africa", "Europe", "Britain", "International", "Special report: Luxury", "Business", "Finance and economics", "Science and technology", "Books and arts", "Obituary" }), p.getOrderedSections());
 		
 		Map<String, List<URI>> pSections = p.getSections();
-		assertEquals (new HashSet<String>(p.getOrderedSections()), pSections.keySet());
+		assertEquals (new HashSet<>(p.getOrderedSections()), pSections.keySet());
 		
 		int[]    linkCounts   = new int[]    { 5, 12, 8, 6, 1, 10, 4, 8, 5, 6, 5, 4, 3 };
 		String[] sectionNames = new String[] { 

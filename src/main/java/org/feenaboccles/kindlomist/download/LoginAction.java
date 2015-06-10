@@ -3,19 +3,13 @@ package org.feenaboccles.kindlomist.download;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.feenaboccles.kindlomist.run.Password;
-import org.feenaboccles.kindlomist.run.UserName;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -102,7 +96,7 @@ public class LoginAction extends HttpAction {
 				if (input.attr("name").equals(FORM_BUILD_ID_FIELD)) {
 					formBuildId = input.attr("value");
 					break;
-				};
+				}
 			}
 			if (formBuildId == null)
 				throw new HttpActionException("Couldn't access the form build ID value from the page at " + LOGIN_PAGE);

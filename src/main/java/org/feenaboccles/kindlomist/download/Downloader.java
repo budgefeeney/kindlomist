@@ -35,9 +35,6 @@ import org.feenaboccles.kindlomist.articles.html.PrintEditionParser;
 import org.feenaboccles.kindlomist.articles.html.SingleImageArticleParser;
 import org.feenaboccles.kindlomist.articles.html.WeeklyDigestArticleParser;
 import org.feenaboccles.kindlomist.articles.markdown.EconomistWriter;
-import org.feenaboccles.kindlomist.run.DateStamp;
-import org.feenaboccles.kindlomist.run.Password;
-import org.feenaboccles.kindlomist.run.UserName;
 
 /**
  * Encapsulates the logic involved in downloading a full issue of the Ecomonimst
@@ -171,7 +168,7 @@ public class Downloader extends HttpAction {
 	 * Same as {@link #fetchAndParse(URI, URI, HtmlParser)} except that if the target
 	 * URI is null, this will return null.
 	 */
-	private final <T> T fetchAndParseOrNull (URI uri, URI referrer, HtmlParser<T> parser) 
+	private <T> T fetchAndParseOrNull (URI uri, URI referrer, HtmlParser<T> parser)
 			throws HttpActionException, HtmlParseException {
 		return uri == null ? null : fetchAndParse (uri, referrer, parser);
 	}
@@ -185,7 +182,7 @@ public class Downloader extends HttpAction {
 	 * @param parser the object required to parse the fetched HTML into an object
 	 * @return the parsed object corresponding to the given HTML
 	 */
-	private final <T> T fetchAndParse (URI uri, URI referrer, HtmlParser<T> parser) 
+	private <T> T fetchAndParse (URI uri, URI referrer, HtmlParser<T> parser)
 	throws HttpActionException, HtmlParseException {
 		try {
 			// download the page

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.PrintEdition;
-import org.feenaboccles.kindlomist.run.DateStamp;
+import org.feenaboccles.kindlomist.download.DateStamp;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -92,7 +92,7 @@ public class PrintEditionParser implements HtmlParser<PrintEdition> {
 				
 				// Otherwise proceed to create a standard section
 				orderedSectionHeadings.add(sectionHeader);
-				List<URI> articles = new ArrayList<URI>(EXPECTED_ARTICLES_PER_SECTION);
+				List<URI> articles = new ArrayList<>(EXPECTED_ARTICLES_PER_SECTION);
 				sections.put(sectionHeader, articles);
 				
 				Elements articleLinks = sec.getElementsByTag("a");
@@ -122,7 +122,7 @@ public class PrintEditionParser implements HtmlParser<PrintEdition> {
 	 * missing a host
 	 * @throws URISyntaxException 
 	 */
-	static final URI toUri (String url) throws URISyntaxException {
+	static URI toUri (String url) throws URISyntaxException {
 		return StringUtils.left(url, 4).toUpperCase().equals("HTTP")
 				? new URI (url)
 				: new URI ("http://www.economist.com" + url);
