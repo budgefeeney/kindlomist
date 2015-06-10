@@ -73,7 +73,7 @@ public class PrintEdition implements Serializable {
 		// Check that business this week is present, unless this is the Christmas issue.
 		if (! isTheXmasIssue(dateStamp.asLocalDate()) && ! isThePostXmasIssue(dateStamp.asLocalDate()))
 			if (! businessThisWeek.isPresent())
-				throw new ValidationException("The business this week section cannot be null, except for the Christmas issue");
+				throw new ValidationException("The business this week section cannot be absent, except for the Christmas issue");
 		
 		return this;
 	}
