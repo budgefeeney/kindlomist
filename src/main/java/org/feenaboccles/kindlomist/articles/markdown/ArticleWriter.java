@@ -68,8 +68,10 @@ public class ArticleWriter {
 	 */
 	public static void write (@NonNull Writer writer,
 							  @NonNull ImageResolver images,
-							  String   title,
+							  @NonNull String   title,
 							  @NonNull SingleImageArticle article) throws IOException {
+		if (StringUtils.isBlank(title))
+			throw new IllegalArgumentException("Can't have an empty title");
 		write(
 			writer,
 			images,
@@ -93,15 +95,17 @@ public class ArticleWriter {
 	 */
 	public static void write (@NonNull Writer writer,
 							  @NonNull ImageResolver images,
-							  String   title,
+							  @NonNull String   title,
 							  @NonNull WeeklyDigestArticle article) throws IOException {
+		if (StringUtils.isBlank(title))
+			throw new IllegalArgumentException("Can't have an empty title");
 		write(
 				writer,
 				images,
 				title,
 				Optional.empty(),
 				Optional.empty(),
-				Collections.emptyList()
+				article.getBody()
 		);
 	}
 
