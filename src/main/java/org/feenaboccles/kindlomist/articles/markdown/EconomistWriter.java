@@ -45,17 +45,17 @@ public class EconomistWriter
 		} else {
 			writer.write("# The World this Week\n\n");
 		}
-		Article.write(writer, images, "Politics this Week", issue.getPoliticsThisWeek());
+		ArticleWriter.write(writer, images, "Politics this Week", issue.getPoliticsThisWeek());
 		
 		if (issue.getBusinessThisWeek() != null)
-			Article.write(writer, images, "Business this Week", issue.getBusinessThisWeek());
+			ArticleWriter.write(writer, images, "Business this Week", issue.getBusinessThisWeek());
 
-		Article.write(writer, images, "KAL's Cartoon", issue.getKalsCartoon());
+		ArticleWriter.write(writer, images, "KAL's Cartoon", issue.getKalsCartoon());
 		
 		for (String sectionName : issue.getOrderedSections()) {
 			writer.write ("# " + sectionName + "\n\n");
 			for (PlainArticle article : issue.getSections().get(sectionName)) {
-				Article.write(writer, images, article);
+				ArticleWriter.write(writer, images, article);
 			}
 		}
 

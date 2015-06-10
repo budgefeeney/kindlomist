@@ -27,9 +27,9 @@ import org.feenaboccles.kindlomist.articles.content.*;
  */
 @Log4j2
 @Value
-public class Article {
+public class ArticleWriter {
 
-	private Article() { }
+	private ArticleWriter() { }
 
 
 	/**
