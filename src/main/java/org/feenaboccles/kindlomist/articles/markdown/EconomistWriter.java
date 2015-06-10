@@ -25,8 +25,10 @@ import org.feenaboccles.kindlomist.articles.PlainArticle;
 public class EconomistWriter 
 {
 
+	private EconomistWriter() { }
+
 	// TODO Proper title, nicely formated date
-	public void writeEconomist (Writer writer, Economist issue) throws IOException {
+	public static void write (Writer writer, Economist issue) throws IOException {
 		ImageResolver images = issue.getImages();
 
 		// YAML Header with title etc.

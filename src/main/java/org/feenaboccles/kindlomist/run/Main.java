@@ -64,8 +64,7 @@ public class Main {
 			mdPath.toFile().deleteOnExit();
 
 			try (BufferedWriter wtr = Files.newBufferedWriter(mdPath, Charsets.UTF_8)) {
-				EconomistWriter ewtr = new EconomistWriter();
-				ewtr.writeEconomist(wtr, economistIssue);
+				EconomistWriter.write(wtr, economistIssue);
 			}
 
 			// Use Pandoc to convert the Markdown file to an epub file.
