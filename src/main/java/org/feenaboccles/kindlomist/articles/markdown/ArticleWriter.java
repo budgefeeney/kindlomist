@@ -137,7 +137,7 @@ public class ArticleWriter {
 			writeMainImage (writer, images, mainImage.get());
 		if (! contents.isEmpty())
 			for (Content contentItem : contents)
-				writeContent (contentItem);
+				writeContent (writer, images, contentItem);
 	}
 
 	/**
@@ -173,12 +173,12 @@ public class ArticleWriter {
 	/**
 	 * Writes out the element of content from an article
 	 */
-	private static void writeContent(Content content) throws IOException {
+	private static void writeContent(Writer writer, ImageResolver images, Content content) throws IOException {
 		switch (content.getType()) {
-			case TEXT:        writeContent ((Text)       content); break;
-			case SUB_HEADING: writeContent ((SubHeading) content); break;
-			case IMAGE:       writeContent ((Image)      content); break;
-			case FOOTNOTE:    writeContent ((Footnote)   content); break;
+			case TEXT:        writeText(writer, (Text) content); break;
+			case SUB_HEADING: writeSubHeading(writer, (SubHeading) content); break;
+			case IMAGE:       writeImage(writer, images, (Image) content); break;
+			case FOOTNOTE:    writeFootnote(writer, (Footnote) content); break;
 			default:
 				throw new IllegalStateException ("No writer is defined for content of type " + content.getType());
 		}
@@ -187,7 +187,7 @@ public class ArticleWriter {
 	/**
 	 * Writes a piece of text content
 	 */
-	private static void writeContent(Writer writer, Text text) throws IOException {
+	private static void writeText(Writer writer, Text text) throws IOException {
 		writer.write(text.getContent());
 		writer.write("\n\n");
 	}
@@ -195,7 +195,7 @@ public class ArticleWriter {
 	/**
 	 * Writes an image
 	 */
-	private static void writeContent(Writer writer, ImageResolver images, Image image) throws IOException {
+	private static void writeImage(Writer writer, ImageResolver images, Image image) throws IOException {
 		if (images.hasImage(image)) {
 			Path path = images.getImagePath(image);
 			writeMarkdownImageTag(writer, path, image.getContent());
@@ -205,7 +205,7 @@ public class ArticleWriter {
 	/**
 	 * Writes a sub-heading
 	 */
-	private static void writeContent(Writer writer, SubHeading heading) throws IOException {
+	private static void writeSubHeading(Writer writer, SubHeading heading) throws IOException {
 		writer.write ("### " + heading.getContent());
 		writer.write ("\n");
 	}
@@ -213,7 +213,7 @@ public class ArticleWriter {
 	/**
 	 * Writes a footnote
 	 */
-	private static void writeContent(Writer writer, Footnote footnote) throws IOException {
+	private static void writeFootnote(Writer writer, Footnote footnote) throws IOException {
 		String content = StringUtils.replace(
 				footnote.getContent(), " ", "\\ ");
 

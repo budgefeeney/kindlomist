@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.content.Image;
 
@@ -18,6 +19,7 @@ import org.feenaboccles.kindlomist.articles.content.Image;
  * Resolves images when parsing files. Threadsafe
  * @author bryanfeeney
  */
+@Log4j2
 public class ImageResolver implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -39,7 +41,7 @@ public class ImageResolver implements Serializable
 		this.images            = new ConcurrentHashMap<>(EXPECTED_ARTICLE_COUNT * EXPECTED_IMAGES_PER_ARTICLE);
 		this.imagesByUri       = new ConcurrentHashMap<>(EXPECTED_ARTICLE_COUNT);
 		this.downloadDirectory = downloadDirectory;
-		System.out.println ("Temporary image directory is " + downloadDirectory);
+		log.info ("Temporary image directory is " + downloadDirectory);
 	}
 	
 	public Path getImagePath(Image key) {

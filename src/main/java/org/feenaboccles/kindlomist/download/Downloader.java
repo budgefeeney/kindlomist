@@ -40,22 +40,22 @@ import org.feenaboccles.kindlomist.articles.html.WeeklyDigestArticleParser;
 public class Downloader extends HttpAction {
 
 	private final DateStamp dateStamp;
-	private final UserName username;
+	private final Email userEmail;
 	private final Password password;
 	
 	private final static int NUM_SIMUL_DOWNLOADS = 6;
 	
 	/**
 	 * @param dateStamp the date-stamp used to identify the particular issue
-	 * @param username the username with which to log in
+	 * @param userEmail the username with which to log in
 	 * @param password the password to use when logging in.
 	 */
-	public Downloader(DateStamp dateStamp, UserName username, Password password) {
+	public Downloader(DateStamp dateStamp, Email userEmail, Password password) {
 		super(HttpClientBuilder.create()
 			   	.setRedirectStrategy(new LaxRedirectStrategy())
 			   	.build());
 		this.dateStamp = dateStamp;
-		this.username  = username;
+		this.userEmail = userEmail;
 		this.password  = password;
 	}
 	
@@ -78,9 +78,9 @@ public class Downloader extends HttpAction {
 		}
 		
 		// Log in
-		log.debug("Logging in to the Economist with username " + username.value());
-		if (! new LoginAction (client, username, password).call())
-			throw new HttpActionException("Failed to log in to the " + username.value() + " account with the given password");
+		log.debug("Logging in to the Economist with username " + userEmail.value());
+		if (! new LoginAction (client, userEmail, password).call())
+			throw new HttpActionException("Failed to log in to the " + userEmail.value() + " account with the given password");
 		
 		// Download the table of contents
 		log.debug("Downloading the index page for datestamp " + dateStamp + " at URL");

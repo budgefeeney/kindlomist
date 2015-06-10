@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.core.util.Charsets;
 import org.feenaboccles.kindlomist.articles.Economist;
 import org.feenaboccles.kindlomist.articles.markdown.EconomistWriter;
 import org.feenaboccles.kindlomist.download.DateStamp;
 import org.feenaboccles.kindlomist.download.Downloader;
 import org.feenaboccles.kindlomist.download.Password;
-import org.feenaboccles.kindlomist.download.UserName;
+import org.feenaboccles.kindlomist.download.Email;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.ParserProperties;
@@ -25,12 +25,11 @@ import org.kohsuke.args4j.ParserProperties;
  * The main entry point for the command-line app. Processes commandline
  * arguments and then executes the script accordingly.
  */
+@Log4j2
 public class Main {
 	private static final int EXIT_SUCCESS = 0;
 	private static final int EXIT_FAILURE = -1;
-	private static final String SAMPLE_LAUNCH_CMD = "java Main command [options...]\n"
-			+ "   Specify a path to use locally stored files instead of the online edition\n"
-			+ "   Use the --download-only option to download without converting.\n\n";
+	private static final String SAMPLE_LAUNCH_CMD = "java Main command [options...]\n";
 
 	public static void main(String[] args) {
 		System.exit(new Main().call(args));
@@ -38,9 +37,10 @@ public class Main {
 
 	private boolean   showHelp  = false;
 	private DateStamp dateStamp = null;
-	private UserName username  = null;
-	private Password password  = null;
+	private Email     userEmail = null;
+	private Password  password  = null;
 	private String    passwordText  = null;
+	private Path      passwordPath  = null;
 	private Path      path          = null;
 	private Path      pandocPath    = null;
 
@@ -56,7 +56,7 @@ public class Main {
 			parseArguments(args);
 
 			// Download the given issue of the Economist
-			Downloader d = new Downloader(dateStamp, username, password);
+			Downloader d = new Downloader(dateStamp, userEmail, password);
 			Economist economistIssue = d.call();
 
 			// Write that issue to a temporary file in Markdown format
@@ -85,6 +85,7 @@ public class Main {
 			return EXIT_SUCCESS;
 
 		} catch (Exception e) {
+			log.error ("Error occurred while running the program : " + e.getMessage(), e);
 			System.err.println("ERROR: " + e.getMessage());
 			return EXIT_FAILURE;
 		}
@@ -120,25 +121,36 @@ public class Main {
 				System.exit(0);
 			}
 
-			if (!Files.exists(path)) {
-				throw new IllegalStateException("The given folder does not exist : " + path);
-			} else if (!Files.isDirectory(path)) {
-				throw new IllegalStateException("The given folder path points to a file, not a folder: " + path);
+			if (Files.exists(path)) {
+				if (Files.isDirectory(path)) {
+					throw new IllegalArgumentException("Please specify a file-name to write the economist issue to, rather than a folder like " + path);
+				} else {
+					throw new IllegalArgumentException("Another file already exists with the name " + path);
+				}
+			} else if (! Files.exists(path.getParent())) {
+				throw new IllegalArgumentException("Invalid output-file name, the parent directory does not exist : " + path);
 			}
 
 			if (dateStamp == null) {
 				throw new IllegalStateException("Need to specify the date-stamp");
 			}
-			if (username == null)
+			if (userEmail == null)
 				throw new IllegalStateException("Need to provide a username when downloading files");
-			if (StringUtils.isBlank(passwordText))
-				throw new IllegalStateException("Need to provide a password when downloading files");
 
-			Path passwordFile = Paths.get(passwordText);
-			if (Files.exists(passwordFile)) {
-				passwordText = Files.readAllLines(passwordFile).get(0);
+			if (passwordText != null && passwordPath != null)
+				throw new IllegalStateException("You've provided both a password and a password path, please provide only one");
+			if (passwordText == null && passwordPath == null)
+				throw new IllegalStateException("You've provided neither a password and a password path, please provide one of the two");
+
+			if (passwordText != null) {
+				password = Password.of(passwordText);
+			} else {
+				if (! Files.exists(passwordPath)) {
+					throw new IllegalArgumentException("No password file exists at the given path " + path);
+				} else {
+					password = Password.of(Files.readAllLines(passwordPath).get(0));
+				}
 			}
-			password = Password.of(passwordText);
 
 			if (pandocPath == null)
 				pandocPath = guessPandocPath();
@@ -156,6 +168,7 @@ public class Main {
 
 			// print the list of available options
 			parser.printUsage(System.err);
+			System.exit(EXIT_FAILURE);
 		}
 	}
 
@@ -202,22 +215,32 @@ public class Main {
 		this.dateStamp = DateStamp.of(dateStamp);
 	}
 
-	public String getUsername() {
-		return username.toString();
+	public String getUserEmail() {
+		return userEmail.toString();
 	}
 
-	@Option(name = "-u", aliases = "--username", usage = "The username to log into the site with", metaVar = " ")
-	public void setUsername(String username) {
-		this.username = UserName.of(username);
+	@Option(name = "-u", aliases = "--username", usage = "The username to log into the Economist website", metaVar = " ")
+	public void setUserEmail(String userEmail) {
+		this.userEmail = Email.of(userEmail);
 	}
 
 	public String getPassword() {
 		return passwordText;
 	}
 
-	@Option(name = "-p", aliases = "--password", usage = "The password to log into the site with, or a path to a file containing the password", metaVar = " ")
+	@Option(name = "-p", aliases = "--password", usage = "The password used to log into the Economist website", metaVar = " ")
 	public void setPassword(String password) {
 		this.passwordText = password;
+	}
+
+
+	public String getPasswordPath() {
+		return passwordPath.toString();
+	}
+
+	@Option(name = "-f", aliases = "--password-file", usage = "The path to a file containing the password used to log into the Economist website", metaVar = " ")
+	public void setPasswordPath(String passwordPath) {
+		this.passwordPath = Paths.get(passwordPath);
 	}
 
 	public String getPath() {

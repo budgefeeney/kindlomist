@@ -54,7 +54,7 @@ public class LoginAction extends HttpAction {
 
 	private final static String LOGIN_FORM_TAG = "user-login";
 	
-	private final UserName username;
+	private final Email userEmail;
 	private final Password password;
 	
 	private final static URI LOGIN_PAGE;
@@ -67,9 +67,9 @@ public class LoginAction extends HttpAction {
 		}
 	}
 	
-	public LoginAction(HttpClient client, UserName username, Password password) {
+	public LoginAction(HttpClient client, Email userEmail, Password password) {
 		super(client);
-		this.username = username;
+		this.userEmail = userEmail;
 		this.password = password;
 	}
 
@@ -107,14 +107,14 @@ public class LoginAction extends HttpAction {
 			LOG.debug("Posting the login details");
 			String loggedInPage = EntityUtils.toString (
 				makeHttpRequest (Method.POST, postUri, Optional.of(LOGIN_PAGE.toASCIIString()),
-					new BasicNameValuePair(NAME_FIELD, username.value()),
+					new BasicNameValuePair(NAME_FIELD, userEmail.value()),
 					new BasicNameValuePair(PASSWORD_FIELD, password.value()),
 					new BasicNameValuePair(STAY_LOGGED_FIELD, "0"),
 					new BasicNameValuePair(FORM_BUILD_ID_FIELD, formBuildId),
 					new BasicNameValuePair(FORM_ID_FIELD, formId),
 					new BasicNameValuePair(SECURE_LOGIN_URL_FIELD, formSecureLogin)));
 			
-			if (! loggedInPage.contains(StringUtils.left(username.value(), MAX_USER_EMAIL_DISPLAYABLE_CHARACTERS)))
+			if (! loggedInPage.contains(StringUtils.left(userEmail.value(), MAX_USER_EMAIL_DISPLAYABLE_CHARACTERS)))
 				return false;}
 		catch (URISyntaxException e) {
 			throw new HttpActionException("The post-to URL in the downloaded form is not a valid URL : " + form.attr("action") + " : " + e.getMessage());

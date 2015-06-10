@@ -13,7 +13,7 @@ public class MainTest {
 		Main m = new Main();
 		m.call(input);
 		
-		assertEquals("budge", m.getUsername());
+		assertEquals("budge", m.getUserEmail());
 		assertEquals("password", m.getPassword());
 		assertEquals("2033-12-30", m.getDateStamp());
 	}
