@@ -40,7 +40,7 @@ public class PrintEdition implements Serializable {
 	
 	@NonNull DateStamp dateStamp;
 	@NonNull URI politicsThisWeek;
-	         Optional<URI> businessThisWeek; // for the xmas edition only, this is skipped
+	@NonNull Optional<URI> businessThisWeek; // for the xmas edition only, this is skipped
 	@NonNull URI kalsCartoon;
 	@NonNull URI letters;
 	@NonNull URI obituary;
