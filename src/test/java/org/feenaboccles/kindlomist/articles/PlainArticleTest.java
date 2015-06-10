@@ -24,12 +24,10 @@ public class PlainArticleTest {
 	private final static String SAMPLE_TITLE = "My first article";
 	private final static String SAMPLE_TOPIC = "Stuff";
 	private final static String SAMPLE_STRAP = "This is a quick article about somethign small";
-	private final static List<Content> SAMPLE_BODY  = Arrays.asList(new Content[] {
-			new Text ("WHEN the first mobile phone call was made in 1973, few members of the public were interested in the new technology. Telecoms companies had to invent reasons to use them—for instance, that they could be used to call a friend to pass the time when stuck in a car during a traffic jam—in order to get sceptical consumers to adopt them. But now, most people in rich countries could not imagine life without one: there are now more active mobile-phone connections in America and Europe than people."),
+	private final static List<Content> SAMPLE_BODY  = Arrays.asList(new Text ("WHEN the first mobile phone call was made in 1973, few members of the public were interested in the new technology. Telecoms companies had to invent reasons to use them—for instance, that they could be used to call a friend to pass the time when stuck in a car during a traffic jam—in order to get sceptical consumers to adopt them. But now, most people in rich countries could not imagine life without one: there are now more active mobile-phone connections in America and Europe than people."),
 			new SubHeading("Rising Importance"),
 			new Image("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png"),
-			new Text ("The rising importance of mobiles—not simply to make calls but to access the internet as well—partly explains why BT, a fixed-line telecoms firm, decided to make a £12.5 billion ($19.6 billion) bid for EE, Britain's biggest mobile operator, on December 15th. BT also hopes that the merger will allow the firm to profitably offer what is know as “quad-play” (a bundle of fixed and mobile phone calls, internet access and television), which will also help keep customers from switching away from its other products."),
-	});
+			new Text ("The rising importance of mobiles—not simply to make calls but to access the internet as well—partly explains why BT, a fixed-line telecoms firm, decided to make a £12.5 billion ($19.6 billion) bid for EE, Britain's biggest mobile operator, on December 15th. BT also hopes that the merger will allow the firm to profitably offer what is know as “quad-play” (a bundle of fixed and mobile phone calls, internet access and television), which will also help keep customers from switching away from its other products."));
 	private final static URI MAIN_IMAGE =  URI.create("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png");
 
 		
