@@ -23,7 +23,7 @@ public class SingleImageArticle implements Article, MainImageArticle {
 	
 	public SingleImageArticle validate() {
 		if (! mainImage.getHost().equals(PlainArticle.ECONOMIST_IMAGE_CDN))
-			throw new ValidationException("The URL for the image in this single-image article points outside the Econoimist domain : " + mainImage.toASCIIString());
+			throw new ValidationException("The URL for the image in this single-image article points outside the Economist domain : " + mainImage.toASCIIString());
 		
 		return this;
 	}
