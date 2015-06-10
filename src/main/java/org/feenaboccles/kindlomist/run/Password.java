@@ -10,8 +10,7 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.Pattern;
 
 /**
- * Represents a validated username. Use the {@link #of(String)} constructor to build a validated
- * UserName
+ * Represents a validated password.
  */
 @Value() @Accessors(fluent=true)
 public final class Password {
