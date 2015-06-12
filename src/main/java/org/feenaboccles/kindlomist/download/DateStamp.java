@@ -58,6 +58,10 @@ public final class DateStamp {
         return new DateStamp(value);
     }
 
+    public static DateStamp of (LocalDate value) throws ValidationException {
+        return new DateStamp(value.toString());
+    }
+
     /**
      * The text value of a date-stamp in the format "yyyy-mm-dd"
      */

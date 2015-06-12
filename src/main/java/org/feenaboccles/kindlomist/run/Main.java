@@ -4,6 +4,12 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +35,10 @@ import org.kohsuke.args4j.ParserProperties;
 public class Main {
 	private static final int EXIT_SUCCESS = 0;
 	private static final int EXIT_FAILURE = -1;
-	private static final String SAMPLE_LAUNCH_CMD = "java Main command [options...]\n";
+	private static final String SAMPLE_LAUNCH_CMD = "java Main command [options...]\n"
+			+ "  If the date is omitted, the most recent issue is downloaded\n"
+			+ "  If an output folder is specified intead of an output file, the \n"
+			+ "  name economist-<datestamp>.epub is used instead.\n";
 
 	public static void main(String[] args) {
 		System.exit(new Main().call(args));
@@ -121,9 +130,15 @@ public class Main {
 				System.exit(0);
 			}
 
+			if (dateStamp == null) {
+				dateStamp = dateOfMostRecentIssue();
+				log.info("No date specified, using date of most recent issue - " + dateStamp);
+			}
+
 			if (Files.exists(path)) {
 				if (Files.isDirectory(path)) {
-					throw new IllegalArgumentException("Please specify a file-name to write the economist issue to, rather than a folder like " + path);
+					path = path.resolve("economist-" + dateStamp + ".epub");
+					log.info ("An output folder was supplied instead of an output file, generating a filename from the datestamp");
 				} else {
 					throw new IllegalArgumentException("Another file already exists with the name " + path);
 				}
@@ -131,9 +146,6 @@ public class Main {
 				throw new IllegalArgumentException("Invalid output-file name, the parent directory does not exist : " + path);
 			}
 
-			if (dateStamp == null) {
-				throw new IllegalStateException("Need to specify the date-stamp");
-			}
 			if (userEmail == null)
 				throw new IllegalStateException("Need to provide a username when downloading files");
 
@@ -173,6 +185,29 @@ public class Main {
 	}
 
 
+	private DateStamp dateOfMostRecentIssue() {
+		// The most recent issue is published by 11pm British Time each Thursday
+		ZoneId timeZone = ZoneId.of("Europe/London");
+		ZonedDateTime londonTime = ZonedDateTime.now(timeZone);
+
+		switch(londonTime.getDayOfWeek()) {
+			case SUNDAY:   return DateStamp.of(londonTime.minus(1, ChronoUnit.DAYS).toLocalDate());
+			case SATURDAY: return DateStamp.of(londonTime.toLocalDate());
+			case FRIDAY:   return DateStamp.of(londonTime.plus(1, ChronoUnit.DAYS).toLocalDate());
+			case THURSDAY: {
+				if (londonTime.getHour() >= 23)
+					return DateStamp.of(londonTime.plus(2, ChronoUnit.DAYS).toLocalDate());
+				else
+					return DateStamp.of(londonTime.minus(5, ChronoUnit.DAYS).toLocalDate());
+			}
+			default: {
+				int offset = londonTime.getDayOfWeek().getValue() + 1;
+				return DateStamp.of(londonTime.minus(offset, ChronoUnit.DAYS).toLocalDate());
+			}
+		}
+	}
+
+
 	private Path guessPandocPath() throws IOException {
 		List<Path> paths = new ArrayList<>(5);
 		paths.add (Paths.get(System.getProperty("user.home"))
@@ -183,6 +218,7 @@ public class Main {
 		paths.add (Paths.get("/usr/local/bin/pandoc"));
 		paths.add (Paths.get("/opt/local/bin/pandoc"));
 		paths.add (Paths.get("C:/Program Files/Pandoc/pandoc"));
+		paths.add (Paths.get("C:/Program Files/Pandoc/bin/pandoc"));
 
 		for (Path path : paths) {
 			if (Files.exists(path)) {
@@ -210,7 +246,7 @@ public class Main {
 		return dateStamp.toString();
 	}
 
-	@Option(name = "-d", aliases = "--date", usage = "The date identifying the issue to convert, in yyyy-mm-dd format", metaVar = " ")
+	@Option(name = "-d", aliases = "--date", usage = "The date identifying the issue to convert, in yyyy-mm-dd format.", metaVar = " ")
 	public void setDateStamp(String dateStamp) {
 		this.dateStamp = DateStamp.of(dateStamp);
 	}
@@ -247,7 +283,7 @@ public class Main {
 		return path.toString();
 	}
 
-	@Option(name = "-o", aliases = "--out-file", usage = "Where the resulting epub file should be saved", metaVar = " ")
+	@Option(name = "-o", aliases = "--out-file", usage = "Where the resulting epub file should be saved. Can be a folder or a filename.", metaVar = " ")
 	public void setPath(@NonNull String path) {
 		this.path = Paths.get(path.trim());
 	}
