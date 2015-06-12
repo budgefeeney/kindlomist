@@ -27,7 +27,7 @@ public class WeeklyDigestArticleParser extends AbstractArticleParser
 			Document doc = Jsoup.parse(html);
 			Element bodyDiv = findArticleDiv(doc);
 			
-			List<Content> content = readContent(bodyDiv);
+			List<Content> content = readContent(bodyDiv, /* convertShortTextToHeading = */ true);
 			
 			return new WeeklyDigestArticle(articleUri, content).validate();
 		}

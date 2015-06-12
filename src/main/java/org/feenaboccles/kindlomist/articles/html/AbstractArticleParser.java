@@ -93,8 +93,8 @@ public class AbstractArticleParser {
 		Element hgroup = doc.getElementsByTag("hgroup").first();
 		
 		String  title  = childTagText (hgroup, "h3", "");
-		String  topic  = childTagText (hgroup, "h2", "");
-		String  strap  = childTagText (hgroup, "h1", "");
+		String  topic  = childTagText(hgroup, "h2", "");
+		String  strap  = childTagText(hgroup, "h1", "");
 		
 		return new ArticleHeader(title, topic, strap);
 	}
@@ -148,12 +148,21 @@ public class AbstractArticleParser {
 		
 		return false;
 	}
-	
+
 	/**
 	 * Reads the {@link Content} of an article from the given
 	 * DIV.
 	 */
 	protected List<Content> readContent(Element bodyDiv) {
+		return readContent(bodyDiv, /* convertShortTextToHeading = */ false);
+	}
+
+
+	/**
+	 * Reads the {@link Content} of an article from the given
+	 * DIV.
+	 */
+	protected List<Content> readContent(Element bodyDiv, boolean convertShortTextToHeading) {
 		List<Content> content = new ArrayList<>(EXPECTED_IMAGE_COUNT + EXPECTED_PARAGRAPH_COUNT);
 		
 		int maxAllowedFootnotes = 0; // allow FOOTNOTES_PER_PARAGRAPH per textual paragraph.
@@ -162,7 +171,9 @@ public class AbstractArticleParser {
 		String paraText;
 		for (Element element : bodyDiv.children()) {
 			if (element.nodeName().equalsIgnoreCase("p") && (! (paraText = clean(element.text())).isEmpty())) {
-				if (element.className().equals ("xhead") || isHeadingInBoldTag(element, paraText)) {
+				if (element.className().equals ("xhead")
+						|| isHeadingInBoldTag(element, paraText)
+						|| (convertShortTextToHeading && paraText.length() < Text.MIN_TEXT_LEN)) {
 					content.add (new SubHeading (paraText));
 				}
 				else { // check for a footnote, should all be in a <sup> tag
