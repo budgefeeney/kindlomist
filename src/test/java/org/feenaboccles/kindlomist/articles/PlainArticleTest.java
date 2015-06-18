@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 import javax.validation.ValidationException;
+import javax.validation.constraints.Null;
 
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.content.Content;
@@ -17,7 +18,7 @@ import org.feenaboccles.kindlomist.articles.content.Text;
 import org.junit.Test;
 
 public class PlainArticleTest {
-	
+
 	private final static String SAMPLE_TITLE = "My first article";
 	private final static String SAMPLE_TOPIC = "Stuff";
 	private final static String SAMPLE_STRAP = "This is a quick article about somethign small";
@@ -26,17 +27,18 @@ public class PlainArticleTest {
 			new Image("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png"),
 			new Text ("The rising importance of mobiles—not simply to make calls but to access the internet as well—partly explains why BT, a fixed-line telecoms firm, decided to make a £12.5 billion ($19.6 billion) bid for EE, Britain's biggest mobile operator, on December 15th. BT also hopes that the merger will allow the firm to profitably offer what is know as “quad-play” (a bundle of fixed and mobile phone calls, internet access and television), which will also help keep customers from switching away from its other products."));
 	private final static URI MAIN_IMAGE =  URI.create("http://cdn.static-economist.com/sites/default/files/imagecache/original-size/20141220_FNC572.png");
+	public static final URI SAMPLE_ARTICLE_URI = URI.create("http://www.economist.com/article");
 
-		
-	
+
 	@Test
 	public void testValidNoUrlBuilder() throws ValidationException {
 		PlainArticle a = PlainArticle.builder()
+						.articleUri(SAMPLE_ARTICLE_URI)
 						.title(SAMPLE_TITLE)
 						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
 						.body(SAMPLE_BODY)
-						.mainImage(null)
+						.mainImage(Optional.empty())
 						.build().validate();
 		
 		assertEquals (SAMPLE_TITLE, a.getTitle());
@@ -47,6 +49,7 @@ public class PlainArticleTest {
 	@Test
 	public void testValidWithUrlBuilder() throws ValidationException {
 		PlainArticle a = PlainArticle.builder()
+						.articleUri(SAMPLE_ARTICLE_URI)
 						.title(SAMPLE_TITLE)
 						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
@@ -71,6 +74,7 @@ public class PlainArticleTest {
 		for (int i = 0; i < inputs.length; i++) {
 			try {
 				PlainArticle a = PlainArticle.builder()
+							.articleUri(SAMPLE_ARTICLE_URI)
 							.title(inputs[i])
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
@@ -79,7 +83,7 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a title which was " + issues[i]);
 			}
-			catch (ValidationException e) {  }
+			catch (ValidationException | NullPointerException e) {  }
 		}
 	}	
 	
@@ -94,6 +98,7 @@ public class PlainArticleTest {
 		for (int i = 0; i < inputs.length; i++) {
 			try {
 				PlainArticle a = PlainArticle.builder()
+							.articleUri(SAMPLE_ARTICLE_URI)
 							.title(SAMPLE_TITLE)
 							.topic(inputs[i])
 							.strap(SAMPLE_STRAP)
@@ -102,11 +107,12 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a title which was " + issues[i]);
 			}
-			catch (ValidationException e) {  }
+			catch (ValidationException | NullPointerException e) {  }
 		}
 		
 		// verify the small topic is okay
 		PlainArticle a = PlainArticle.builder()
+				.articleUri(SAMPLE_ARTICLE_URI)
 				.title(SAMPLE_TITLE)
 				.topic("Fed")
 				.strap(SAMPLE_STRAP)
@@ -126,6 +132,7 @@ public class PlainArticleTest {
 		for (int i = 0; i < inputs.length; i++) {
 			try {
 				PlainArticle a = PlainArticle.builder()
+							.articleUri(SAMPLE_ARTICLE_URI)
 							.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(inputs[i])
@@ -134,7 +141,7 @@ public class PlainArticleTest {
 							.build().validate();
 				fail ("Failed to invalidate a strap which was " + issues[i]);
 			}
-			catch (ValidationException e) {  }
+			catch (ValidationException | NullPointerException e) {  }
 		}
 	}	
 	
@@ -145,6 +152,7 @@ public class PlainArticleTest {
 		
 		try {
 			PlainArticle a = PlainArticle.builder()
+						.articleUri(SAMPLE_ARTICLE_URI)
 						.title(SAMPLE_TITLE)
 						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
@@ -157,6 +165,7 @@ public class PlainArticleTest {
 		
 		try {
 			PlainArticle a = PlainArticle.builder()
+						.articleUri(SAMPLE_ARTICLE_URI)
 						.title(SAMPLE_TITLE)
 						.topic(SAMPLE_TOPIC)
 						.strap(SAMPLE_STRAP)
@@ -165,7 +174,7 @@ public class PlainArticleTest {
 						.build().validate();
 			fail ("Failed to invalidate a body which had null instead of a list");
 		}
-		catch (ValidationException e) {  }
+		catch (NullPointerException e) {  }
 	}
 	
 	
@@ -174,6 +183,7 @@ public class PlainArticleTest {
 	public void testInvalidMainImage () throws ValidationException, URISyntaxException {
 		try {
 			PlainArticle a = PlainArticle.builder()
+							.articleUri(SAMPLE_ARTICLE_URI)
 							.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
@@ -187,11 +197,12 @@ public class PlainArticleTest {
 		
 		// Verify that no main image is okay
 		PlainArticle a = PlainArticle.builder()
-							.title(SAMPLE_TITLE)
+							.articleUri(SAMPLE_ARTICLE_URI)
+				.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(SAMPLE_BODY)
-							.mainImage(null)
+							.mainImage(Optional.empty())
 							.build().validate();
 			
 	}
@@ -207,7 +218,8 @@ public class PlainArticleTest {
 		for (int i = 0; i < inputs.length; i++) {
 			try {
 				PlainArticle a = PlainArticle.builder()
-							.title(SAMPLE_TITLE)
+							.articleUri(SAMPLE_ARTICLE_URI)
+						.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(Arrays.asList(new Content[] { new Text(inputs[i]) } ))
@@ -223,7 +235,7 @@ public class PlainArticleTest {
 	@Test
 	@SuppressWarnings("unused")
 	public void testInvalidBodySubHeading() throws ValidationException {
-		String[] inputs = new String[] { null,   "",     " ",         "ssd",       "😉😗😛😌😢😥😩😠😆",  StringUtils.repeat("01234567890", 20) };
+		String[] inputs = new String[] { null,   "",     " ",         "sd",       "😉😗😛😌😢😥😩😠😆",  StringUtils.repeat("01234567890", 20) };
 		String[] issues = new String[] {"null", "empty", "too short", "too short", "invalid characters", "too long" };
 		
 		assertEquals (inputs.length, issues.length);
@@ -231,6 +243,7 @@ public class PlainArticleTest {
 		for (int i = 0; i < inputs.length; i++) {
 			try {
 				PlainArticle a = PlainArticle.builder()
+							.articleUri(SAMPLE_ARTICLE_URI)
 							.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
@@ -245,6 +258,7 @@ public class PlainArticleTest {
 		
 		// Verify shortish headings are still okay
 		PlainArticle a = PlainArticle.builder()
+				.articleUri(SAMPLE_ARTICLE_URI)
 				.title(SAMPLE_TITLE)
 				.topic(SAMPLE_TOPIC)
 				.strap(SAMPLE_STRAP)
@@ -265,7 +279,8 @@ public class PlainArticleTest {
 		for (int i = 0; i < inputs.length; i++) {
 			try {
 				PlainArticle a = PlainArticle.builder()
-							.title(SAMPLE_TITLE)
+							.articleUri(SAMPLE_ARTICLE_URI)
+						.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(Arrays.asList(new Content[] { new Image(inputs[i]) } ))
@@ -285,7 +300,8 @@ public class PlainArticleTest {
 		
 		try {
 			PlainArticle a = PlainArticle.builder()
-							.title(SAMPLE_TITLE)
+							.articleUri(SAMPLE_ARTICLE_URI)
+					.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)
 							.body(dupes)
@@ -303,6 +319,7 @@ public class PlainArticleTest {
 		
 		try {
 			PlainArticle a = PlainArticle.builder()
+							.articleUri(SAMPLE_ARTICLE_URI)
 							.title(SAMPLE_TITLE)
 							.topic(SAMPLE_TOPIC)
 							.strap(SAMPLE_STRAP)

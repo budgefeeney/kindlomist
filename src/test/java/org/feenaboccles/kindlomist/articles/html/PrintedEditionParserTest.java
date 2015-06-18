@@ -27,11 +27,11 @@ public class PrintedEditionParserTest {
 		
 		assertEquals (date, p.getDateStamp());
 		assertEquals (URI.create("http://www.economist.com/news/world-week/21636104-politics-week"), p.getPoliticsThisWeek());
-		assertEquals (URI.create("http://www.economist.com/news/world-week/21636084-business-week"), p.getBusinessThisWeek());
+		assertEquals (URI.create("http://www.economist.com/news/world-week/21636084-business-week"), p.getBusinessThisWeek().get());
 		assertEquals (URI.create("http://www.economist.com/news/world-week/21636083-kals-cartoon"), p.getKalsCartoon());
 		assertEquals (URI.create("http://www.economist.com/news/letters/21635968-letters-editor"), p.getLetters());
 		
-		assertEquals (Arrays.asList(new String[] { "Leaders", "Briefing", "United States", "The Americas", "Asia", "China", "Middle East and Africa", "Europe", "Britain", "International", "Special report: Luxury", "Business", "Finance and economics", "Science and technology", "Books and arts", "Obituary" }), p.getOrderedSections());
+		assertEquals (Arrays.asList(new String[] { "Leaders", "Briefing", "United States", "The Americas", "Asia", "China", "Middle East and Africa", "Europe", "Britain", "International", "Special report: Luxury", "Business", "Finance and economics", "Science and technology", "Books and arts" /*, "Obituary"*/ }), p.getOrderedSections());
 		
 		Map<String, List<URI>> pSections = p.getSections();
 		assertEquals (new HashSet<>(p.getOrderedSections()), pSections.keySet());

@@ -31,7 +31,7 @@ public class Text implements Content {
 		}
 		catch (ValidationException e) {
 			String ch = findIssue (java.util.regex.Pattern.compile(PlainArticle.ECONOMIST_VISIBLE_TEXT), content);
-			if (ch != null)
+			if (ch != null && ! ch.isEmpty())
 				System.out.println ("Illegal text character - " + ch + "  (\\u" + Integer.toHexString(ch.codePointAt(0)) + ")");
 			
 			throw e;
@@ -42,12 +42,13 @@ public class Text implements Content {
 	private static String findIssue(java.util.regex.Pattern pat, String str) {
 		Matcher m = pat.matcher(str);
 		if (! m.matches())
-		{	if (str.length() == 1) {
+		{	if (str.length() <= 1) {
 				return str;
 			}
 			else {
-				String left = str.substring(0, str.length() / 2);
-				String rght = str.substring(str.length() / 2);
+				int mid = str.length() / 2;
+				String left = str.substring(0, mid);
+				String rght = str.substring(mid);
 				
 				String leftAns = findIssue(pat, left);
 				return leftAns == null
