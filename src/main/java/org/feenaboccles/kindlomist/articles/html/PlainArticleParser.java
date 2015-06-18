@@ -23,6 +23,7 @@ import org.jsoup.nodes.Element;
 public class PlainArticleParser extends AbstractArticleParser
 	implements HtmlParser<PlainArticle> {
 
+	public static final String MINI_ARTICLE_STRAP = "A brief overview";
 
 	@Override
 	public PlainArticle parse(URI articleUri, String html) throws HtmlParseException {
@@ -39,10 +40,11 @@ public class PlainArticleParser extends AbstractArticleParser
 			// In some cases the Economist may publish a mini-article lacking either title,
 			// such as mini-articles showing a chart with some commentary, or both title and topic,
 			// such as job ads. We skip the job ads, but work around the charts with commentary.
-			if (content.size() >= 2 && hasAtLeastOneImage(content) 
+			if (isMiniArticle(mainImage, content)
 					&& header.getTitle().isEmpty() && ! header.getTopic().isEmpty()) {
 				header.setTitle(header.getTopic());
-				header.setTopic("In Brief");
+				header.setTopic(header.getStrap());
+				header.setStrap(MINI_ARTICLE_STRAP);
 			}
 			
 			return PlainArticle.builder()
@@ -63,7 +65,21 @@ public class PlainArticleParser extends AbstractArticleParser
 		catch (NullPointerException e)
 		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
 		}
-		
+	}
+
+	/**
+	 * Return true if the given article is a mini-article, i.e. it has one image,
+	 * and one paragraph after that image. The image may be the main article
+	 * image, or if that is absent, the first element of content.
+	 */
+	private static boolean isMiniArticle (Optional<URI> mainImage, List<Content> content) {
+		if (mainImage.isPresent()) {
+			return content.size() == 1 && content.get(0).getType().equals(Type.TEXT);
+		} else {
+			return content.size() == 2
+					&& content.get(0).getType().equals(Type.IMAGE)
+					&& content.get(1).getType().equals(Type.TEXT);
+		}
 	}
 
 	private boolean hasAtLeastOneImage(List<Content> contents) {

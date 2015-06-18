@@ -1,9 +1,8 @@
 package org.feenaboccles.kindlomist.articles.html;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Don’t shoot", a.getTitle());
 		assertEquals ("Policing", a.getTopic());
 		assertEquals ("America’s police kill too many people. But some forces are showing how smarter, less aggressive policing gets results", a.getStrap());
-		assertEquals (new URI("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141213_USP001_0.jpg"), a.getMainImage());
+		assertEquals (new URI("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141213_USP001_0.jpg"), a.getMainImage().get());
 		
 		assertEquals (4, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0;
@@ -83,7 +82,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Don’t shoot", a.getTitle());
 		assertEquals ("Policing", a.getTopic());
 		assertEquals ("America’s police kill too many people. But some forces are showing how smarter, less aggressive policing gets results", a.getStrap());
-		assertNull (a.getMainImage());
+		assertFalse(a.getMainImage().isPresent());
 		
 		assertEquals (4, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0;
@@ -146,7 +145,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Let’s get fiscal", a.getTitle());
 		assertEquals ("Buttonwood", a.getTopic());
 		assertEquals ("A new book from a prescient economist", a.getStrap());
-		assertEquals (URI.create("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141220_FND001_0.jpg"), a.getMainImage());
+		assertEquals (URI.create("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141220_FND001_0.jpg"), a.getMainImage().get());
 		
 		assertEquals (4, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0;
@@ -211,7 +210,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Shifting clout", a.getTitle());
 		assertEquals ("Influential economists", a.getTopic());
 		assertEquals ("Economists’ academic rankings and media influence vary wildly", a.getStrap());
-		assertNull (a.getMainImage());
+		assertFalse(a.getMainImage().isPresent());
 		
 	}
 	
@@ -224,7 +223,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Green tape", a.getTitle());
 		assertEquals ("Free exchange", a.getTopic());
 		assertEquals ("Environmental regulations may not cost as much as governments and businesses fear", a.getStrap());
-		assertNotNull (a.getMainImage());
+		assertTrue(a.getMainImage().isPresent());
 	}
 	
 	@Test
@@ -236,7 +235,7 @@ public class PlainArticleParserTest {
 		assertEquals ("The new Congress in numbers", a.getTitle());
 		assertEquals ("In Brief", a.getTopic());
 		assertEquals ("How politicians are unlike America", a.getStrap());
-		assertNotNull (a.getMainImage());
+		assertTrue(a.getMainImage().isPresent());
 		
 	}
 	
@@ -249,7 +248,7 @@ public class PlainArticleParserTest {
 		assertEquals ("The euro’s next crisis", a.getTitle());
 		assertEquals ("Greece’s election", a.getTopic());
 		assertEquals ("Why an early election spells big dangers for Greece—and for the euro", a.getStrap());
-		assertNotNull (a.getMainImage());
+		assertTrue(a.getMainImage().isPresent());
 	}
 	
 	@Test
@@ -274,7 +273,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Hidden in the long tail", a.getTitle());
 		assertEquals ("Free exchange", a.getTopic());
 		assertEquals ("Consumers reap the benefits of e-commerce in surprising ways", a.getStrap());
-		assertNotNull (a.getMainImage());
+		assertTrue(a.getMainImage().isPresent());
 	}
 	
 	@Test
@@ -286,7 +285,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Construction above, obstruction below", a.getTitle());
 		assertEquals ("The new Congress", a.getTopic());
 		assertEquals ("The 114th Congress may be more productive than its predecessor—just", a.getStrap());
-		assertNotNull (a.getMainImage());
+		assertTrue(a.getMainImage().isPresent());
 	}
 	
 	@Test
@@ -298,7 +297,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Don’t stop, don’t look, don’t listen", a.getTitle());
 		assertEquals ("Public-information films", a.getTopic());
 		assertEquals ("Scary adverts don’t work, yet they are everywhere", a.getStrap());
-		assertNotNull (a.getMainImage());
+		assertTrue(a.getMainImage().isPresent());
 	}
 	
 	@Test
@@ -309,7 +308,43 @@ public class PlainArticleParserTest {
 
 		assertEquals ("Irrepressible", a.getTitle());
 		assertEquals ("French fiction: Michel Houellebecq", a.getTopic());
-		assertEquals ("The book that started it all", a.getStrap());
-		assertNull (a.getMainImage());
+		assertEquals("The book that started it all", a.getStrap());
+		assertFalse (a.getMainImage().isPresent());
+	}
+
+	@Test
+	public void testOnYorkshireBomberMini() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article12-yorkshire-bomber-mini.html");
+
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
+
+		assertEquals ("Terror-tourism", a.getTitle());
+		assertEquals ("The Yorkshire bomber", a.getTopic());
+		assertEquals (PlainArticleParser.MINI_ARTICLE_STRAP, a.getStrap());
+		assertTrue (a.getMainImage().isPresent());
+	}
+
+	@Test
+	public void testOnPullQuote() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article13-with-pull-quote.html");
+
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
+
+		assertEquals ("Terror-tourism", a.getTitle());
+		assertEquals ("Burdensome", a.getTopic());
+		assertEquals (PlainArticleParser.MINI_ARTICLE_STRAP, a.getStrap());
+		assertFalse (a.getMainImage().isPresent());
+	}
+
+	@Test
+	public void testOnEgyptArticle() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article14-egypt.html");
+
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
+
+		assertEquals ("Health care in Egypt", a.getTitle());
+		assertEquals ("Dirty sheets and stray cats", a.getTopic());
+		assertEquals (PlainArticleParser.MINI_ARTICLE_STRAP, a.getStrap());
+		assertTrue (a.getMainImage().isPresent());
 	}
 }
