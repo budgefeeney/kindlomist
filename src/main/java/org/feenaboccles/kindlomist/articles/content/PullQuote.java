@@ -19,15 +19,7 @@ public class PullQuote implements Content {
 
 	@Override
 	public Content validate() throws ValidationException {
-		try {
-			Validator.INSTANCE.validate(this, "pull-quote content");
-		}
-		catch (ValidationException e) {
-			for (int i = 0; i < content.length(); i++)
-				System.out.println (content.charAt(i) + "  \\u" + Integer.toHexString(content.codePointAt(i)));
-			
-			throw e;
-		}
+		Validator.INSTANCE.validate(this, "pull-quote content");
 		return this;
 	}
 	

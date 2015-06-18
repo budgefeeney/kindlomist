@@ -20,15 +20,7 @@ public class Footnote implements Content {
 
 	@Override
 	public Content validate() throws ValidationException {
-		try {
-			Validator.INSTANCE.validate(this, "footnote content");
-		}
-		catch (ValidationException e) {
-			for (int i = 0; i < content.length(); i++)
-				System.out.println (content.charAt(i) + "  \\u" + Integer.toHexString(content.codePointAt(i)));
-			
-			throw e;
-		}
+		Validator.INSTANCE.validate(this, "footnote content");
 		return this;
 	}
 	
