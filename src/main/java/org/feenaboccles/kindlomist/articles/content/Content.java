@@ -15,7 +15,8 @@ public interface Content extends Serializable {
 		TEXT,
 		SUB_HEADING,
 		IMAGE,
-		FOOTNOTE
+		FOOTNOTE,
+		PULL_QUOTE
 	}
 	
 	/**

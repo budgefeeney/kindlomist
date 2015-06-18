@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import javax.validation.ValidationException;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
 import org.feenaboccles.kindlomist.articles.content.Content.Type;
@@ -33,19 +34,34 @@ public class PlainArticleParser extends AbstractArticleParser
 			ArticleHeader header = readHeaders(doc);
 			
 			Element bodyDiv = findArticleDiv(doc);
-			Optional<URI> mainImage = readMainImage(bodyDiv);
+			Pair<Optional<URI>, Optional<String>> mainImageCap = readMainImage(bodyDiv);
 			
 			List<Content> content = readContent(bodyDiv);
+
+			// There is a parse bug, which I can't track, where sometimes the first element
+			// of content is confused with the main image. This is patched here.
+			if (mainImageMatchesFirstContent(mainImageCap.getLeft(), content)) {
+				content.remove(0);
+			}
 
 			// In some cases the Economist may publish a mini-article lacking either title,
 			// such as mini-articles showing a chart with some commentary, or both title and topic,
 			// such as job ads. We skip the job ads, but work around the charts with commentary.
-			if (isMiniArticle(mainImage, content)
-					&& header.getTitle().isEmpty() && ! header.getTopic().isEmpty()) {
-				header.setTitle(header.getTopic());
-				header.setTopic(header.getStrap());
-				header.setStrap(MINI_ARTICLE_STRAP);
+			if (headerLacksTitleOnly(header)) {
+				if (isMiniArticle(mainImageCap.getLeft(), content)) {
+					header.setTitle(header.getTopic());
+					header.setTopic(header.getStrap());
+					header.setStrap(MINI_ARTICLE_STRAP);
+				}
+				// And then sometimes the article starts with a main image whose
+				// caption is meant to serve as the strap
+				else if (mainImageCap.getLeft().isPresent() && mainImageCap.getRight().isPresent()) {
+					header.setTitle(header.getTopic());
+					header.setTopic(header.getStrap());
+					header.setStrap(mainImageCap.getRight().get());
+				}
 			}
+
 			
 			return PlainArticle.builder()
 		                       .articleUri(articleUri)
@@ -53,7 +69,7 @@ public class PlainArticleParser extends AbstractArticleParser
 				               .topic(header.getTopic())
 				               .strap(header.getStrap())
 				               .body(content)
-				               .mainImage(mainImage)
+				               .mainImage(mainImageCap.getLeft())
 				               .build().validate();
 		}
 		catch (ValidationException e)
@@ -65,6 +81,21 @@ public class PlainArticleParser extends AbstractArticleParser
 		catch (NullPointerException e)
 		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
 		}
+	}
+
+	/**
+	 * Returns true if the main image is present, and the content has more than one element,
+	 * and the first element is an image exactly the same as the mainImgUri
+	 */
+	private boolean mainImageMatchesFirstContent(Optional<URI> mainImgUri, List<Content> content) {
+		return content.size() > 1
+				&& mainImgUri.isPresent()
+				&& content.get(0).getType().equals(Type.IMAGE)
+				&& content.get(0).getContent().equals(mainImgUri.get().toASCIIString());
+	}
+
+	private boolean headerLacksTitleOnly(ArticleHeader header) {
+		return header.getTitle().isEmpty() && !header.getTopic().isEmpty() && !header.getStrap().isEmpty();
 	}
 
 	/**
@@ -80,12 +111,5 @@ public class PlainArticleParser extends AbstractArticleParser
 					&& content.get(0).getType().equals(Type.IMAGE)
 					&& content.get(1).getType().equals(Type.TEXT);
 		}
-	}
-
-	private boolean hasAtLeastOneImage(List<Content> contents) {
-		for (Content content : contents)
-			if (content.getType() == Type.IMAGE)
-				return true;
-		return false;
 	}
 }

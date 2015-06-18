@@ -11,12 +11,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
-import org.feenaboccles.kindlomist.articles.content.Content;
-import org.feenaboccles.kindlomist.articles.content.Footnote;
-import org.feenaboccles.kindlomist.articles.content.Image;
-import org.feenaboccles.kindlomist.articles.content.SubHeading;
-import org.feenaboccles.kindlomist.articles.content.Text;
+import org.feenaboccles.kindlomist.articles.content.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -70,17 +67,29 @@ public class AbstractArticleParser {
 	 * Find within the article DIV (see {@link #findArticleDiv(Document)}) the
 	 * IMG tag that has the main article image. This may return null, as not all
 	 * articles have such images
+	 *
+	 * Returns the image URI and it's caption. Obviously there can be no caption
+	 * if there's no image, but there may be an image with no caption
 	 */
-	protected Optional<URI> readMainImage(Element bodyDiv) throws URISyntaxException {
+	protected Pair<Optional<URI>, Optional<String>> readMainImage(Element bodyDiv) throws URISyntaxException {
 		
 		URI mainImage = null;
+		String caption = null;
+
 		Elements mainImg = bodyDiv.select("div." + MAIN_IMAGE_DIV_CLASS);
 		if (! mainImg.isEmpty()) {
 			Elements img = mainImg.first().getElementsByTag("img");
 			if (! img.isEmpty())
 				mainImage = new URI(img.first().attr("src"));
+
+			Elements captionCandidates = mainImg.first().getElementsByTag("span");
+			for (Element capCand : captionCandidates) {
+				if (capCand.hasClass("caption")) {
+					caption = capCand.ownText();
+				}
+			}
 		}
-		return Optional.ofNullable(mainImage);
+		return Pair.of (Optional.ofNullable(mainImage), Optional.ofNullable(caption));
 	}
 
 	/**
@@ -184,8 +193,13 @@ public class AbstractArticleParser {
 					}
 					else {
 						String supText = clean(sups.first().text());
-						if (supText.equals(paraText)) {
-							content.add (new Footnote(supText));
+						if (supText.equals(paraText)) { // the entire paragraph text is in the <sup> tag
+							if (sups.first().hasClass("pullquote")) {
+								content.add (new PullQuote(supText));
+							}
+							else {
+								content.add(new Footnote(supText));
+							}
 						}
 						else {
 							content.add (new Text(paraText));

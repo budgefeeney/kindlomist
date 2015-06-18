@@ -28,7 +28,7 @@ public class SingleImageArticleParser extends AbstractArticleParser
 			Document doc = Jsoup.parse(html);
 			
 			Element bodyDiv   = findArticleDiv(doc);
-			URI     mainImage = readMainImage(bodyDiv).get();
+			URI     mainImage = readMainImage(bodyDiv).getLeft().orElseThrow(() -> new NoSuchElementException());
 			
 			return new SingleImageArticle(articleUri, mainImage).validate();
 		}

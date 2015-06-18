@@ -179,6 +179,7 @@ public class ArticleWriter {
 			case SUB_HEADING: writeSubHeading(writer, (SubHeading) content); break;
 			case IMAGE:       writeImage(writer, images, (Image) content); break;
 			case FOOTNOTE:    writeFootnote(writer, (Footnote) content); break;
+			case PULL_QUOTE:  writePullQuote(writer, (PullQuote) content); break;
 			default:
 				throw new IllegalStateException ("No writer is defined for content of type " + content.getType());
 		}
@@ -222,6 +223,17 @@ public class ArticleWriter {
 		writer.write('~');
 		writer.write(content);
 		writer.write("~\n\n");
+	}
+
+
+
+	/**
+	 * Writes a pull-quote
+	 */
+	private static void writePullQuote(Writer writer, PullQuote pullQuote) throws IOException {
+		writer.write("> *");
+		writer.write(pullQuote.getContent());
+		writer.write("*");
 	}
 	
 }
