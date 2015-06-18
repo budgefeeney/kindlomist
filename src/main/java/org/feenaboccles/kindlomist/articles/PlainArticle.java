@@ -26,7 +26,7 @@ public class PlainArticle implements Article, MainImageArticle, ContentBasedArti
 	
 	public static final String ECONOMIST_IMAGE_CDN = "cdn.static-economist.com";
 	public static final int MAX_IMAGES_PER_ARTICLE = 10;
-	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,\\+\\-\\-——\u2013\\.\"´‘’'“”()\\{\\}\\[\\]’\\.%…!\\?&\\*/\\\\½⅓⅔¼¾⅛⅜⅝⅞†\u02da#\u00b0@•<>]+";
+	public final static String ECONOMIST_VISIBLE_TEXT = "[\\p{Sc}\\p{IsLatin}\\d \\n:;,\\+\\-\\-——\u2013\\.\"´‘’'“”()\\{\\}\\[\\]’\\.%…!\\?&\\*/\\\\½⅓⅔¼¾⅛⅜⅝⅞†\u02da#\u00b0@•<>\u00a9\u00ae\u2122]+";
 	
 	@NonNull
 	URI articleUri;
