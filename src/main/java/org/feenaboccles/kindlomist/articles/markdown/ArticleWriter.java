@@ -231,9 +231,10 @@ public class ArticleWriter {
 	 * Writes a pull-quote
 	 */
 	private static void writePullQuote(Writer writer, PullQuote pullQuote) throws IOException {
-		writer.write("> *");
+		writer.write("\n> *");
 		writer.write(pullQuote.getContent());
 		writer.write("*");
+		writer.write("\n\n");
 	}
 	
 }
