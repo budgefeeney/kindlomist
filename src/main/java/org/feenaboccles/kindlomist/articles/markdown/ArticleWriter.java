@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.NonNull;
-import lombok.Value;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +25,6 @@ import org.feenaboccles.kindlomist.articles.content.*;
  * no validation is undertaken by this class.
  */
 @Log4j2
-@Value
 public class ArticleWriter {
 
 	private ArticleWriter() { }
