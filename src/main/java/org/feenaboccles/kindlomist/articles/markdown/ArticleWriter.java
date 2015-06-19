@@ -24,6 +24,7 @@ import org.feenaboccles.kindlomist.articles.content.*;
  * Since this is created from objects which have already been validated,
  * no validation is undertaken by this class.
  */
+// TODO Escape all markdown characters from content.
 @Log4j2
 public class ArticleWriter {
 
@@ -187,7 +188,7 @@ public class ArticleWriter {
 	 * Writes a piece of text content
 	 */
 	private static void writeText(Writer writer, Text text) throws IOException {
-		writer.write(text.getContent());
+		writer.write(markdownEscapedContent(text));
 		writer.write("\n\n");
 	}
 
@@ -205,7 +206,7 @@ public class ArticleWriter {
 	 * Writes a sub-heading
 	 */
 	private static void writeSubHeading(Writer writer, SubHeading heading) throws IOException {
-		writer.write ("### " + heading.getContent());
+		writer.write ("### " + markdownEscapedContent(heading));
 		writer.write ("\n");
 	}
 
@@ -214,7 +215,7 @@ public class ArticleWriter {
 	 */
 	private static void writeFootnote(Writer writer, Footnote footnote) throws IOException {
 		String content = StringUtils.replace(
-				footnote.getContent(), " ", "\\ ");
+				markdownEscapedContent(footnote), " ", "\\ ");
 
 		// We subscript the footnote to make it small. This is why we
 		// also have to escape spaces
@@ -228,11 +229,34 @@ public class ArticleWriter {
 	/**
 	 * Writes a pull-quote
 	 */
+	// TODO Escape > and * in the content
 	private static void writePullQuote(Writer writer, PullQuote pullQuote) throws IOException {
 		writer.write("\n> *");
-		writer.write(pullQuote.getContent());
+		writer.write(markdownEscapedContent(pullQuote));
 		writer.write("*");
 		writer.write("\n\n");
 	}
-	
+
+
+	private static String markdownEscapedContent(Content content) {
+		final String text = content.getContent();
+		StringBuilder sb = new StringBuilder (text.length());
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			switch (c) {
+				case '*':
+				case '\\':
+				case '_':
+				case '>':
+				case '#':
+				case '(':
+					sb.append('\\');
+					// deliberate fallthrough
+				default:
+					sb.append(c);
+					break;
+			}
+		}
+		return sb.toString();
+	}
 }
