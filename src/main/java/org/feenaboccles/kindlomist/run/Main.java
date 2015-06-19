@@ -135,6 +135,7 @@ public class Main {
 				log.info("No date specified, using date of most recent issue - " + dateStamp);
 			}
 
+
 			if (Files.exists(path)) {
 				if (Files.isDirectory(path)) {
 					path = path.resolve("economist-" + dateStamp + ".epub");
@@ -255,7 +256,7 @@ public class Main {
 		return userEmail.toString();
 	}
 
-	@Option(name = "-u", aliases = "--username", usage = "The username to log into the Economist website", metaVar = " ")
+	@Option(name = "-u", aliases = "--username", usage = "The username to log into the Economist website", metaVar = " ", required=true)
 	public void setUserEmail(String userEmail) {
 		this.userEmail = Email.of(userEmail);
 	}
@@ -283,7 +284,7 @@ public class Main {
 		return path.toString();
 	}
 
-	@Option(name = "-o", aliases = "--out-file", usage = "Where the resulting epub file should be saved. Can be a folder or a filename.", metaVar = " ")
+	@Option(name = "-o", aliases = "--out-file", usage = "Where the resulting epub file should be saved. Can be a folder or a filename.", metaVar = " ", required=true)
 	public void setPath(@NonNull String path) {
 		this.path = Paths.get(path.trim());
 	}
