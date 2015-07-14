@@ -46,9 +46,12 @@ public class Economist implements Serializable {
 	@NonNull WeeklyDigestArticle politicsThisWeek;
 	@NonNull Optional<WeeklyDigestArticle> businessThisWeek;
 	@NonNull SingleImageArticle kalsCartoon;
+	@NonNull PlainArticle letters;
 	
 	@NonNull @Size(min=MIN_SECTION_COUNT, max=MAX_SECTION_COUNT)
 	Map<String, List<PlainArticle>> sections;
+
+	@NonNull PlainArticle obituary;
 	
 	@NonNull @Size(min=MIN_SECTION_COUNT, max=MAX_SECTION_COUNT) 
 	@EachLength(min=MIN_SEC_NAME_LEN, max=MAX_SEC_NAME_LEN) @EachPattern(regexp=PlainArticle.ECONOMIST_VISIBLE_TEXT)

@@ -24,12 +24,7 @@ import org.feenaboccles.kindlomist.articles.SingleImageArticle;
 import org.feenaboccles.kindlomist.articles.WeeklyDigestArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
 import org.feenaboccles.kindlomist.articles.content.Image;
-import org.feenaboccles.kindlomist.articles.html.HtmlParseException;
-import org.feenaboccles.kindlomist.articles.html.HtmlParser;
-import org.feenaboccles.kindlomist.articles.html.PlainArticleParser;
-import org.feenaboccles.kindlomist.articles.html.PrintEditionParser;
-import org.feenaboccles.kindlomist.articles.html.SingleImageArticleParser;
-import org.feenaboccles.kindlomist.articles.html.WeeklyDigestArticleParser;
+import org.feenaboccles.kindlomist.articles.html.*;
 
 /**
  * Encapsulates the logic involved in downloading a full issue of the Ecomonimst
@@ -100,6 +95,8 @@ public class Downloader extends HttpAction {
 				p.getBusinessThisWeek().isPresent()
 				? Optional.of(fetchAndParseDigest(p.getBusinessThisWeek().get(), u))
 				: Optional.empty();
+		PlainArticle letters = fetchAndParse(p.getLetters(), u, new LetterArticleParser());
+		PlainArticle obit = fetchAndParse(p.getObituary(), u, new PlainArticleParser());
 
 
 		downloadMainImage(imageDownloader, kal);
@@ -141,7 +138,9 @@ public class Downloader extends HttpAction {
 						.politicsThisWeek(pols)
 						.businessThisWeek(biz)
 						.kalsCartoon(kal)
+						.letters(letters)
 						.sections(sections)
+						.obituary(obit)
 						.orderedSections(p.getOrderedSections())
 						.images(imageResolver)
 						.coverImage(coverImage)

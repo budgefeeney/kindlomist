@@ -8,9 +8,11 @@ import java.util.Optional;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.feenaboccles.kindlomist.articles.Article;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
 import org.feenaboccles.kindlomist.articles.content.Content.Type;
+import org.feenaboccles.kindlomist.articles.content.LetterAuthor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,7 +30,6 @@ public class PlainArticleParser extends AbstractArticleParser
 
 	@Override
 	public PlainArticle parse(URI articleUri, String html) throws HtmlParseException {
-		
 		try {
 			Document doc = Jsoup.parse(html);
 			ArticleHeader header = readHeaders(doc);
@@ -44,24 +45,7 @@ public class PlainArticleParser extends AbstractArticleParser
 				content.remove(0);
 			}
 
-			// In some cases the Economist may publish a mini-article lacking either title,
-			// such as mini-articles showing a chart with some commentary, or both title and topic,
-			// such as job ads. We skip the job ads, but work around the charts with commentary.
-			if (headerLacksTitleOnly(header)) {
-				if (isMiniArticle(mainImageCap.getLeft(), content)) {
-					header.setTitle(header.getTopic());
-					header.setTopic(header.getStrap());
-					header.setStrap(MINI_ARTICLE_STRAP);
-				}
-				// And then sometimes the article starts with a main image whose
-				// caption is meant to serve as the strap
-				else if (mainImageCap.getLeft().isPresent() && mainImageCap.getRight().isPresent()) {
-					header.setTitle(header.getTopic());
-					header.setTopic(header.getStrap());
-					header.setStrap(mainImageCap.getRight().get());
-				}
-			}
-
+			header = cleanHeaders(header, content, mainImageCap.getLeft(), mainImageCap.getRight());
 			
 			return PlainArticle.builder()
 		                       .articleUri(articleUri)
@@ -81,6 +65,46 @@ public class PlainArticleParser extends AbstractArticleParser
 		catch (NullPointerException e)
 		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
 		}
+	}
+
+	/**
+	 * Reads the {@link Content} of an article from the given
+	 * DIV. Does not support the conversion of short text to headings, or
+	 * the use of {@link LetterAuthor} tags.
+	 */
+	protected List<Content> readContent(Element bodyDiv) {
+		return readContent(
+				bodyDiv,
+				/* convertShortTextToHeading = */ false,
+				/* permitLetterAuthor = */ false);
+	}
+
+	/**
+	 * Reads the headers, and performs any adjustments necessary for special cast
+	 * articles.
+	 *
+	 * This is an <strong>in-place</strong> mutation
+	 */
+	protected ArticleHeader cleanHeaders(ArticleHeader header, List<Content> content, Optional<URI> image, Optional<String> imageCaption) {
+		// In some cases the Economist may publish a mini-article lacking either title,
+		// such as mini-articles showing a chart with some commentary, or both title and topic,
+		// such as job ads. We skip the job ads, but work around the charts with commentary.
+		if (headerLacksTitleOnly(header)) {
+			if (isMiniArticle(image, content)) {
+				header.setTitle(header.getTopic());
+				header.setTopic(header.getStrap());
+				header.setStrap(MINI_ARTICLE_STRAP);
+			}
+			// And then sometimes the article starts with a main image whose
+			// caption is meant to serve as the strap
+			else if (image.isPresent() && imageCaption.isPresent()) {
+				header.setTitle(header.getTopic());
+				header.setTopic(header.getStrap());
+				header.setStrap(imageCaption.get());
+			}
+		}
+
+		return header;
 	}
 
 	/**

@@ -8,6 +8,7 @@ import javax.validation.ValidationException;
 
 import org.feenaboccles.kindlomist.articles.WeeklyDigestArticle;
 import org.feenaboccles.kindlomist.articles.content.Content;
+import org.feenaboccles.kindlomist.articles.content.LetterAuthor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,7 +28,7 @@ public class WeeklyDigestArticleParser extends AbstractArticleParser
 			Document doc = Jsoup.parse(html);
 			Element bodyDiv = findArticleDiv(doc);
 			
-			List<Content> content = readContent(bodyDiv, /* convertShortTextToHeading = */ true);
+			List<Content> content = readContent(bodyDiv);
 			
 			return new WeeklyDigestArticle(articleUri, content).validate();
 		}
@@ -37,5 +38,17 @@ public class WeeklyDigestArticleParser extends AbstractArticleParser
 		catch (NullPointerException e)
 		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
 		}
+	}
+
+	/**
+	 * Reads the {@link Content} of an article from the given
+	 * DIV. Supports the conversion of short text to headings, but
+	 * not the use of {@link LetterAuthor} tags.
+	 */
+	protected List<Content> readContent(Element bodyDiv) {
+		return readContent(
+				bodyDiv,
+				/* convertShortTextToHeading = */ true,
+				/* permitLetterAuthor = */ false);
 	}
 }

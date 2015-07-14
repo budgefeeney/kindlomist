@@ -321,7 +321,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Irrepressible", a.getTitle());
 		assertEquals ("French fiction: Michel Houellebecq", a.getTopic());
 		assertEquals("The book that started it all", a.getStrap());
-		assertFalse (a.getMainImage().isPresent());
+		assertFalse(a.getMainImage().isPresent());
 	}
 
 	@Test
@@ -333,7 +333,7 @@ public class PlainArticleParserTest {
 		assertEquals ("Terror-tourism", a.getTitle());
 		assertEquals ("The Yorkshire bomber", a.getTopic());
 		assertEquals (PlainArticleParser.MINI_ARTICLE_STRAP, a.getStrap());
-		assertTrue (a.getMainImage().isPresent());
+		assertTrue(a.getMainImage().isPresent());
 	}
 
 	@Test
@@ -354,18 +354,19 @@ public class PlainArticleParserTest {
 				assertEquals ("If the infrastructure allowed farmers to get their produce to market, it would create vast numbers of new jobs", c.getContent());
 			}
 		}
-		assertEquals (1, pulls);
+		assertEquals(1, pulls);
 	}
 
 	@Test
 	public void testOnEgyptArticle() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article14-egypt.html");
 
-		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
+		PlainArticle a = new LetterArticleParser().parse(DUMMY_URI, articleText);
 
 		assertEquals ("Health care in Egypt", a.getTitle());
 		assertEquals ("Dirty sheets and stray cats", a.getTopic());
 		assertEquals ("At least there are no mice on this ward", a.getStrap());
-		assertTrue (a.getMainImage().isPresent());
+		assertTrue(a.getMainImage().isPresent());
 	}
+
 }

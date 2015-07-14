@@ -89,7 +89,7 @@ public class AbstractArticleParser {
 				}
 			}
 		}
-		return Pair.of (Optional.ofNullable(mainImage), Optional.ofNullable(caption));
+		return Pair.of(Optional.ofNullable(mainImage), Optional.ofNullable(caption));
 	}
 
 	/**
@@ -158,20 +158,12 @@ public class AbstractArticleParser {
 		return false;
 	}
 
-	/**
-	 * Reads the {@link Content} of an article from the given
-	 * DIV.
-	 */
-	protected List<Content> readContent(Element bodyDiv) {
-		return readContent(bodyDiv, /* convertShortTextToHeading = */ false);
-	}
-
 
 	/**
 	 * Reads the {@link Content} of an article from the given
 	 * DIV.
 	 */
-	protected List<Content> readContent(Element bodyDiv, boolean convertShortTextToHeading) {
+	protected List<Content> readContent(Element bodyDiv, boolean convertShortTextToHeading, boolean permitLetterAuthor) {
 		List<Content> content = new ArrayList<>(EXPECTED_IMAGE_COUNT + EXPECTED_PARAGRAPH_COUNT);
 		
 		int maxAllowedFootnotes = 0; // allow FOOTNOTES_PER_PARAGRAPH per textual paragraph.
@@ -188,7 +180,7 @@ public class AbstractArticleParser {
 				else { // check for a footnote, should all be in a <sup> tag
 					Elements sups = element.getElementsByTag("sup");
 					if (sups.isEmpty()) {
-						content.add(new Text(paraText));
+						content.add(textOrAuthor(paraText, permitLetterAuthor));
 						maxAllowedFootnotes += FOOTNOTES_PER_PARAGRAPH;
 					}
 					else {
@@ -202,7 +194,7 @@ public class AbstractArticleParser {
 							}
 						}
 						else {
-							content.add (new Text(paraText));
+							content.add (textOrAuthor(paraText, permitLetterAuthor));
 						}
 					}
 				}
@@ -217,6 +209,21 @@ public class AbstractArticleParser {
 		detectAndEncodeFootnotesMissingMarkup(content, maxAllowedFootnotes);
 		
 		return content;
+	}
+
+	/**
+	 * Having verified that the given content is neither a {@link Footnote} nor
+	 * a {@link SubHeading}, determine if it's the name of an individual who wrote
+	 * a letter to the Economist ({@link  LetterAuthor} or just plain {@link Text}
+	 * and return as appropriate. If <tt>permitLetterAuthor</tt> is false, don't
+	 * do the check, just convert it to {@link Text}
+	 */
+	private final Content textOrAuthor (String text, boolean permitLetterAuthor) {
+		return permitLetterAuthor
+				? text.matches(LetterAuthor.REGEX)
+					? new LetterAuthor(text)
+					: new Text(text)
+				: new Text(text);
 	}
 
 	/**
@@ -240,8 +247,9 @@ public class AbstractArticleParser {
 		{	Content c = iter.previous();
 			switch (c.getType()) {
 			case FOOTNOTE:    continue footnoteLoop;
+			case LETTER_AUTHOR:
 			case SUB_HEADING:
-			case IMAGE:       break footnoteLoop; // Footnotes can't come before images or headings
+			case IMAGE:       break footnoteLoop; // Footnotes can't come before images, headings or authors
 			case TEXT:
 				String text = c.getContent();
 				if (text.length() >= Text.MIN_TEXT_LEN) {

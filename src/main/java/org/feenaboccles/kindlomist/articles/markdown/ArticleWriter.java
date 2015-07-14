@@ -31,6 +31,7 @@ public class ArticleWriter {
 	private ArticleWriter() { }
 
 
+
 	/**
 	 * Writes the article out to the given writer in Markdown format. For
 	 * each image, a local path on disk is found using the {@link ImageResolver}
@@ -53,6 +54,19 @@ public class ArticleWriter {
 		);
 	}
 
+	public static void writeSingleArticleSection (@NonNull Writer writer,
+												  @NonNull ImageResolver images,
+												  @NonNull PlainArticle article) throws IOException {
+		write(
+			writer,
+			images,
+			article.getTopic() + ": " + article.getTitle(),
+			1,
+			Optional.of(article.getStrap()),
+			article.getMainImage(),
+			article.getBody()
+		);
+	}
 
 	/**
 	 * Writes the article out to the given writer in Markdown format. For
@@ -108,7 +122,6 @@ public class ArticleWriter {
 		);
 	}
 
-
 	/**
 	 * Writes this article out to the given writer in Markdown format. For
 	 * each image, a local path on disk is found using the {@link ImageResolver}
@@ -124,12 +137,39 @@ public class ArticleWriter {
 	 * @throws IOException
 	 */
 	private static void write (@NonNull Writer writer,
+							   @NonNull ImageResolver images,
+							   @NonNull String title,
+							   @NonNull Optional<String> strap,
+							   @NonNull Optional<URI> mainImage,
+							   @NonNull List<Content> contents) throws IOException {
+		write(writer, images, title, 2, strap, mainImage, contents);
+	}
+
+	/**
+	 * Writes this article out to the given writer in Markdown format. For
+	 * each image, a local path on disk is found using the {@link ImageResolver}
+	 * and used to create a Markdown image tag
+	 * @param writer the writer used to write document to
+	 * @param images the image resolver, used to match image URIs to local
+	 *               paths on disk
+	 * @param title  the article title, usually a combinator of Economist "topic"
+	 *               and title components
+	 * @param titleRank should the title be 1st, 2nd etc.
+	 * @param strap  the article's strap
+	 * @param mainImage the article's main image
+	 * @param contents the articles contents, may be null.
+	 * @throws IOException
+	 */
+	private static void write (@NonNull Writer writer,
 				@NonNull ImageResolver images,
 				@NonNull String title,
+						 int titleRank,
 				@NonNull Optional<String> strap,
 				@NonNull Optional<URI> mainImage,
 				@NonNull List<Content> contents) throws IOException {
-		writer.write("## " + title + "\n\n");
+
+		String titleMarkDown = StringUtils.repeat('#', titleRank);
+		writer.write(titleMarkDown + " " + title + "\n\n");
 		if (strap.isPresent())
 			writer.write ("**" + strap.get() + "**\n\n");
 		if (mainImage.isPresent())
@@ -174,11 +214,12 @@ public class ArticleWriter {
 	 */
 	private static void writeContent(Writer writer, ImageResolver images, Content content) throws IOException {
 		switch (content.getType()) {
-			case TEXT:        writeText(writer, (Text) content); break;
-			case SUB_HEADING: writeSubHeading(writer, (SubHeading) content); break;
-			case IMAGE:       writeImage(writer, images, (Image) content); break;
-			case FOOTNOTE:    writeFootnote(writer, (Footnote) content); break;
-			case PULL_QUOTE:  writePullQuote(writer, (PullQuote) content); break;
+			case TEXT:          writeText(writer, (Text) content); break;
+			case SUB_HEADING:   writeSubHeading(writer, (SubHeading) content); break;
+			case IMAGE:         writeImage(writer, images, (Image) content); break;
+			case FOOTNOTE:      writeFootnote(writer, (Footnote) content); break;
+			case PULL_QUOTE:    writePullQuote(writer, (PullQuote) content); break;
+			case LETTER_AUTHOR: writeLetterAuthor(writer, (LetterAuthor) content); break;
 			default:
 				throw new IllegalStateException ("No writer is defined for content of type " + content.getType());
 		}
@@ -222,6 +263,15 @@ public class ArticleWriter {
 		writer.write('~');
 		writer.write(content);
 		writer.write("~\n\n");
+	}
+
+	/**
+	 * Writes a footnote
+	 */
+	private static void writeLetterAuthor(Writer writer, LetterAuthor author) throws IOException {
+		writer.write('_');
+		writer.write(markdownEscapedContent(author));
+		writer.write("_\n\n");
 	}
 
 

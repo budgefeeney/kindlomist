@@ -55,6 +55,9 @@ public class EconomistWriter
 		// Write out KAL's cartoon
 		ArticleWriter.write(writer, images, "KAL's Cartoon", issue.getKalsCartoon());
 
+		// Write out the letters
+		ArticleWriter.writeSingleArticleSection(writer, images, issue.getLetters());
+
 		// Write out all the sections and their articles.
 		for (String sectionName : issue.getOrderedSections()) {
 			writer.write ("# " + sectionName + "\n\n");
@@ -62,5 +65,12 @@ public class EconomistWriter
 				ArticleWriter.write(writer, images, article);
 			}
 		}
+
+		// Write out the letters
+		ArticleWriter.write(writer, images, issue.getObituary());
+
+
+		// Write out the obituary
+		ArticleWriter.writeSingleArticleSection(writer, images, issue.getObituary());
 	}
 }
