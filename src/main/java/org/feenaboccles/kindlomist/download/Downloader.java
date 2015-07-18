@@ -97,7 +97,7 @@ public class Downloader extends HttpAction {
 				: Optional.empty();
 		PlainArticle letters = fetchAndParse(p.getLetters(), u, new LetterArticleParser());
 		PlainArticle obit = fetchAndParse(p.getObituary(), u, new PlainArticleParser());
-
+		downloadAllImages(imageDownloader, letters, obit);
 
 		downloadMainImage(imageDownloader, kal);
 		downloadContentImages(imageDownloader, pols);
