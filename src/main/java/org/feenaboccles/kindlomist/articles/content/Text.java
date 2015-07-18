@@ -16,7 +16,7 @@ import org.hibernate.validator.constraints.Length;
 public class Text implements Content {
 
 	private static final long serialVersionUID = 1L;
-	public static final int MIN_TEXT_LEN =   20; // TODO This is only because of the book reviews which start with the title and author of a book, really I should add a "ReviewSubject" Content.Type
+	public static final int MIN_TEXT_LEN =  20; // TODO This is only because of the book reviews which start with the title and author of a book, really I should add a "ReviewSubject" Content.Type
 	public static final int MAX_TEXT_LEN = 1500; // there is at least one article with a 1,085 character paragraph
 	
 	@NonNull 

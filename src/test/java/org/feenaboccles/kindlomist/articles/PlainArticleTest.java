@@ -210,7 +210,7 @@ public class PlainArticleTest {
 	@Test
 	@SuppressWarnings("unused")
 	public void testInvalidBodyText() throws ValidationException {
-		String[] inputs = new String[] { null,   "",     " ",         "ssd",       SAMPLE_STRAP, "😉😗😛😌😢😥😩😠😆",  StringUtils.repeat("01234567890", 5000) };
+		String[] inputs = new String[] { null,   "",     " ",         "ssd",       SAMPLE_STRAP.substring(0, 18), "😉😗😛😌😢😥😩😠😆",  StringUtils.repeat("01234567890", 5000) };
 		String[] issues = new String[] {"null", "empty", "too short", "too short", "too short",  "invalid characters", "too long" };
 		
 		assertEquals (inputs.length, issues.length);
