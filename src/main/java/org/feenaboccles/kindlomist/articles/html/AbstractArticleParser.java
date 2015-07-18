@@ -201,8 +201,13 @@ public class AbstractArticleParser {
 			}
 			else if (element.nodeName().equalsIgnoreCase("div") && isContentImageDivClass(element.className())) {
 				Elements imgs = element.getElementsByTag("img");
-				if (! imgs.isEmpty())
-					content.add (new Image (imgs.first().attr("src")));
+				if (! imgs.isEmpty()) {
+					Content imageContent = new Image(imgs.first().attr("src"));
+					// occasionally the same image appears in an article twice. This is almost
+					// certainly by mistake, but it's a mistake the Economist often makes.
+					if (! content.contains(imageContent))
+						content.add(imageContent);
+				}
 			}
 		}
 		

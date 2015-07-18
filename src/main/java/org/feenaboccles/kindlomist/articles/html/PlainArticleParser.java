@@ -31,6 +31,11 @@ public class PlainArticleParser extends AbstractArticleParser
 	@Override
 	public PlainArticle parse(URI articleUri, String html) throws HtmlParseException {
 		try {
+			// there is occasionally some really dodgy things in Economist
+			// HTML, as writers fight agains the CMS they have to use
+			html = html.replaceAll("<br>\\s*<br>", "</p><p>");
+
+			// Now parse the cleaned document normally
 			Document doc = Jsoup.parse(html);
 			ArticleHeader header = readHeaders(doc);
 			

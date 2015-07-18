@@ -34,7 +34,7 @@ public class PlainArticleParserTest {
 		assertEquals ("America’s police kill too many people. But some forces are showing how smarter, less aggressive policing gets results", a.getStrap());
 		assertEquals (new URI("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141213_USP001_0.jpg"), a.getMainImage().get());
 		
-		assertEquals (5, Content.Type.values().length);
+		assertEquals (6, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0, pulls = 0;
 		for (Content content : a.getBody()) {
 			switch (content.getType()) {
@@ -53,6 +53,8 @@ public class PlainArticleParserTest {
 			case PULL_QUOTE:
 				pulls++;
 				break;
+			case LETTER_AUTHOR:
+				throw new IllegalStateException("Letter authors should not appear in an article");
 			default:
 				throw new IllegalStateException ("Unknown content type" + content.getType());
 			}
@@ -88,7 +90,7 @@ public class PlainArticleParserTest {
 		assertEquals ("America’s police kill too many people. But some forces are showing how smarter, less aggressive policing gets results", a.getStrap());
 		assertFalse(a.getMainImage().isPresent());
 		
-		assertEquals (5, Content.Type.values().length);
+		assertEquals (6, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0, pulls = 0;
 		for (Content content : a.getBody()) {
 			switch (content.getType()) {
@@ -107,6 +109,8 @@ public class PlainArticleParserTest {
 			case PULL_QUOTE:
 				pulls++;
 				break;
+			case LETTER_AUTHOR:
+				throw new IllegalStateException("Letter authors should not appear in an article");
 			default:
 				throw new IllegalStateException ("Unknown content type" + content.getType());
 			}
@@ -155,7 +159,7 @@ public class PlainArticleParserTest {
 		assertEquals ("A new book from a prescient economist", a.getStrap());
 		assertEquals (URI.create("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141220_FND001_0.jpg"), a.getMainImage().get());
 		
-		assertEquals (5, Content.Type.values().length);
+		assertEquals (6, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0, pulls = 0;
 		for (Content content : a.getBody()) {
 			switch (content.getType()) {
@@ -174,6 +178,8 @@ public class PlainArticleParserTest {
 			case PULL_QUOTE:
 				pulls++;
 				break;
+			case LETTER_AUTHOR:
+				throw new IllegalStateException("Letter authors should not appear in an article");
 			default:
 				throw new IllegalStateException ("Unknown content type" + content.getType());
 			}
@@ -337,6 +343,30 @@ public class PlainArticleParserTest {
 	}
 
 	@Test
+	public void testOnRageToResignation() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article-15-rage-to-resignation.html");
+
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
+
+		assertEquals ("From rage to resignation", a.getTitle());
+		assertEquals ("Greece and the euro", a.getTopic());
+		assertEquals ("A chastened nation, and its leader, face more hard choices", a.getStrap());
+		assertFalse(a.getMainImage().isPresent());
+	}
+
+	@Test
+	public void testOnSingaporeException() throws IOException, HtmlParseException, URISyntaxException {
+		String articleText = Util.loadFromClassPath("article-16-singapore-exception.html");
+
+		PlainArticle a = new PlainArticleParser().parse(DUMMY_URI, articleText);
+
+		assertEquals ("The Singapore exception", a.getTitle());
+		assertEquals ("Singapore", a.getTopic());
+		assertEquals ("To continue to flourish in its second half-century, South-East Asia’s miracle city-state will need to change its ways, argues Simon Long", a.getStrap());
+		assertTrue(a.getMainImage().isPresent());
+	}
+
+	@Test
 	public void testOnPullQuote() throws IOException, HtmlParseException, URISyntaxException {
 		String articleText = Util.loadFromClassPath("article13-with-pull-quote.html");
 
@@ -356,17 +386,4 @@ public class PlainArticleParserTest {
 		}
 		assertEquals(1, pulls);
 	}
-
-	@Test
-	public void testOnEgyptArticle() throws IOException, HtmlParseException, URISyntaxException {
-		String articleText = Util.loadFromClassPath("article14-egypt.html");
-
-		PlainArticle a = new LetterArticleParser().parse(DUMMY_URI, articleText);
-
-		assertEquals ("Health care in Egypt", a.getTitle());
-		assertEquals ("Dirty sheets and stray cats", a.getTopic());
-		assertEquals ("At least there are no mice on this ward", a.getStrap());
-		assertTrue(a.getMainImage().isPresent());
-	}
-
 }
