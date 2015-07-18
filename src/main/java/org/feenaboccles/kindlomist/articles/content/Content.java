@@ -8,6 +8,7 @@ import javax.validation.ValidationException;
  * Article content - can come in several forms (e.g. paragraph-text, inline images, sub-headings)
  * @author bryanfeeney
  *
+ * This is basically a poor man's version of a sum-type (case-class in Scala parlance)
  */
 public interface Content extends Serializable {
 
