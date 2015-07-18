@@ -180,7 +180,7 @@ public class AbstractArticleParser {
 				else { // check for a footnote, should all be in a <sup> tag
 					Elements sups = element.getElementsByTag("sup");
 					if (sups.isEmpty()) {
-						content.add(textOrAuthor(paraText, permitLetterAuthor));
+						content.add(textRefOrAuthor(paraText, element, permitLetterAuthor));
 						maxAllowedFootnotes += FOOTNOTES_PER_PARAGRAPH;
 					}
 					else {
@@ -194,7 +194,7 @@ public class AbstractArticleParser {
 							}
 						}
 						else {
-							content.add (textOrAuthor(paraText, permitLetterAuthor));
+							content.add (textRefOrAuthor(paraText, element, permitLetterAuthor));
 						}
 					}
 				}
@@ -219,16 +219,44 @@ public class AbstractArticleParser {
 	/**
 	 * Having verified that the given content is neither a {@link Footnote} nor
 	 * a {@link SubHeading}, determine if it's the name of an individual who wrote
-	 * a letter to the Economist ({@link  LetterAuthor} or just plain {@link Text}
+	 * a letter to the Economist ({@link  LetterAuthor}, a {@link Reference}, which is to
+	 * say a short text fragment containing a hyperlink, or just plain {@link Text}
 	 * and return as appropriate. If <tt>permitLetterAuthor</tt> is false, don't
 	 * do the check, just convert it to {@link Text}
+	 * @param text the element text, should match element.text().
+	 * @param element the element encapsulating the text
+	 * @param permitLetterAuthor whether we should check invalid short
+	 *                           texts to see if they're author names
 	 */
-	private final Content textOrAuthor (String text, boolean permitLetterAuthor) {
+	private static Content textRefOrAuthor(String text, Element element, boolean permitLetterAuthor) {
 		return permitLetterAuthor
 				? text.matches(LetterAuthor.REGEX)
 					? new LetterAuthor(text)
-					: new Text(text)
-				: new Text(text);
+					: textOrRef(text, element)
+				: textOrRef(text, element);
+	}
+
+	/**
+	 * Check to see if the given text could be a {@link Reference}, i.e. is a short
+	 * text fragment wrapping a URL. If so return as such, else return as plain
+	 * {@link Text}
+	 * @param text the element text, should match element.text().
+	 * @param element the element encapsulating the text
+	 */
+	private static Content textOrRef(String text, Element element) {
+		if (text.length() < Text.MIN_TEXT_LEN) {
+			Elements uris = element.getElementsByTag("a");
+			if (uris.size() == 1) {
+				Element uri = uris.first();
+				String uriText = uri.text();
+				String before = StringUtils.substringBefore(text, uriText);
+				String after  = StringUtils.substringAfter(text, uriText);
+				if (before.length() + after.length() <= Reference.MAX_NON_URL_TEXT) {
+					return new Reference(before, uriText, uri.attr("href"), after);
+				}
+			}
+		}
+		return new Text(text); // may be invalid, in which case it'll valid to validate later
 	}
 
 	/**
@@ -252,9 +280,10 @@ public class AbstractArticleParser {
 		{	Content c = iter.previous();
 			switch (c.getType()) {
 			case FOOTNOTE:    continue footnoteLoop;
+			case REFERENCE:
 			case LETTER_AUTHOR:
 			case SUB_HEADING:
-			case IMAGE:       break footnoteLoop; // Footnotes can't come before images, headings or authors
+			case IMAGE:       break footnoteLoop; // Footnotes can't come before images, headings references or authors
 			case TEXT:
 				String text = c.getContent();
 				if (text.length() >= Text.MIN_TEXT_LEN) {

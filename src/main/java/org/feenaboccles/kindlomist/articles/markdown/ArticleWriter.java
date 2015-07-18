@@ -220,6 +220,7 @@ public class ArticleWriter {
 			case FOOTNOTE:      writeFootnote(writer, (Footnote) content); break;
 			case PULL_QUOTE:    writePullQuote(writer, (PullQuote) content); break;
 			case LETTER_AUTHOR: writeLetterAuthor(writer, (LetterAuthor) content); break;
+			case REFERENCE:     writeReference(writer, (Reference) content); break;
 			default:
 				throw new IllegalStateException ("No writer is defined for content of type " + content.getType());
 		}
@@ -275,11 +276,9 @@ public class ArticleWriter {
 	}
 
 
-
 	/**
 	 * Writes a pull-quote
 	 */
-	// TODO Escape > and * in the content
 	private static void writePullQuote(Writer writer, PullQuote pullQuote) throws IOException {
 		writer.write("\n> *");
 		writer.write(markdownEscapedContent(pullQuote));
@@ -288,8 +287,26 @@ public class ArticleWriter {
 	}
 
 
+	/**
+	 * Writes a reference
+	 */
+	private static void writeReference(Writer writer, Reference ref) throws IOException {
+		writer.write(markdownEscapedContent(ref.getBefore()));
+		writer.write(" [");
+		writer.write(markdownEscapedContent(ref.getUrlText()));
+		writer.write("](");
+		writer.write(ref.getUrlHref());
+		writer.write(") ");
+		writer.write(markdownEscapedContent(ref.getAfter()));
+
+		writer.write("\n\n");
+	}
+
 	private static String markdownEscapedContent(Content content) {
-		final String text = content.getContent();
+		return markdownEscapedContent(content.getContent());
+	}
+
+	private static String markdownEscapedContent(String text) {
 		StringBuilder sb = new StringBuilder (text.length());
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);

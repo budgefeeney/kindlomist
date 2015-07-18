@@ -34,7 +34,7 @@ public class PlainArticleParserTest {
 		assertEquals ("America’s police kill too many people. But some forces are showing how smarter, less aggressive policing gets results", a.getStrap());
 		assertEquals (new URI("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141213_USP001_0.jpg"), a.getMainImage().get());
 		
-		assertEquals (6, Content.Type.values().length);
+		assertEquals (7, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0, pulls = 0;
 		for (Content content : a.getBody()) {
 			switch (content.getType()) {
@@ -55,6 +55,8 @@ public class PlainArticleParserTest {
 				break;
 			case LETTER_AUTHOR:
 				throw new IllegalStateException("Letter authors should not appear in an article");
+			case REFERENCE:
+				throw new IllegalStateException("References should not appear in this article");
 			default:
 				throw new IllegalStateException ("Unknown content type" + content.getType());
 			}
@@ -90,7 +92,7 @@ public class PlainArticleParserTest {
 		assertEquals ("America’s police kill too many people. But some forces are showing how smarter, less aggressive policing gets results", a.getStrap());
 		assertFalse(a.getMainImage().isPresent());
 		
-		assertEquals (6, Content.Type.values().length);
+		assertEquals (7, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0, pulls = 0;
 		for (Content content : a.getBody()) {
 			switch (content.getType()) {
@@ -111,6 +113,8 @@ public class PlainArticleParserTest {
 				break;
 			case LETTER_AUTHOR:
 				throw new IllegalStateException("Letter authors should not appear in an article");
+			case REFERENCE:
+				throw new IllegalStateException("References should not appear in this article");
 			default:
 				throw new IllegalStateException ("Unknown content type" + content.getType());
 			}
@@ -159,7 +163,7 @@ public class PlainArticleParserTest {
 		assertEquals ("A new book from a prescient economist", a.getStrap());
 		assertEquals (URI.create("http://cdn.static-economist.com/sites/default/files/imagecache/full-width/images/print-edition/20141220_FND001_0.jpg"), a.getMainImage().get());
 		
-		assertEquals (6, Content.Type.values().length);
+		assertEquals (7, Content.Type.values().length);
 		int total = 0, texts = 0, headings = 0, imgs = 0, foots = 0, pulls = 0;
 		for (Content content : a.getBody()) {
 			switch (content.getType()) {
@@ -180,6 +184,8 @@ public class PlainArticleParserTest {
 				break;
 			case LETTER_AUTHOR:
 				throw new IllegalStateException("Letter authors should not appear in an article");
+			case REFERENCE:
+				throw new IllegalStateException("References should not appear in this article");
 			default:
 				throw new IllegalStateException ("Unknown content type" + content.getType());
 			}
