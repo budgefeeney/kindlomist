@@ -51,7 +51,7 @@ public class Reference implements Content {
 
 
     @Override
-    public Content validate() throws ValidationException {
+    public Reference validate() throws ValidationException {
         try {
             Validator.INSTANCE.validate(this, "reference-text content");
 

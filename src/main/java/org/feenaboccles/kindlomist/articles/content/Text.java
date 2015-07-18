@@ -25,7 +25,7 @@ public class Text implements Content {
 	String content;
 
 	@Override
-	public Content validate() throws ValidationException {
+	public Text validate() throws ValidationException {
 		try {
 			Validator.INSTANCE.validate(this, "text content");
 		}

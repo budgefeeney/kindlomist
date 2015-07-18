@@ -18,7 +18,7 @@ public class PullQuote implements Content {
 	String content;
 
 	@Override
-	public Content validate() throws ValidationException {
+	public PullQuote validate() throws ValidationException {
 		Validator.INSTANCE.validate(this, "pull-quote content");
 		return this;
 	}

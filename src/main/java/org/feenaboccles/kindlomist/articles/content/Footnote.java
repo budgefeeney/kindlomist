@@ -19,7 +19,7 @@ public class Footnote implements Content {
 	String content;
 
 	@Override
-	public Content validate() throws ValidationException {
+	public Footnote validate() throws ValidationException {
 		Validator.INSTANCE.validate(this, "footnote content");
 		return this;
 	}

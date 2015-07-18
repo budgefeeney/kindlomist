@@ -21,7 +21,7 @@ public final class Image implements Content {
 	String content;
 
 	@Override
-	public Content validate() throws ValidationException {
+	public Image validate() throws ValidationException {
 		Validator.INSTANCE.validate(this, "image URL");
 		
 		try {

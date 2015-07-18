@@ -21,7 +21,7 @@ public class LetterAuthor implements Content {
 	String content;
 
 	@Override
-	public Content validate() throws ValidationException {
+	public LetterAuthor validate() throws ValidationException {
 		Validator.INSTANCE.validate(this, "letter author");
 		return this;
 	}

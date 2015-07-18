@@ -19,7 +19,7 @@ public class SubHeading implements Content {
 	String content;
 
 	@Override
-	public Content validate() throws ValidationException {
+	public SubHeading validate() throws ValidationException {
 		Validator.INSTANCE.validate(this, "sub-heading");
 		return this;
 	}
