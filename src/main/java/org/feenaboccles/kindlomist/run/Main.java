@@ -52,6 +52,7 @@ public class Main {
 	private Path      passwordPath  = null;
 	private Path      path          = null;
 	private Path      pandocPath    = null;
+	private Path      kindleGenPath = null;
 
 
 	/**
@@ -81,16 +82,11 @@ public class Main {
 				path = Paths.get(path.toString() + ".epub");
 
 			Path coverImagePath = economistIssue.getPathToCoverImage();
-			String command =
-				pandocPath.toString()      + ' '
-				+ "-S"                     + ' '
-				+ "--epub-chapter-level 1" + ' '
-				+ "--toc --toc-depth 2"    + ' '
-				+ "-o " + path.toString()  + ' '
-				+ "--epub-cover-image " + coverImagePath.toString() + ' '
-				+ mdPath.toString();
+			convertMarkdownToEpub(mdPath, coverImagePath);
 
-			shellExecAndWait(command);
+			if (kindleGenPath != null) {
+				replaceEpubWithMobi(mdPath);
+			}
 			return EXIT_SUCCESS;
 
 		} catch (Exception e) {
@@ -98,6 +94,43 @@ public class Main {
 			System.err.println("ERROR: " + e.getMessage());
 			return EXIT_FAILURE;
 		}
+	}
+
+	/**
+	 * Uses the KindleGen executable to convert the epub file to a Mobi
+	 * file, and, if the conversion succeeded, delete the epub file.
+	 * @param mdPath the path to the markdown file - the epub file is
+	 *               the same except the .md extension is replaced with .epub
+	 */
+	private void replaceEpubWithMobi(Path mdPath) throws IOException, InterruptedException {
+		String epubPath = mdPath.toString().replace(".md", ".epub");
+		String kCommand = kindleGenPath.toString() + ' ' + epubPath;
+
+		shellExecAndWait(kCommand);
+
+		Path mobiPath = Paths.get(epubPath.replace(".epub", ".mobi"));
+		if (Files.exists(mobiPath) && Files.size(mobiPath) > 0) {
+            Files.delete(Paths.get(epubPath));
+        } else {
+			throw new IOException ("Failed to convert the epub file to a MOBI file");
+		}
+	}
+
+	/**
+	 * Converts the given markdown file to an epub files with the given cover
+	 * images using pandoc
+	 */
+	private void convertMarkdownToEpub(Path mdPath, Path coverImagePath) throws IOException, InterruptedException {
+		String command =
+            pandocPath.toString()      + ' '
+            + "-S"                     + ' '
+            + "--epub-chapter-level 1" + ' '
+            + "--toc --toc-depth 2"    + ' '
+            + "-o " + path.toString()  + ' '
+            + "--epub-cover-image " + coverImagePath.toString() + ' '
+            + mdPath.toString();
+
+		shellExecAndWait(command);
 	}
 
 	/**
@@ -296,5 +329,14 @@ public class Main {
 	@Option(name = "-b", aliases = "--pandoc-path", usage = "The path where the 'pandoc' program may be found", metaVar = " ")
 	public void setPandocPath(Path pandocPath) {
 		this.pandocPath = pandocPath;
+	}
+
+	public Path getKindleGenPath() {
+		return kindleGenPath;
+	}
+
+	@Option(name = "-k", aliases = "--kindle-gen-path", usage = "The path to the kindlegen executable. If present, used to convert the epub file" , metaVar = " ")
+	public void setKindleGenPath(Path kindleGenPath) {
+		this.kindleGenPath = kindleGenPath;
 	}
 }
