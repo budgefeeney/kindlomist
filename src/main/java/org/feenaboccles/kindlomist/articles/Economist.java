@@ -7,6 +7,7 @@ import static org.feenaboccles.kindlomist.articles.PrintEdition.MIN_SEC_NAME_LEN
 
 import java.io.Serializable;
 import java.nio.file.Path;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,10 @@ public class Economist implements Serializable {
 		"Europe", "Britain", "Business", "Finance and economics", "Science and technology",
 		"Books and arts"
 	};
+
+	public static final DayOfWeek PUBLICATION_DAY          = DayOfWeek.THURSDAY;
+	public static final int       PUBLICATION_HOUR         = 16;
+	public static final DayOfWeek DECLARED_PUBLICATION_DAY = DayOfWeek.SATURDAY;
 	
 	@NonNull LocalDate dateStamp;
 	@NonNull WeeklyDigestArticle politicsThisWeek;

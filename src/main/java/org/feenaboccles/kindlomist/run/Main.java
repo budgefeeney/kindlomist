@@ -218,7 +218,7 @@ public class Main {
 		}
 	}
 
-
+	// TODO Make generic using the constants in the Economist class
 	private DateStamp dateOfMostRecentIssue() {
 		// The most recent issue is published by 11pm British Time each Thursday
 		ZoneId timeZone = ZoneId.of("Europe/London");
@@ -229,7 +229,7 @@ public class Main {
 			case SATURDAY: return DateStamp.of(londonTime.toLocalDate());
 			case FRIDAY:   return DateStamp.of(londonTime.plus(1, ChronoUnit.DAYS).toLocalDate());
 			case THURSDAY: {
-				if (londonTime.getHour() >= 23)
+				if (londonTime.getHour() >= Economist.PUBLICATION_HOUR)
 					return DateStamp.of(londonTime.plus(2, ChronoUnit.DAYS).toLocalDate());
 				else
 					return DateStamp.of(londonTime.minus(5, ChronoUnit.DAYS).toLocalDate());
