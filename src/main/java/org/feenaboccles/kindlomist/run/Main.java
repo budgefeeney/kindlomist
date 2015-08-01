@@ -77,15 +77,14 @@ public class Main {
 				EconomistWriter.write(wtr, economistIssue);
 			}
 
-			// Use Pandoc to convert the Markdown file to an epub file.
-			if (! path.getFileName().toString().toLowerCase().endsWith(".epub"))
-				path = Paths.get(path.toString() + ".epub");
-
+			// Use Pandoc to convert the Markdown file to an epub file. Make sure we've
+			ensurePathHasEpubExt();
 			Path coverImagePath = economistIssue.getPathToCoverImage();
 			convertMarkdownToEpub(mdPath, coverImagePath);
 
+			// Use KindleGen to convert to a Mobi file.
 			if (kindleGenPath != null) {
-				replaceEpubWithMobi(mdPath);
+				replaceEpubWithMobi(path);
 			}
 			return EXIT_SUCCESS;
 
@@ -96,21 +95,33 @@ public class Main {
 		}
 	}
 
+	private void ensurePathHasEpubExt() {
+		final String pathStr = path.toString();
+		final String lwrPathStr = pathStr.toLowerCase();
+		if (! lwrPathStr.endsWith(".epub")) {
+            if (lwrPathStr.endsWith(".mobi")) {
+                path = Paths.get(pathStr.substring(0, pathStr.length() - 4) + ".epub");
+            } else {
+                path = Paths.get(pathStr + ".epub");
+            }
+        }
+	}
+
 	/**
 	 * Uses the KindleGen executable to convert the epub file to a Mobi
 	 * file, and, if the conversion succeeded, delete the epub file.
-	 * @param mdPath the path to the markdown file - the epub file is
+	 * @param epubPath the path to the ePub file - the epub file is
 	 *               the same except the .md extension is replaced with .epub
 	 */
-	private void replaceEpubWithMobi(Path mdPath) throws IOException, InterruptedException {
-		String epubPath = mdPath.toString().replace(".md", ".epub");
+	private void replaceEpubWithMobi(Path epubPath) throws IOException, InterruptedException {
+		String epubPathStr = epubPath.toString();
 		String kCommand = kindleGenPath.toString() + ' ' + epubPath;
 
 		shellExecAndWait(kCommand);
 
-		Path mobiPath = Paths.get(epubPath.replace(".epub", ".mobi"));
+		Path mobiPath = Paths.get(epubPathStr.replace(".epub", ".mobi"));
 		if (Files.exists(mobiPath) && Files.size(mobiPath) > 0) {
-            Files.delete(Paths.get(epubPath));
+            Files.delete(epubPath);
         } else {
 			throw new IOException ("Failed to convert the epub file to a MOBI file");
 		}
