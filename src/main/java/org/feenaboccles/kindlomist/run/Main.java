@@ -223,7 +223,7 @@ public class Main {
 		ZoneId timeZone = ZoneId.of("Europe/London");
 		ZonedDateTime londonTime = ZonedDateTime.now(timeZone);
 
-		return DateStamp.of(DateStamp.maxDateTime(londonTime.toLocalDateTime()));
+		return DateStamp.of(DateStamp.maxDateTime(londonTime));
 	}
 
 

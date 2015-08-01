@@ -5,10 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.Economist;
 
 import javax.validation.ValidationException;
-import java.time.DateTimeException;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 
@@ -25,7 +22,8 @@ public final class DateStamp {
 
     private DateStamp(@NonNull String value) {
         value = value.trim();
-        LocalDateTime now = LocalDateTime.now();
+        ZoneId timeZone = ZoneId.of("Europe/London");
+        ZonedDateTime now = ZonedDateTime.now(timeZone);
 
         if (value.length() != 10)
             throw new ValidationException (VALIDATION_ERRMSG);
@@ -67,8 +65,12 @@ public final class DateStamp {
      * Determine the maximum permissable date allowed. This is complicated by the fact
      * that the Economist is released on one day (a Thursday) with a time-stamp set in
      * the <em>future</em> (a Saturday).
+     * @param londonLocalTime the current time in <strong>London</strong>
+     * @return the maximum allowable date as a LocalDate
      */
-    public static LocalDate maxDateTime (LocalDateTime time) {
+    public static LocalDate maxDateTime (ZonedDateTime londonLocalTime) {
+        assert londonLocalTime.getZone().equals(ZoneId.of("Europe/London")) : "Time must be local to London";
+
         int releaseDay  = Economist.PUBLICATION_DAY.getValue();
         int declaredDay = Economist.DECLARED_PUBLICATION_DAY.getValue();
 
@@ -76,17 +78,17 @@ public final class DateStamp {
             ? (declaredDay + 7) - releaseDay
             : declaredDay - releaseDay;
 
-        int today = time.getDayOfWeek().getValue();
-        if (time.getHour() < Economist.PUBLICATION_HOUR) { // arithmetic assumes this all happens on the stroke of midnight
+        int today = londonLocalTime.getDayOfWeek().getValue();
+        if (londonLocalTime.getHour() < Economist.PUBLICATION_HOUR) { // arithmetic assumes this all happens on the stroke of midnight
             today = today > 0 ? today - 1 : 7;             // so go a few hours into the "past" to adjust
         }
 
         int adjust = ((today + declaredJump) % 7 <= declaredDay) ? +1 : -1;
-        while (time.getDayOfWeek() != Economist.DECLARED_PUBLICATION_DAY) {
-            time = time.plus(adjust, ChronoUnit.DAYS);
+        while (londonLocalTime.getDayOfWeek() != Economist.DECLARED_PUBLICATION_DAY) {
+            londonLocalTime = londonLocalTime.plus(adjust, ChronoUnit.DAYS);
         }
 
-        return time.toLocalDate();
+        return londonLocalTime.toLocalDate();
     }
 
     public static DateStamp of (String value) throws ValidationException {
