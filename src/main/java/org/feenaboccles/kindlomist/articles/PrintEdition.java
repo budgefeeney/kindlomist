@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 
 import lombok.NonNull;
 import lombok.Value;
-import lombok.experimental.Builder;
+import lombok.Builder;
 
 import org.feenaboccles.kindlomist.download.DateStamp;
 import org.feenaboccles.kindlomist.valid.Validator;

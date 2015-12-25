@@ -22,7 +22,7 @@ import org.feenaboccles.kindlomist.valid.Validator;
 
 import lombok.NonNull;
 import lombok.Value;
-import lombok.experimental.Builder;
+import lombok.Builder;
 import cz.jirutka.validator.collection.constraints.EachLength;
 import cz.jirutka.validator.collection.constraints.EachPattern;
 
