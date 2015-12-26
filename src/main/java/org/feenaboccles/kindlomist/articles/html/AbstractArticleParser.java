@@ -100,7 +100,7 @@ public class AbstractArticleParser {
 	protected ArticleHeader readHeaders(Document doc) {
 		// Parse the title and the strap
 		Element hgroup = doc.getElementsByTag("hgroup").first();
-		
+
 		String  title  = childTagText (hgroup, "h3", "");
 		String  topic  = childTagText(hgroup, "h2", "");
 		String  strap  = childTagText(hgroup, "h1", "");

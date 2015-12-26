@@ -31,9 +31,11 @@ public class PlainArticleParser extends AbstractArticleParser
 	@Override
 	public PlainArticle parse(URI articleUri, String html) throws HtmlParseException {
 		try {
-			// there is occasionally some really dodgy things in Economist
-			// HTML, as writers fight agains the CMS they have to use
-			html = html.replaceAll("<br>\\s*<br>", "</p><p>");
+			if (isEssayArticle(html)) {
+				return parseEssay(articleUri, html);
+			}
+
+			html = cleanUpDodgyHtml(html);
 
 			// Now parse the cleaned document normally
 			Document doc = Jsoup.parse(html);
@@ -62,7 +64,7 @@ public class PlainArticleParser extends AbstractArticleParser
 				               .build().validate();
 		}
 		catch (ValidationException e)
-		{	throw new HtmlParseException("The parse succeeded, but the extracted fields defined an article that failed to validate: " + e.getMessage(), e);
+		{	throw new HtmlParseException("The article at " + articleUri + " has the right structure, but invalid content " + e.getMessage(), e);
 		}
 		catch (URISyntaxException e)
 		{	throw new HtmlParseException("The URI extracted for an image in the article is not a valid URI : " + e.getMessage());
@@ -70,6 +72,72 @@ public class PlainArticleParser extends AbstractArticleParser
 		catch (NullPointerException e)
 		{	throw new HtmlParseException("The HTML file does not have the expected structure, certain tags could not be found");
 		}
+	}
+
+	private static boolean isEssayArticle(String html) {
+		return html.contains("es-section");
+	}
+
+	/**
+	 * There is occasionally some really dodgy things in Economist
+	 * HTML, as writers fight against the CMS they have to use
+ 	 */
+	private static String cleanUpDodgyHtml(String html) {
+		return html.replaceAll("<br>\\s*<br>", "</p><p>");
+	}
+
+	/**
+	 * Parses what is essentially a plain article, but laid out in the essay
+	 * style. Such articles tend to crop up in, e.g., the Christmas
+	 * Special issue
+	 *
+	 */
+	public PlainArticle parseEssay(URI articleUri, String html) throws HtmlParseException {
+		html = cleanUpDodgyHtml(html);
+
+		// Now parse the cleaned document normally
+		Document doc = Jsoup.parse(html);
+
+		Element section = doc.getElementsByTag("section")
+				.stream()
+				.filter(e -> e.className().equals("es-section"))
+				.findFirst()
+				.orElseThrow(() -> new HtmlParseException("This is an essay article without an essay-content section"));
+
+		try {
+			Element header = section.getElementsByClass("es-image-wrap").first();
+			Element title = header.getElementsByTag("h2").first();
+
+			final Optional<URI> mainImageUri;
+			Element mainImageElem = header.getElementsByClass("imagefield-field_essay_main_image").first();
+			if (mainImageElem != null) {
+				mainImageUri = Optional.of(new URI(mainImageElem.attr("src")));
+			} else {
+				mainImageUri = Optional.empty();
+			}
+
+			Element strap = section.getElementsByClass("es-rubric").first();
+
+			Element contentDiv = section.getElementsByClass("es-content").first();
+			List<Content> content = readContent(contentDiv);
+
+			return PlainArticle.builder()
+					.articleUri(articleUri)
+					.title(title.text())
+					.topic("Essay")
+					.strap(strap.text())
+					.body(content)
+					.mainImage(mainImageUri)
+					.build().validate();
+
+		} catch (ValidationException e) {
+			throw new HtmlParseException("The article at " + articleUri + " has the right structure, but invalid content " + e.getMessage(), e);
+		} catch (URISyntaxException e) {
+			throw new HtmlParseException("The article at " + articleUri + " specifies an invalid URI for it's main image : " + e.getMessage(), e);
+		} catch (NullPointerException e) {
+			throw new HtmlParseException("The article at " + articleUri + " did not specify all expected tags", e);
+		}
+
 	}
 
 	/**
@@ -128,17 +196,47 @@ public class PlainArticleParser extends AbstractArticleParser
 	}
 
 	/**
-	 * Return true if the given article is a mini-article, i.e. it has one image,
-	 * and one paragraph after that image. The image may be the main article
-	 * image, or if that is absent, the first element of content.
+	 * Return true if the given article is a mini-article. The two kinds of mini
+	 * article are
+	 * <ul>
+	 *     <li>An image and a single paragraph after it</li>
+	 *     <li>An image, a single paragraph, and a list of short bullets</li>
+	 * </ul>
+	 *
+	 * The image may be the main article image, or if that is absent, the first element of content.
 	 */
 	private static boolean isMiniArticle (Optional<URI> mainImage, List<Content> content) {
-		if (mainImage.isPresent()) {
-			return content.size() == 1 && content.get(0).getType().equals(Type.TEXT);
-		} else {
-			return content.size() == 2
-					&& content.get(0).getType().equals(Type.IMAGE)
-					&& content.get(1).getType().equals(Type.TEXT);
+		int firstText = -1;
+		if (mainImage.isPresent() && content.size() > 0) {
+			firstText = 0;
+		} else if (content.size() > 1 && content.get(0).getType().equals(Type.IMAGE)) {
+			firstText = 1;
 		}
+
+		// Didn't find the image, not a mini-article
+		if (firstText < 0) {
+			return false;
+		}
+
+		// Found an image, and it's followed by just one normal paragraph,
+		// or one normal paragraph and several "short-ish" ones, as if in a
+		// list of bullet points.
+		if (! content.get(firstText).getType().equals(Type.TEXT)) {
+			return false;
+		}
+
+		// Validate that there are no more content elements, or if there are,
+		// that they are all short-ish texts
+		for (int i = firstText + 1; i < content.size(); i++) {
+			Content c = content.get(i);
+			if (! c.getType().equals(Type.TEXT)) {
+				return false;
+			}
+			if (c.getContent().length() > SHORTISH_TEXT_LEN) {
+				return false;
+			}
+		}
+		return true;
 	}
+	private final static int SHORTISH_TEXT_LEN = 250;
 }
