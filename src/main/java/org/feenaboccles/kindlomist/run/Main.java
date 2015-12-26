@@ -138,7 +138,7 @@ public class Main {
             + "--epub-chapter-level 1" + ' '
             + "--toc --toc-depth 2"    + ' '
             + "-o " + path.toString()  + ' '
-            + "--epub-cover-image " + coverImagePath.toString() + ' '
+            + (coverImagePath == null ? " " : "--epub-cover-image " + coverImagePath.toString() + ' ')
             + mdPath.toString();
 
 		shellExecAndWait(command);
