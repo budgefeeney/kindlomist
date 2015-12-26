@@ -21,18 +21,18 @@ public interface Content extends Serializable {
 		LETTER_AUTHOR,
 		REFERENCE
 	}
-	
+
 	/**
 	 * Gets the text value of the content encapsulated by this object
 	 */
 	String getContent();
-	
+
 	/**
 	 * Checks that this content is valid, throwing a {@link ValidationException}
 	 * if not.
 	 */
 	Content validate() throws ValidationException;
-	
+
 	/**
 	 * Returns the type of this content - same as an instanceof check really, but
 	 * it's a bit cleaner to code up

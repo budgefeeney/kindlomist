@@ -16,8 +16,8 @@ import org.hibernate.validator.constraints.Length;
 public class Text implements Content {
 
 	private static final long serialVersionUID = 1L;
-	public static final int MIN_TEXT_LEN =  50; // TODO This should be 50, but I need to create a new type of content: ReviewSubject for the titles of things reviewed in the art section
-	public static final int MAX_TEXT_LEN = 1500; // there is at least one article with a 1,085 character paragraph
+	public static final int MIN_TEXT_LEN =  35;  // short dramatic sentence
+	public static final int MAX_TEXT_LEN = 1600; // there is at least one article with a 1,595 character paragraph
 	
 	@NonNull 
 	@Length(min=MIN_TEXT_LEN, max=MAX_TEXT_LEN) 
