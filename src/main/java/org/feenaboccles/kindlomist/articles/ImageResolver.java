@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.content.Image;
 
@@ -19,7 +19,7 @@ import org.feenaboccles.kindlomist.articles.content.Image;
  * Resolves images when parsing files. Threadsafe
  * @author bryanfeeney
  */
-@Log4j2
+@Slf4j
 public class ImageResolver implements Serializable
 {
 	private static final long serialVersionUID = 1L;

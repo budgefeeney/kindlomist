@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import lombok.NonNull;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.feenaboccles.kindlomist.articles.ImageResolver;
 import org.feenaboccles.kindlomist.articles.PlainArticle;
@@ -25,7 +25,7 @@ import org.feenaboccles.kindlomist.articles.content.*;
  * no validation is undertaken by this class.
  */
 // TODO Escape all markdown characters from content.
-@Log4j2
+@Slf4j
 public class ArticleWriter {
 
 	private ArticleWriter() { }

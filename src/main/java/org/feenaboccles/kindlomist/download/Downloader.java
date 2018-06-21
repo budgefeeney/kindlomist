@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import lombok.NonNull;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
@@ -31,7 +31,7 @@ import org.feenaboccles.kindlomist.articles.html.*;
  * @author bryanfeeney
  *
  */
-@Log4j2
+@Slf4j
 public class Downloader extends HttpAction {
 
 	private final DateStamp dateStamp;

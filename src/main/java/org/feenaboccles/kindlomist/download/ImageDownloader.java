@@ -15,7 +15,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import lombok.NonNull;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.client.HttpClient;
 import org.feenaboccles.kindlomist.articles.ImageResolver;
@@ -27,7 +27,7 @@ import org.feenaboccles.kindlomist.articles.content.Image;
  * {@link #launchDownload(URI, URI)}. Once all downloads have been "launched"
  * (in reality queued up), call {@link #waitForAllDownloadsToComplete(long, TimeUnit)}
  */
-@Log4j2
+@Slf4j
 public class ImageDownloader {
 
 	private final ImageResolver   resolver;
@@ -80,7 +80,7 @@ public class ImageDownloader {
 	
 	// ------------------------------------------------------------------------
 	
-	@Log4j2
+	@Slf4j
 	private final static class DownloadTask
 	extends HttpAction implements Callable<Path>{
 		Image image;

@@ -16,7 +16,7 @@ import org.hibernate.validator.constraints.Length;
 public class Text implements Content {
 
 	private static final long serialVersionUID = 1L;
-	public static final int MIN_TEXT_LEN =  35;  // short dramatic sentence
+	public static final int MIN_TEXT_LEN =  10;  // short dramatic sentence
 	public static final int MAX_TEXT_LEN = 1600; // there is at least one article with a 1,595 character paragraph
 	
 	@NonNull 
